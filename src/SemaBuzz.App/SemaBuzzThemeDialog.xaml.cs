@@ -29,32 +29,7 @@ public partial class SemaBuzzThemeDialog : Window
             default:                        ThemeObsidian.IsChecked  = true; break;
         }
 
-        // Gate PRO themes for free-tier users
-        if (!SemaBuzzLicense.IsProUnlocked)
-        {
-            ThemeNeonRow.IsEnabled      = false;
-            ThemeMatrixRow.IsEnabled    = false;
-            ThemeBloodMoonRow.IsEnabled = false;
-            ThemeArcticRow.IsEnabled    = false;
-            ThemeSepiaRow.IsEnabled     = false;
-            ThemeMidnightRow.IsEnabled  = false;
-            ThemeSunsetRow.IsEnabled    = false;
-            ThemeRoseRow.IsEnabled      = false;
-            ThemeVioletRow.IsEnabled    = false;
-            ThemeEmeraldRow.IsEnabled   = false;
-            ThemeSteelRow.IsEnabled     = false;
 
-            // If somehow a PRO theme is active, fall back to Obsidian
-            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian)
-            {
-                ThemeObsidian.IsChecked = true;
-                SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
-            }
-        }
-        else
-        {
-            BuyNowThemeButton.Visibility = Visibility.Collapsed;
-        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -109,30 +84,11 @@ public partial class SemaBuzzThemeDialog : Window
 
     //  Footer
 
-    private async void BuyNow_Click(object sender, RoutedEventArgs e)
-    {
-        var purchased = await SemaBuzzLicense.PurchaseAsync();
-        if (purchased)
-        {
-            ThemeNeonRow.IsEnabled      = true;
-            ThemeMatrixRow.IsEnabled    = true;
-            ThemeBloodMoonRow.IsEnabled = true;
-            ThemeArcticRow.IsEnabled    = true;
-            ThemeSepiaRow.IsEnabled     = true;
-            ThemeMidnightRow.IsEnabled  = true;
-            ThemeSunsetRow.IsEnabled    = true;
-            ThemeRoseRow.IsEnabled      = true;
-            ThemeVioletRow.IsEnabled    = true;
-            ThemeEmeraldRow.IsEnabled   = true;
-            ThemeSteelRow.IsEnabled     = true;
-            BuyNowThemeButton.IsEnabled = false;
-            BuyNowThemeButton.Content   = "\u2713 SemaBuzz Pro";
-        }
-    }
-
     private void Close_Click(object sender, RoutedEventArgs e)
         => DialogResult = true;
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
         => DialogResult = false;
+
+    private void BuyNow_Click(object sender, RoutedEventArgs e) { }
 }

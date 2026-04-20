@@ -962,23 +962,11 @@ public partial class MainWindow : Window
     }
 
     // ---------------------------------------------
-    // Pro banner (free tier only)
     // ---------------------------------------------
 
-    public void ApplyLicenseBanner()
-    {
-        if (SemaBuzzLicense.IsProUnlocked) return; // Pro  no banner
+    public void ApplyLicenseBanner() { }
 
-        TrialBanner.Visibility      = Visibility.Visible;
-        TrialBannerLabel.Text       = "You\u2019re using the free tier. Unlock more with SemaBuzz Pro.";
-        TrialBanner.Background      = new SolidColorBrush(Color.FromArgb(0x18, 0xFF, 0xB3, 0x00));
-        TrialBannerLabel.Foreground = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
-    }
-
-    private void BuyNowButton_Click(object sender, RoutedEventArgs e)
-    {
-        _ = SemaBuzzLicense.PurchaseAsync();
-    }
+    private void BuyNowButton_Click(object sender, RoutedEventArgs e) { }
 
     // ---------------------------------------------
     // Encrypted chat log persistence

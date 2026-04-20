@@ -203,6 +203,7 @@
                 <Button x:Name="BuyNowSettingsButton"
                         Style="{StaticResource SemaBuzzButton}"
                         Content="UPGRADE TO PRO"
+                        Visibility="Collapsed"
                         Click="BuyNow_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">

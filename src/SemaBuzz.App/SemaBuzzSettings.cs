@@ -36,16 +36,13 @@ public sealed class SemaBuzzSettings
 {
     public SemaBuzzThemeId    Theme             { get; set; } = SemaBuzzThemeId.Obsidian;
     public LogPersistenceMode LogPersistence    { get; set; } = LogPersistenceMode.SessionOnly;
-    /// <summary>
-    /// PRO: default UDP port pre-filled in the connect dialog's listen port field.
-    /// Null means use the built-in default (7070).
-    /// </summary>
+    /// <summary>Default port pre-filled in the connect dialog's listen port field. Null means use the built-in default (7070).</summary>
     public int?               DefaultListenPort { get; set; } = null;
 
     /// <summary>Multiplier (0.5â€“2.0) applied to packet intensity before driving the filament.</summary>
     public double             IndicatorSensitivity { get; set; } = 1.0;
 
-    /// <summary>PRO: filament animation style.</summary>
+    /// <summary>Filament animation style.</summary>
     public IndicatorStyleId   IndicatorStyle       { get; set; } = IndicatorStyleId.Flicker;
 
     /// <summary>Font size used for chat message text (11â€“20).</summary>

@@ -34,48 +34,14 @@ public partial class SemaBuzzSettingsDialog : Window
         LivePreviewCheck.IsChecked = s.LivePreview;
         RelayUriBox.Text           = s.RelayUri;
 
-        // Gate PRO features when the user has not purchased the Pro add-on
-        if (!SemaBuzzLicense.IsProUnlocked)
+        IndicatorStyleLabelRow.Children.Add(new TextBlock
         {
-            LogPermanent.IsEnabled = false;
-            LogPermanent.Content   = MakeProContent("Permanent Encrypted");
-            DefaultPortBox.IsEnabled = false;
-            DefaultPortLabelRow.Children.Add(MakeProBadge());
-            StylePulse.IsEnabled = false;
-            StylePulse.Content   = MakeProContent("Pulse");
-            StyleWave.IsEnabled  = false;
-            StyleWave.Content    = MakeProContent("Wave");
-            IndicatorStyleLabelRow.Children.Add(new TextBlock
-            {
-                Text       = "INDICATOR STYLE",
-                Foreground = new SolidColorBrush(SemaBuzzThemeManager.AccentColor),
-                FontWeight = FontWeights.Bold,
-                FontSize   = 11,
-                VerticalAlignment = VerticalAlignment.Center,
-            });
-            IndicatorStyleLabelRow.Children.Add(MakeProBadge());
-            if (s.IndicatorStyle != IndicatorStyleId.Flicker)
-                StyleFlicker.IsChecked = true;
-
-            // Fall back to free options if a gated one is currently active
-            if (s.LogPersistence == LogPersistenceMode.PermanentEncrypted)
-                LogSessionOnly.IsChecked = true;
-        }
-
-
-        // For Pro users the if-block above is skipped, so populate the style label here
-        if (SemaBuzzLicense.IsProUnlocked)
-        {
-            IndicatorStyleLabelRow.Children.Add(new TextBlock
-            {
-                Text       = "INDICATOR STYLE",
-                Foreground = new SolidColorBrush(SemaBuzzThemeManager.AccentColor),
-                FontWeight = FontWeights.Bold,
-                FontSize   = 11,
-                VerticalAlignment = VerticalAlignment.Center,
-            });
-            BuyNowSettingsButton.Visibility = Visibility.Collapsed;
-        }
+            Text       = "INDICATOR STYLE",
+            Foreground = new SolidColorBrush(SemaBuzzThemeManager.AccentColor),
+            FontWeight = FontWeights.Bold,
+            FontSize   = 11,
+            VerticalAlignment = VerticalAlignment.Center,
+        });
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -138,102 +104,5 @@ public partial class SemaBuzzSettingsDialog : Window
         FontSizeLabel.Text = $"{(int)e.NewValue}px";
     }
 
-    private async void BuyNow_Click(object sender, RoutedEventArgs e)
-    {
-        var purchased = await SemaBuzzLicense.PurchaseAsync();
-        if (purchased)
-        {
-            // Unlock all gated controls in-place
-            LogPermanent.IsEnabled = true;
-            LogPermanent.Content   = "Permanent Encrypted";
-            DefaultPortBox.IsEnabled = true;
-            if (DefaultPortLabelRow.Children.Count > 1)
-                DefaultPortLabelRow.Children.RemoveAt(DefaultPortLabelRow.Children.Count - 1);
-            StylePulse.IsEnabled = true;
-            StylePulse.Content   = "Pulse";
-            StyleWave.IsEnabled  = true;
-            StyleWave.Content    = "Wave";
-            if (IndicatorStyleLabelRow.Children.Count > 1)
-                IndicatorStyleLabelRow.Children.RemoveAt(IndicatorStyleLabelRow.Children.Count - 1);
-            BuyNowSettingsButton.IsEnabled = false;
-            BuyNowSettingsButton.Content   = "\u2713 SemaBuzz Pro";
-        }
-    }
-
-    /// <summary>
-    /// Builds a StackPanel containing the label text and a rounded PRO badge
-    /// whose border and text color match the current theme accent.
-    /// </summary>
-    private static StackPanel MakeProContent(string label)
-    {
-        var panel = BuildProPanel(label);
-        return panel;
-    }
-
-    /// <summary>Standalone PRO badge  appended to an existing label panel.</summary>
-    private static Border MakeProBadge()
-    {
-        var accent      = SemaBuzzThemeManager.AccentColor;
-        var accentBrush = new SolidColorBrush(accent);
-        var badge = new Border
-        {
-            CornerRadius    = new CornerRadius(3),
-            BorderBrush     = accentBrush,
-            BorderThickness = new Thickness(1),
-            Background      = Brushes.Transparent,
-            Padding         = new Thickness(5, 1, 5, 1),
-            Margin          = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        badge.Child = new TextBlock
-        {
-            Text       = "PRO",
-            Foreground = accentBrush,
-            FontSize   = 9,
-            FontWeight = FontWeights.Bold,
-            FontFamily = new FontFamily("Cascadia Code, Consolas"),
-        };
-        return badge;
-    }
-
-    private static StackPanel BuildProPanel(string label)
-    {
-        var accent = SemaBuzzThemeManager.AccentColor;
-        var accentBrush = new SolidColorBrush(accent);
-
-        var panel = new StackPanel
-        {
-            Orientation = Orientation.Horizontal,
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        panel.Children.Add(new TextBlock
-        {
-            Text              = label,
-            VerticalAlignment = VerticalAlignment.Center,
-        });
-
-        var badge = new Border
-        {
-            CornerRadius    = new CornerRadius(3),
-            BorderBrush     = accentBrush,
-            BorderThickness = new Thickness(1),
-            Background      = Brushes.Transparent,
-            Padding         = new Thickness(5, 1, 5, 1),
-            Margin          = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-
-        badge.Child = new TextBlock
-        {
-            Text       = "PRO",
-            Foreground = accentBrush,
-            FontSize   = 9,
-            FontWeight = FontWeights.Bold,
-            FontFamily = new FontFamily("Cascadia Code, Consolas"),
-        };
-
-        panel.Children.Add(badge);
-        return panel;
-    }
+    private void BuyNow_Click(object sender, RoutedEventArgs e) { }
 }
