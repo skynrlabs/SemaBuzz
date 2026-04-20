@@ -1,0 +1,217 @@
+<Window x:Class="SemaBuzz.App.SemaBuzzSettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SemaBuzz — Preferences"
+        Height="560" Width="460"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44"/>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="48"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Background="{DynamicResource WindowHeaderBrush}"
+              MouseLeftButtonDown="Header_MouseDown">
+            <TextBlock Text="PREFERENCES"
+                       VerticalAlignment="Center" Margin="20 0"
+                       FontWeight="Bold" FontSize="13"/>
+        </Grid>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="1" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Content -->
+        <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0 0 6 0">
+        <StackPanel Margin="28 20">
+
+        <!-- ═══ LOG PERSISTENCE ═══ -->
+        <TextBlock Text="LOG PERSISTENCE"
+                   Foreground="{DynamicResource AmberBrush}"
+                   FontWeight="Bold" FontSize="11"
+                   Margin="0 0 0 14"/>
+
+        <RadioButton x:Name="LogSessionOnly"
+                     Content="Session Only  (nothing written to disk)"
+                     GroupName="LogMode"
+                     Margin="0 0 0 10"/>
+
+        <RadioButton x:Name="LogPermanent"
+                     Content="Permanent Encrypted"
+                     GroupName="LogMode"
+                     Margin="0 0 0 22"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
+
+        <!-- ═══ DEFAULT LISTEN PORT ═══ -->
+        <StackPanel x:Name="DefaultPortLabelRow" Orientation="Horizontal" Margin="0 0 0 14">
+            <TextBlock Text="DEFAULT LISTEN PORT"
+                       Foreground="{DynamicResource AmberBrush}"
+                       FontWeight="Bold" FontSize="11"/>
+        </StackPanel>
+
+        <TextBox x:Name="DefaultPortBox"
+                 Style="{StaticResource SemaBuzzInput}"
+                 MaxLength="5"
+                 Margin="0 0 0 6"/>
+
+        <TextBlock Text="Pre-fills the port field when you open the connect dialog."
+                   Foreground="#555" FontSize="10"
+                   Margin="0 0 0 0"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 22 0 22"/>
+
+        <!-- ═══ INDICATOR SENSITIVITY ═══ -->
+        <TextBlock Text="INDICATOR SENSITIVITY"
+                   Foreground="{DynamicResource AmberBrush}"
+                   FontWeight="Bold" FontSize="11"
+                   Margin="0 0 0 10"/>
+
+        <Grid Margin="0 0 0 6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="38"/>
+            </Grid.ColumnDefinitions>
+            <Slider x:Name="SensitivitySlider"
+                    Minimum="0.5" Maximum="2.0" SmallChange="0.1" LargeChange="0.5"
+                    Foreground="{DynamicResource AmberBrush}"
+                    VerticalAlignment="Center"
+                    ValueChanged="SensitivitySlider_ValueChanged"/>
+            <TextBlock x:Name="SensitivityLabel"
+                       Grid.Column="1"
+                       Text="1.0×"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       FontSize="11"/>
+        </Grid>
+
+        <TextBlock Text="How aggressively the filament reacts to incoming packets."
+                   Foreground="#555" FontSize="10" Margin="0 0 0 0"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 22 0 22"/>
+
+        <!-- ═══ INDICATOR STYLE (PRO) ═══ -->
+        <StackPanel x:Name="IndicatorStyleLabelRow" Orientation="Horizontal" Margin="0 0 0 14"/>
+
+        <RadioButton x:Name="StyleFlicker"
+                     Content="Flicker  (default)"
+                     GroupName="IndicatorStyle"
+                     Margin="0 0 0 10"/>
+
+        <RadioButton x:Name="StylePulse"
+                     Content="Pulse"
+                     GroupName="IndicatorStyle"
+                     Margin="0 0 0 10"/>
+
+        <RadioButton x:Name="StyleWave"
+                     Content="Wave"
+                     GroupName="IndicatorStyle"
+                     Margin="0 0 0 0"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 22 0 22"/>
+
+        <!-- ═══ CHAT FONT SIZE ═══ -->
+        <TextBlock Text="CHAT FONT SIZE"
+                   Foreground="{DynamicResource AmberBrush}"
+                   FontWeight="Bold" FontSize="11"
+                   Margin="0 0 0 10"/>
+
+        <Grid Margin="0 0 0 6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="38"/>
+            </Grid.ColumnDefinitions>
+            <Slider x:Name="FontSizeSlider"
+                    Minimum="11" Maximum="20" SmallChange="1" LargeChange="2"
+                    IsSnapToTickEnabled="True" TickFrequency="1"
+                    Foreground="{DynamicResource AmberBrush}"
+                    VerticalAlignment="Center"
+                    ValueChanged="FontSizeSlider_ValueChanged"/>
+            <TextBlock x:Name="FontSizeLabel"
+                       Grid.Column="1"
+                       Text="13px"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       FontSize="11"/>
+        </Grid>
+
+        <TextBlock Text="Adjusts the font size for all new chat messages."
+                   Foreground="#555" FontSize="10" Margin="0 0 0 20"/>
+
+        <!-- ═══ LIVE PREVIEW ═══ -->
+        <TextBlock Text="LIVE PREVIEW"
+                   Foreground="{DynamicResource AmberBrush}"
+                   FontWeight="Bold" FontSize="11"
+                   Margin="0 0 0 10"/>
+
+        <CheckBox x:Name="LivePreviewCheck"
+                  Content="Stream typing live to peer"
+                  Margin="0 0 0 6"/>
+
+        <TextBlock Text="When enabled, each keystroke is sent immediately so the peer sees what you type in real time."
+                   Foreground="#555" FontSize="10" Margin="0 0 0 20"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
+
+        <!-- ═══ RELAY SERVER ═══ -->
+        <TextBlock Text="RELAY SERVER"
+                   Foreground="{DynamicResource AmberBrush}"
+                   FontWeight="Bold" FontSize="11"
+                   Margin="0 0 0 10"/>
+
+        <Grid Margin="0 0 0 6">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox x:Name="RelayUriBox"
+                     Grid.Column="0"
+                     Style="{StaticResource SemaBuzzInput}"
+                     Margin="0 0 6 0"/>
+            <Button Grid.Column="1"
+                    Style="{StaticResource SemaBuzzButton}"
+                    Content="RESET"
+                    Click="ResetRelayUri_Click"/>
+        </Grid>
+
+        <TextBlock TextWrapping="Wrap" Foreground="#555" FontSize="10" Margin="0 0 0 4"
+                   Text="WebSocket address of the relay server (must start with wss:// or ws://). Click RESET to restore the default."/>
+        <TextBlock TextWrapping="Wrap" Foreground="#444" FontSize="10" Margin="0 0 0 20"
+                   Text="Only use a relay you trust. The default relay is end-to-end encrypted and cannot read your messages."/>
+
+        </StackPanel>
+        </ScrollViewer>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="3" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Footer -->
+        <Grid Grid.Row="4" Margin="20 0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <Button x:Name="BuyNowSettingsButton"
+                        Style="{StaticResource SemaBuzzButton}"
+                        Content="UPGRADE TO PRO"
+                        Click="BuyNow_Click"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button Style="{StaticResource SemaBuzzButton}" Content="CLOSE"
+                        Margin="0 0 10 0" Click="Cancel_Click"/>
+                <Button Style="{StaticResource SemaBuzzButton}" Content="SAVE"
+                        Click="Apply_Click"/>
+            </StackPanel>
+        </Grid>
+
+    </Grid>
+</Window>

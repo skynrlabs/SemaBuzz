@@ -1,0 +1,112 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="SemaBuzzColors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- ═══════════════════════════════════════════════
+         SemaBuzz Typography
+         ═══════════════════════════════════════════════ -->
+    <FontFamily x:Key="MonoFont">Cascadia Code, JetBrains Mono, Consolas, Courier New</FontFamily>
+
+    <!-- ═══════════════════════════════════════════════
+         Base Control Styles
+         ═══════════════════════════════════════════════ -->
+
+    <!-- Window -->
+    <Style x:Key="SemaBuzzWindow" TargetType="Window">
+        <Setter Property="Background"         Value="{StaticResource ObsidianBrush}"/>
+        <Setter Property="Foreground"         Value="{StaticResource AmberBrush}"/>
+        <Setter Property="FontFamily"         Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize"           Value="13"/>
+        <Setter Property="BorderBrush"        Value="{StaticResource ObsidianBorderBrush}"/>
+        <Setter Property="BorderThickness"    Value="1"/>
+    </Style>
+
+    <!-- TextBlock -->
+    <Style TargetType="TextBlock">
+        <Setter Property="Foreground"  Value="{StaticResource AmberBrush}"/>
+        <Setter Property="FontFamily"  Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize"    Value="13"/>
+    </Style>
+
+    <!-- Standard amber TextBox (the input wire) -->
+    <Style x:Key="SemaBuzzInput" TargetType="TextBox">
+        <Setter Property="Background"         Value="{StaticResource ObsidianSurfaceBrush}"/>
+        <Setter Property="Foreground"         Value="{StaticResource AmberBrush}"/>
+        <Setter Property="CaretBrush"         Value="{StaticResource AmberBrush}"/>
+        <Setter Property="BorderBrush"        Value="{StaticResource AmberDimBrush}"/>
+        <Setter Property="BorderThickness"    Value="0 0 0 1"/>
+        <Setter Property="FontFamily"         Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize"           Value="14"/>
+        <Setter Property="Padding"            Value="6 4"/>
+        <Setter Property="SelectionBrush"     Value="{StaticResource AmberDimBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Amber button -->
+    <Style x:Key="SemaBuzzButton" TargetType="Button">
+        <Setter Property="Background"      Value="Transparent"/>
+        <Setter Property="Foreground"      Value="{StaticResource AmberBrush}"/>
+        <Setter Property="BorderBrush"     Value="{StaticResource AmberDimBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="FontFamily"      Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize"        Value="12"/>
+        <Setter Property="Padding"         Value="12 5"/>
+        <Setter Property="Cursor"          Value="Hand"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="bd"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource AmberGlowBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{StaticResource AmberBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="bd" Property="Background" Value="{StaticResource AmberDimBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Wire status label -->
+    <Style x:Key="SemaBuzzStatusLabel" TargetType="TextBlock">
+        <Setter Property="Foreground"   Value="{StaticResource WireDeadBrush}"/>
+        <Setter Property="FontFamily"   Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize"     Value="11"/>
+        <Setter Property="FontStyle"    Value="Italic"/>
+    </Style>
+
+    <!-- Section separator line -->
+    <Style x:Key="SemaBuzzSeparator" TargetType="Rectangle">
+        <Setter Property="Fill"   Value="{StaticResource ObsidianBorderBrush}"/>
+        <Setter Property="Height" Value="1"/>
+    </Style>
+
+</ResourceDictionary>

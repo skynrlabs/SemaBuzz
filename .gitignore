@@ -1,0 +1,33 @@
+Development.code-workspace
+Dockerfile
+docker-compose.yml
+PLAN.md
+
+# Build outputs
+bin/
+obj/
+build/
+
+# WPF temp project files
+*_wpftmp.csproj
+
+# Visual Studio / VS Code
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Rider
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

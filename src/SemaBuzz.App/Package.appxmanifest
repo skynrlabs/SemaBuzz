@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:mp="http://schemas.microsoft.com/appx/2014/phone/manifest"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  IgnorableNamespaces="mp uap rescap">
+
+  <!-- ── IDENTITY ─────────────────────────────────────────────────────────────
+       Replace Name and Publisher with the exact values shown on your Partner
+       Center dashboard under App management → App identity.
+       The Publisher CN= string must match your code-signing certificate.
+  ──────────────────────────────────────────────────────────────────────────── -->
+  <Identity
+    Name="YourPublisher.SemaBuzz"
+    Publisher="CN=YourPublisher"
+    Version="1.0.0.0" />
+
+  <mp:PhoneIdentity
+    PhoneProductId="00000000-0000-0000-0000-000000000000"
+    PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+
+  <Properties>
+    <DisplayName>SemaBuzz</DisplayName>
+    <PublisherDisplayName>Your Company</PublisherDisplayName>
+    <!-- 50×50 PNG. Use VS → Project → Generate Image Assets to create all sizes. -->
+    <Logo>Assets\StoreLogo.png</Logo>
+  </Properties>
+
+  <Dependencies>
+    <TargetDeviceFamily
+      Name="Windows.Desktop"
+      MinVersion="10.0.17763.0"
+      MaxVersionTested="10.0.26100.0" />
+  </Dependencies>
+
+  <Resources>
+    <Resource Language="x-generate"/>
+  </Resources>
+
+  <Applications>
+    <Application
+      Id="App"
+      Executable="$targetnametoken$.exe"
+      EntryPoint="$targetentrypoint$">
+
+      <uap:VisualElements
+        DisplayName="SemaBuzz"
+        Description="Encrypted peer-to-peer chat. No servers. No logs."
+        BackgroundColor="transparent"
+        Square150x150Logo="Assets\Square150x150Logo.png"
+        Square44x44Logo="Assets\Square44x44Logo.png">
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png" ShortName="SemaBuzz"/>
+        <uap:SplashScreen Image="Assets\SplashScreen.png" BackgroundColor="#121212"/>
+      </uap:VisualElements>
+
+      <Extensions>
+
+        <!-- ── buzz:// URI scheme ──────────────────────────────────────────────
+             When installed from the Store, Windows reads this and registers
+             the protocol automatically — no registry write required.
+             SemaBuzzUriHandler.EnsureRegistered() is still used as a fallback
+             for sideloaded / unpackaged installs.
+        ─────────────────────────────────────────────────────────────────────── -->
+        <uap:Extension Category="windows.protocol">
+          <uap:Protocol Name="buzz">
+            <uap:DisplayName>SemaBuzz Connection Link</uap:DisplayName>
+          </uap:Protocol>
+        </uap:Extension>
+
+      </Extensions>
+    </Application>
+  </Applications>
+
+  <Capabilities>
+    <!-- Outbound internet (STUN discovery, peer connections over the internet) -->
+    <Capability Name="internetClient" />
+    <!-- Inbound + outbound on private/local networks (LAN peer connections, listener) -->
+    <Capability Name="privateNetworkClientServer" />
+  </Capabilities>
+
+</Package>

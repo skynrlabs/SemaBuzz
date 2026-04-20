@@ -1,0 +1,255 @@
+﻿<Window x:Class="SemaBuzz.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:SemaBuzz.App.Controls"
+        Title="SemaBuzz" Height="560" Width="820"
+        MinHeight="480" MinWidth="640"
+        Icon="Assets/icon.ico"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource AmberBrush}"
+        FontFamily="Cascadia Code, JetBrains Mono, Consolas"
+        FontSize="13"
+        WindowStyle="SingleBorderWindow"
+        ResizeMode="CanResize">
+
+    <!-- Extend client area into the title bar so DWM stops drawing its own
+         title text and icon. CaptionHeight=52 matches the unified header row.
+         DWM still renders the min/max/close buttons in the top-right corner;
+         DWMWA_CAPTION_COLOR (#121212) colours the area behind them. -->
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="52"
+                      ResizeBorderThickness="4"
+                      UseAeroCaptionButtons="False"
+                      GlassFrameThickness="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Dim disabled menu items to grey -->
+        <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.35"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52"/>   <!-- Unified header -->
+            <RowDefinition Height="1"/>    <!-- Separator -->
+            <RowDefinition Height="Auto"/> <!-- Trial / license banner -->
+            <RowDefinition Height="*"/>    <!-- Chat -->
+            <RowDefinition Height="56"/>   <!-- BuzzIndicator -->
+            <RowDefinition Height="1"/>    <!-- Separator -->
+            <RowDefinition Height="Auto"/> <!-- Input -->
+            <RowDefinition Height="1"/>    <!-- Separator -->
+            <RowDefinition Height="44"/>   <!-- Status -->
+        </Grid.RowDefinitions>
+
+        <!-- Unified Header: brand · menu · wire status · window controls -->
+        <Grid Grid.Row="0" Background="{DynamicResource WindowHeaderBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>  <!-- Brand -->
+                <ColumnDefinition Width="1"/>     <!-- Divider -->
+                <ColumnDefinition Width="*"/>     <!-- Menu -->
+                <ColumnDefinition Width="1"/>     <!-- Divider -->
+                <ColumnDefinition Width="Auto"/>  <!-- Wire status -->
+                <ColumnDefinition Width="1"/>     <!-- Divider -->
+                <ColumnDefinition Width="Auto"/>  <!-- Window controls -->
+            </Grid.ColumnDefinitions>
+
+            <!-- Brand -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20 0 18 0">
+                <TextBlock Text="SEMA" Foreground="{DynamicResource AmberBrush}" FontWeight="Bold"   FontSize="17"/>
+                <TextBlock Text="BUZZ" Foreground="{DynamicResource AmberBrush}" FontWeight="Light"  FontSize="17"/>
+            </StackPanel>
+
+            <!-- Vertical divider -->
+            <Rectangle Grid.Column="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
+
+            <!-- Inline menu -->
+            <Menu Grid.Column="2" VerticalAlignment="Center" Margin="4 0"
+                  WindowChrome.IsHitTestVisibleInChrome="True">
+                <MenuItem Header="WIRE">
+                    <MenuItem Header="Connect" x:Name="ConnectMenuItem" Click="ConnectButton_Click"/>
+                    <MenuItem Header="Disconnect" x:Name="DisconnectMenuItem" IsEnabled="False" Click="Wire_Disconnect_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Always on Top" x:Name="AlwaysOnTopMenuItem" IsCheckable="True" Click="Wire_AlwaysOnTop_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Exit" Click="Wire_Exit_Click"/>
+                </MenuItem>
+                <MenuItem Header="VIEW">
+                    <MenuItem Header="Clear Chat" Click="View_ClearChat_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Open Log" Click="View_OpenLog_Click"/>
+                </MenuItem>
+                <MenuItem Header="SETTINGS">
+                    <MenuItem Header="Themes" Click="Settings_Themes_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Preferences" Click="Settings_Preferences_Click"/>
+                </MenuItem>
+                <MenuItem Header="HELP">
+                    <MenuItem Header="About" Click="Help_About_Click"/>
+                    <MenuItem Header="FAQ" Click="Help_FAQ_Click"/>
+                    <Separator/>
+                    <MenuItem Header="News &amp; Updates" Click="Help_NewsUpdates_Click"/>
+                </MenuItem>
+            </Menu>
+
+            <!-- Vertical divider -->
+            <Rectangle Grid.Column="3" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
+
+            <!-- Wire status -->
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="18 0 18 0">
+                <TextBlock x:Name="TitleSessionLabel" Text="NO WIRE"
+                           Foreground="#555555" FontSize="12" VerticalAlignment="Center"/>
+                <Ellipse x:Name="WireStateDot"
+                         Width="10" Height="10" Fill="#444444"
+                         VerticalAlignment="Center" Margin="12 0 0 0"/>
+            </StackPanel>
+
+            <!-- Vertical divider -->
+            <Rectangle Grid.Column="5" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
+
+            <!-- Window controls: minimize · maximize/restore · close -->
+            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Stretch"
+                        WindowChrome.IsHitTestVisibleInChrome="True">
+                <Button x:Name="MinimizeButton"
+                        Style="{StaticResource SemaBuzzWinButton}"
+                        ToolTip="Minimize"
+                        Click="WinBtn_Minimize_Click">
+                    <TextBlock Text="&#x2013;" FontSize="14"/>
+                </Button>
+                <Button x:Name="MaximizeButton"
+                        Style="{StaticResource SemaBuzzWinButton}"
+                        ToolTip="Maximize"
+                        Click="WinBtn_Maximize_Click">
+                    <TextBlock x:Name="MaximizeGlyph" Text="&#x25A1;" FontSize="12"/>
+                </Button>
+                <Button x:Name="CloseButton"
+                        Style="{StaticResource SemaBuzzWinButtonClose}"
+                        ToolTip="Close"
+                        Click="WinBtn_Close_Click">
+                    <TextBlock Text="&#x2715;" FontSize="12"/>
+                </Button>
+            </StackPanel>
+        </Grid>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="1" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Trial / license banner (hidden when fully purchased) -->
+        <Border x:Name="TrialBanner"
+                Grid.Row="2"
+                Padding="20 7"
+                Visibility="Collapsed">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock x:Name="TrialBannerLabel"
+                           Grid.Column="0"
+                           VerticalAlignment="Center"
+                           FontSize="11"
+                           FontStyle="Italic"/>
+                <Button x:Name="BuyNowButton"
+                        Grid.Column="1"
+                        Style="{StaticResource SemaBuzzButton}"
+                        Content="BUY NOW"
+                        FontSize="11"
+                        Padding="10 3"
+                        Click="BuyNowButton_Click"/>
+            </Grid>
+        </Border>
+
+        <!-- Chat Area -->
+        <ScrollViewer Grid.Row="3" x:Name="ChatScrollViewer"
+                      Background="{DynamicResource WindowBackgroundBrush}"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      Padding="20 16">
+            <StackPanel x:Name="ChatPanel" Orientation="Vertical"/>
+        </ScrollViewer>
+
+        <!-- BuzzIndicator -->
+        <Border Grid.Row="4" Background="{DynamicResource WindowHeaderBrush}" Padding="20 0">
+            <controls:SemaBuzzIndicator x:Name="BuzzIndicator"
+                                        FilamentBrush="{DynamicResource AmberBrush}"
+                                        Height="40"
+                                        VerticalAlignment="Center"/>
+        </Border>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="5" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Input Row -->
+        <Grid Grid.Row="6" Background="{DynamicResource ObsidianSurfaceBrush}">
+            <TextBox x:Name="InputBox"
+                     Style="{StaticResource SemaBuzzInput}"
+                     AcceptsReturn="False"
+                     MaxLength="512"
+                     Padding="16 12 90 12"
+                     VerticalAlignment="Center"
+                     Background="{DynamicResource ObsidianSurfaceBrush}"
+                     BorderThickness="0"
+                     IsEnabled="False"
+                     PreviewKeyDown="InputBox_PreviewKeyDown"
+                     TextChanged="InputBox_TextChanged"/>
+            <!-- Buzz button — slam the remote's filament -->
+            <Button x:Name="BuzzButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 48 0"
+                    IsEnabled="False"
+                    ToolTip="Buzz (shock the wire)"
+                    Click="BuzzButton_Click">
+                <TextBlock Text="⚡"
+                           FontSize="16"
+                           Foreground="{DynamicResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+            <!-- Send button — overlaid on the right edge of the input -->
+            <Button x:Name="SendButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 6 0"
+                    IsEnabled="False"
+                    ToolTip="Send (Enter)"
+                    Click="SendButton_Click">
+                <!-- Arrow-right glyph using Segoe UI Symbol / Marlett fallback -->
+                <TextBlock Text="⏎"
+                           FontSize="16"
+                           Foreground="{DynamicResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+        </Grid>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="7" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Status Bar -->
+        <Grid Grid.Row="8" Background="{DynamicResource WindowHeaderBrush}" Margin="20 0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock x:Name="StatusLabel"
+                       Grid.Column="0"
+                       Style="{StaticResource SemaBuzzStatusLabel}"
+                       Text="» wire is cold"
+                       VerticalAlignment="Center"/>
+            <TextBlock x:Name="PeerLabel"
+                       Grid.Column="1"
+                       Style="{StaticResource SemaBuzzStatusLabel}"
+                       VerticalAlignment="Center"/>
+        </Grid>
+    </Grid>
+</Window>

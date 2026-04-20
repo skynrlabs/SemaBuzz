@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SemaBuzz.Protocol\SemaBuzz.Protocol.csproj" />
+    <ProjectReference Include="..\SemaBuzz.Styles\SemaBuzz.Styles.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows10.0.17763.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <!-- Build output on the system drive for fast I/O. -->
+    <OutputPath>C:\SemaBuzz\bin\$(Configuration)\</OutputPath>
+    <!-- Store packaging: set WindowsPackageType=MSIX when publishing via VS Publish wizard -->
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <!-- Pre-compile to native on publish so the Store build starts instantly -->
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\icon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="Assets\icon.png"/>
+  </ItemGroup>
+
+</Project>
