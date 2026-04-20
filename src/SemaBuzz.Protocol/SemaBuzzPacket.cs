@@ -3,14 +3,14 @@ using System.Text;
 namespace SemaBuzz.Protocol;
 
 /// <summary>
-/// The fundamental unit of the SemaBuzz wire â€” a single character transmission
+/// The fundamental unit of the SemaBuzz wire  a single character transmission
 /// with a header and intensity marker. Total overhead is minimal by design.
 ///
 /// Wire format (binary):
-///   [0x53][0x42]  â€” 2-byte magic header ("SB")
-///   [char_hi][char_lo] â€” UTF-16 character (2 bytes)
-///   [intensity]   â€” 1-byte signal intensity (0â€“255)
-///   [type]        â€” 1-byte packet type
+///   [0x53][0x42]   2-byte magic header ("SB")
+///   [char_hi][char_lo]  UTF-16 character (2 bytes)
+///   [intensity]    1-byte signal intensity (0â€“255)
+///   [type]         1-byte packet type
 /// Total: 6 bytes per packet.
 /// </summary>
 public readonly struct SemaBuzzPacket
@@ -90,20 +90,20 @@ public enum SemaBuzzPacketType : byte
 {
     /// <summary>A live character transmission.</summary>
     Char = 0x01,
-    /// <summary>Handshake initiation â€” "I am here."</summary>
+    /// <summary>Handshake initiation  "I am here."</summary>
     Handshake = 0x02,
-    /// <summary>Handshake acknowledgement â€” "I hear you."</summary>
+    /// <summary>Handshake acknowledgement  "I hear you."</summary>
     HandshakeAck = 0x03,
     /// <summary>Peer is disconnecting cleanly.</summary>
     Disconnect = 0x04,
     /// <summary>Keepalive ping to sustain the wire.</summary>
     Ping = 0x05,
-    /// <summary>Host requires encryption â€” dialer must provide a passphrase.</summary>
+    /// <summary>Host requires encryption  dialer must provide a passphrase.</summary>
     HandshakeEncRequired = 0x06,
-    /// <summary>Buzz the remote peer â€” spikes their filament and shakes their window.</summary>
+    /// <summary>Buzz the remote peer  spikes their filament and shakes their window.</summary>
     Buzz = 0x07,
     /// <summary>Host rejected the incoming connection request.</summary>
     ConnectRejected = 0x08,
-    /// <summary>Host is reviewing the connection request â€” dialer should hold.</summary>
+    /// <summary>Host is reviewing the connection request  dialer should hold.</summary>
     HandshakeHold = 0x09,
 }

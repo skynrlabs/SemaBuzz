@@ -10,7 +10,7 @@ internal static class SemaBuzzLicense
     // Store add-on product ID for SemaBuzz Pro (set in Partner Center)
     private const string ProAddonStoreId = "9N000000000PRO"; // TODO: replace with real Store ID
 
-    // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  State
 
 #if DEBUG
     // Make all PRO features available during development without a Store purchase.
@@ -19,7 +19,7 @@ internal static class SemaBuzzLicense
     public static bool IsProUnlocked { get; private set; } = false;
 #endif
 
-    // â”€â”€â”€ Check (called on startup) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Check (called on startup)
 
     public static async Task CheckAsync()
     {
@@ -33,11 +33,11 @@ internal static class SemaBuzzLicense
         }
         catch
         {
-            // Not running in a Store context (e.g. side-loaded) â€” leave IsProUnlocked as-is.
+            // Not running in a Store context (e.g. side-loaded)  leave IsProUnlocked as-is.
         }
     }
 
-    // â”€â”€â”€ Purchase â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Purchase
 
     /// <summary>
     /// Triggers the Store purchase UI for the Pro add-on.

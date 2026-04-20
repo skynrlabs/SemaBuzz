@@ -1,16 +1,14 @@
 using SemaBuzz.Relay;
 
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // SemaBuzz Relay Server  (ASP.NET Core WebSocket relay)
 //
 // Hosting:
-//   Railway / Render / Fly.io â€” set PORT env var; TLS terminated by platform.
-//   Self-hosted             â€” run behind nginx/Caddy for HTTPS.
+//   Railway / Render / Fly.io  set PORT env var; TLS terminated by platform.
+//   Self-hosted              run behind nginx/Caddy for HTTPS.
 //
 // Usage:
 //   dotnet run                        â† defaults to PORT env var or 7171
 //   dotnet run -- --port 8080
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 var portStr = Environment.GetEnvironmentVariable("PORT");
 var port    = int.TryParse(portStr, out var p) ? p : 7171;

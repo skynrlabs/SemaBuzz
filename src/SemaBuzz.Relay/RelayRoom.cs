@@ -3,7 +3,7 @@ using System.Net.WebSockets;
 namespace SemaBuzz.Relay;
 
 /// <summary>
-/// Represents an active relay room â€” a matched host + dialer pair connected via WebSocket.
+/// Represents an active relay room  a matched host + dialer pair connected via WebSocket.
 /// Serialises all sends per-socket so there are never concurrent SendAsync calls on the same WebSocket.
 /// </summary>
 internal sealed class RelayRoom

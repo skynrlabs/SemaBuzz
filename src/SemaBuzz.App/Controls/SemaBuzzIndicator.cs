@@ -9,7 +9,7 @@ namespace SemaBuzz.App.Controls;
 
 /// <summary>
 /// The SemaBuzz signature visual: a vibrating polyline filament that reacts
-/// to incoming packet intensity. Higher intensity â†’ wider oscillation.
+/// to incoming packet intensity. Higher intensity  wider oscillation.
 /// Decays back to flatline when the wire goes silent.
 /// </summary>
 public sealed class SemaBuzzIndicator : UserControl
@@ -85,7 +85,7 @@ public sealed class SemaBuzzIndicator : UserControl
     }
 
     /// <summary>
-    /// Spike the filament to maximum amplitude and sustain it for 600 ms â€”
+    /// Spike the filament to maximum amplitude and sustain it for 600 ms
     /// used for the Buzz feature. Must be called on the UI thread.
     /// </summary>
     public void MaxBurst()
@@ -106,8 +106,8 @@ public sealed class SemaBuzzIndicator : UserControl
         // Phase advances at different speeds per style
         _phase += IndicatorStyle switch
         {
-            IndicatorStyleId.Pulse => 0.28, // faster â€” crisp heartbeat feel
-            IndicatorStyleId.Wave  => 0.10, // slower â€” rolling ocean wave
+            IndicatorStyleId.Pulse => 0.28, // faster  crisp heartbeat feel
+            IndicatorStyleId.Wave  => 0.10, // slower  rolling ocean wave
             _                      => 0.18, // Flicker default
         };
 
@@ -127,15 +127,15 @@ public sealed class SemaBuzzIndicator : UserControl
             var x = (i / (double)(WavePoints - 1)) * width;
             var y = IndicatorStyle switch
             {
-                // Pulse: single clean harmonic â€” one full period across the width
+                // Pulse: single clean harmonic  one full period across the width
                 IndicatorStyleId.Pulse =>
                     midY + _currentAmplitude * Math.Sin(_phase + i * Math.PI * 2.0 / WavePoints),
 
-                // Wave: slow wide rolling sine â€” wide arcs, no harmonics
+                // Wave: slow wide rolling sine  wide arcs, no harmonics
                 IndicatorStyleId.Wave =>
                     midY + _currentAmplitude * Math.Sin(_phase + i * Math.PI * 1.2 / WavePoints),
 
-                // Flicker (default): two overlapping harmonics â€” chaotic, high-frequency
+                // Flicker (default): two overlapping harmonics  chaotic, high-frequency
                 _ =>
                     midY
                     + _currentAmplitude * Math.Sin(_phase + i * 0.32)

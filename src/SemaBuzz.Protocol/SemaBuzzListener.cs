@@ -161,14 +161,14 @@ public sealed class SemaBuzzListener : IDisposable
     {
         var data = result.Buffer;
 
-        // â”€â”€ Hard size bounds â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        //  Hard size bounds
         // Smallest valid payload: 6-byte plaintext packet.
         // Largest valid payload: encrypted metadata with a thumbnail avatar.
         // Anything outside [6, 16384] cannot be a legitimate SemaBuzz packet.
         const int MaxPayload = 16_384;
         if (data.Length < SemaBuzzPacket.WireSize || data.Length > MaxPayload) return;
 
-        // â”€â”€ Source filter â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+        //  Source filter
         // Once the wire is Live or Secured, only accept traffic from the
         // established peer. Drop everything else silently.
         if (State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured
@@ -176,12 +176,12 @@ public sealed class SemaBuzzListener : IDisposable
             && !result.RemoteEndPoint.Equals(PeerEndPoint))
             return;
 
-        // â”€â”€ ECDH key exchange (plaintext â€” must be handled before Shield check) â”€â”€â”€â”€â”€â”€â”€â”€
+        //  ECDH key exchange (plaintext  must be handled before Shield check)
         if (SemaBuzzKeyExchange.IsKeyExchangePacket(data))
         {
             if (Shield != null)
             {
-                // Client is retransmitting â€” our KE response or HandshakeAck was lost.
+                // Client is retransmitting  our KE response or HandshakeAck was lost.
                 // Resend whatever is appropriate for the current state.
                 if (PeerEndPoint?.Equals(result.RemoteEndPoint) == true && _localPubKeyBytes != null)
                 {
@@ -241,11 +241,11 @@ public sealed class SemaBuzzListener : IDisposable
             var decrypted = Shield.Decrypt(data);
             if (decrypted == null)
             {
-                // Corrupted or out-of-order packet â€” drop silently.
+                // Corrupted or out-of-order packet  drop silently.
                 // Fatal only if we're already live (session key mismatch shouldn't happen post-ECDH).
                 if (State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
                 {
-                    SetState(SemaBuzzWireState.Dead, "received unreadable packet â€” session key mismatch");
+                    SetState(SemaBuzzWireState.Dead, "received unreadable packet  session key mismatch");
                     _cts?.Cancel();
                 }
                 return;
@@ -270,7 +270,7 @@ public sealed class SemaBuzzListener : IDisposable
         {
             case SemaBuzzPacketType.Handshake:
                 PeerEndPoint = result.RemoteEndPoint;
-                SetState(SemaBuzzWireState.Warming, "Handshake received â€” awaiting host approval...");
+                SetState(SemaBuzzWireState.Warming, "Handshake received  awaiting host approval...");
 
                 if (ConnectionApprovalCallback != null)
                 {
@@ -303,7 +303,7 @@ public sealed class SemaBuzzListener : IDisposable
                 break;
 
             case SemaBuzzPacketType.Ping:
-                // Keepalive â€” no event needed
+                // Keepalive  no event needed
                 break;
 
             case SemaBuzzPacketType.Buzz:
@@ -312,7 +312,7 @@ public sealed class SemaBuzzListener : IDisposable
                 break;
 
             default:
-                // Unknown or unexpected type â€” drop silently
+                // Unknown or unexpected type  drop silently
                 break;
         }
     }
@@ -323,7 +323,7 @@ public sealed class SemaBuzzListener : IDisposable
         await SendRawAsync(bytes, peer);
     }
 
-    /// <summary>Send a control packet to the given peer (plaintext â€” for pre-handshake signals).</summary>
+    /// <summary>Send a control packet to the given peer (plaintext  for pre-handshake signals).</summary>
     private async Task SendControlToAsync(SemaBuzzPacketType type, IPEndPoint peer)
     {
         var bytes = SemaBuzzPacket.Control(type).ToWireBytes();
@@ -403,7 +403,7 @@ public sealed class SemaBuzzListener : IDisposable
         await SendRawAsync(bytes, PeerEndPoint);
     }
 
-    /// <summary>Send a Buzz to the peer â€” spikes their filament and shakes their window.</summary>
+    /// <summary>Send a Buzz to the peer  spikes their filament and shakes their window.</summary>
     public Task SendBuzzAsync() => SendAsync(SemaBuzzPacket.Control(SemaBuzzPacketType.Buzz));
 
 

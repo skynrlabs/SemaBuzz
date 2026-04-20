@@ -21,20 +21,19 @@ param(
     [int]$Count = 1
 )
 
-# â”€â”€ KEEP THIS IN SYNC WITH SemaBuzzLicense.cs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+#  KEEP THIS IN SYNC WITH SemaBuzzLicense.cs
 $HmacSecret = "SB-PRO-2026-CHANGEME"
-# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 $HmacSecretBytes = [System.Text.Encoding]::UTF8.GetBytes($HmacSecret)
 $HexChars = '0123456789ABCDEF'.ToCharArray()
 
 function New-LicenseKey {
-    # 4 random bytes â†’ 8 uppercase hex chars (nonce)
+    # 4 random bytes  8 uppercase hex chars (nonce)
     $nonceBytes = [byte[]]::new(4)
     [System.Security.Cryptography.RandomNumberGenerator]::Fill($nonceBytes)
     $nonce = ($nonceBytes | ForEach-Object { $_.ToString('X2') }) -join ''
 
-    # HMAC-SHA256(secret, nonce) â†’ first 8 bytes â†’ 16 hex chars
+    # HMAC-SHA256(secret, nonce)  first 8 bytes  16 hex chars
     $hmac = New-Object System.Security.Cryptography.HMACSHA256
     $hmac.Key = $HmacSecretBytes
     $hash = $hmac.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($nonce))

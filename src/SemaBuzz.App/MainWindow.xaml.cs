@@ -103,7 +103,7 @@ public partial class MainWindow : Window
     // ---------------------------------------------
 
     /// <summary>
-    /// Called when the app is launched (or focused) with a buzz:// URI â€”
+    /// Called when the app is launched (or focused) with a buzz:// URI
     /// either from the command line or forwarded by a secondary instance.
     /// Pre-populates and opens the connect dialog in dial mode.
     /// </summary>
@@ -207,7 +207,7 @@ public partial class MainWindow : Window
     private void View_OpenLog_Click(object sender, RoutedEventArgs e)
         => new SemaBuzzLogViewerDialog { Owner = this }.ShowDialog();
 
-    // â”€â”€ SETTINGS menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  SETTINGS menu
 
     private void Settings_Themes_Click(object sender, RoutedEventArgs e)
     {
@@ -215,7 +215,7 @@ public partial class MainWindow : Window
         var dlg = new SemaBuzzThemeDialog { Owner = this };
         if (dlg.ShowDialog() != true)
         {
-            // Cancelled â€” revert to what was active before
+            // Cancelled  revert to what was active before
             SemaBuzzThemeManager.Apply(originalTheme);
             return;
         }
@@ -240,7 +240,7 @@ public partial class MainWindow : Window
         ApplyIndicatorSettings();
     }
 
-    // â”€â”€ HELP menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  HELP menu
 
     private void Help_About_Click(object sender, RoutedEventArgs e)
         => new SemaBuzzAboutDialog { Owner = this }.ShowDialog();
@@ -380,7 +380,7 @@ public partial class MainWindow : Window
                 SemaBuzzChatLog.Append("out", _localHandle, msg);
         }
 
-        // When LivePreview is off the streamer hasn't seen the chars yet â€” feed them now.
+        // When LivePreview is off the streamer hasn't seen the chars yet  feed them now.
         if (!App.Settings.LivePreview && InputBox.Text.Length > 0)
             foreach (var c in InputBox.Text)
                 _streamer.Feed(c);
@@ -580,10 +580,10 @@ public partial class MainWindow : Window
                 DisconnectMenuItem.IsEnabled = false;
 
                 var divider = _warmingTimedOut
-                    ? "â± no dialer arrived â€” session closed after 5 minutes"
+                    ? "â± no dialer arrived  session closed after 5 minutes"
                     : e.Message switch
                     {
-                        "peer-disconnect" => $"âš¡ {savedHandle} disconnected â€” wire has been closed",
+                        "peer-disconnect" => $"âš¡ {savedHandle} disconnected  wire has been closed",
                         "not-available"  => $"âš¡ {savedHandle} is not available at this time",
                         _                => "âš¡ wire is dead",
                     };
@@ -602,7 +602,7 @@ public partial class MainWindow : Window
         try { await Task.Delay(TimeSpan.FromMinutes(5), ct); }
         catch (OperationCanceledException) { return; }
 
-        // Timeout fired â€” cancel the main CTS so the relay loop closes,
+        // Timeout fired  cancel the main CTS so the relay loop closes,
         // which raises WireStateChanged(Dead). Set the flag so the Dead
         // handler shows the right divider.
         _warmingTimedOut = true;
@@ -967,7 +967,7 @@ public partial class MainWindow : Window
 
     public void ApplyLicenseBanner()
     {
-        if (SemaBuzzLicense.IsProUnlocked) return; // Pro â€” no banner
+        if (SemaBuzzLicense.IsProUnlocked) return; // Pro  no banner
 
         TrialBanner.Visibility      = Visibility.Visible;
         TrialBannerLabel.Text       = "You\u2019re using the free tier. Unlock more with SemaBuzz Pro.";

@@ -11,11 +11,11 @@ namespace SemaBuzz.Protocol;
 /// XOR-MAPPED-ADDRESS (or MAPPED-ADDRESS fallback) from the response to
 /// discover the external IP:port the NAT has assigned to the local socket.
 ///
-/// Only IPv4 is handled â€” IPv6 peers don't need NAT traversal assistance.
+/// Only IPv4 is handled  IPv6 peers don't need NAT traversal assistance.
 /// </summary>
 public static class SemaBuzzStun
 {
-    // Well-known, always-free STUN servers â€” tried in order until one responds.
+    // Well-known, always-free STUN servers  tried in order until one responds.
     private static readonly (string Host, int Port)[] Servers =
     [
         ("stun.l.google.com",    19302),
@@ -50,14 +50,12 @@ public static class SemaBuzzStun
                 if (ep != null) return ep;
             }
             catch (OperationCanceledException) { throw; }
-            catch { /* server unreachable â€” try next */ }
+            catch { /* server unreachable  try next */ }
         }
         return null;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Internals
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static async Task<IPEndPoint?> QueryServerAsync(
         string host, int stunPort, int localPort, CancellationToken ct)
@@ -76,7 +74,7 @@ public static class SemaBuzzStun
         var request = BuildBindingRequest(txId);
 
         // Up to 3 attempts with a 2-second per-attempt timeout (RFC recommends Rc=7,
-        // but 3 is enough for discovery UX â€” we fall back to the next server otherwise)
+        // but 3 is enough for discovery UX  we fall back to the next server otherwise)
         for (var attempt = 0; attempt < 3; attempt++)
         {
             RandomNumberGenerator.Fill(txId);           // fresh txId per attempt
@@ -94,16 +92,14 @@ public static class SemaBuzzStun
             }
             catch (OperationCanceledException) when (attemptCts.IsCancellationRequested)
             {
-                // Per-attempt timeout â€” retry
+                // Per-attempt timeout  retry
                 continue;
             }
         }
         return null;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Message construction (RFC 5389 Â§6)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static byte[] BuildBindingRequest(byte[] txId)
     {
@@ -124,9 +120,7 @@ public static class SemaBuzzStun
         return msg;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Response parsing (RFC 5389 Â§7 + Â§15.2)
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static IPEndPoint? ParseBindingResponse(byte[] data, byte[] txId)
     {
@@ -159,7 +153,7 @@ public static class SemaBuzzStun
             var attrLen    =          (data[offset + 2] << 8) | data[offset + 3];
             var valueStart = offset + 4;
 
-            if (valueStart + attrLen > data.Length) break; // malformed â€” stop
+            if (valueStart + attrLen > data.Length) break; // malformed  stop
 
             if (attrType == AttrXorMapped && attrLen >= 8)
                 xorMapped = ParseXorMappedAddress(data, valueStart);
@@ -175,7 +169,7 @@ public static class SemaBuzzStun
     }
 
     /// <summary>
-    /// RFC 5389 Â§15.2 â€” XOR-MAPPED-ADDRESS
+    /// RFC 5389 Â§15.2  XOR-MAPPED-ADDRESS
     /// Layout at value offset:
     ///   [0]    reserved
     ///   [1]    family (0x01 = IPv4)
@@ -184,7 +178,7 @@ public static class SemaBuzzStun
     /// </summary>
     private static IPEndPoint? ParseXorMappedAddress(byte[] data, int offset)
     {
-        if (data[offset + 1] != 0x01) return null; // IPv6 â€” not handled
+        if (data[offset + 1] != 0x01) return null; // IPv6  not handled
 
         var xorPort = (ushort)((data[offset + 2] << 8) | data[offset + 3]);
         var port    = (int)(xorPort ^ (MagicCookie >> 16));
@@ -206,7 +200,7 @@ public static class SemaBuzzStun
     }
 
     /// <summary>
-    /// RFC 3489 Â§11.2.1 â€” MAPPED-ADDRESS (legacy, no XOR)
+    /// RFC 3489 Â§11.2.1  MAPPED-ADDRESS (legacy, no XOR)
     /// Layout at value offset:
     ///   [0]    reserved
     ///   [1]    family (0x01 = IPv4)
@@ -215,7 +209,7 @@ public static class SemaBuzzStun
     /// </summary>
     private static IPEndPoint? ParseMappedAddress(byte[] data, int offset)
     {
-        if (data[offset + 1] != 0x01) return null; // IPv6 â€” not handled
+        if (data[offset + 1] != 0x01) return null; // IPv6  not handled
 
         var port = (data[offset + 2] << 8) | data[offset + 3];
         var ip   = new IPAddress(new byte[]

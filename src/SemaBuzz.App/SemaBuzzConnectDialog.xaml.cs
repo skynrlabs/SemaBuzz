@@ -13,7 +13,7 @@ using SemaBuzz.Protocol;
 namespace SemaBuzz.App;
 
 /// <summary>
-/// Connection dialog â€” lets the user choose to host (listen) or dial (connect),
+/// Connection dialog  lets the user choose to host (listen) or dial (connect),
 /// enter a peer address, port, and identity.
 /// </summary>
 public partial class SemaBuzzConnectDialog : Window
@@ -82,9 +82,7 @@ public partial class SemaBuzzConnectDialog : Window
         BuzzUrlPanel.Visibility  = hosting ? Visibility.Collapsed : Visibility.Visible;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Buzz address handlers
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void CopyHostBuzz_Click(object sender, RoutedEventArgs e)
     {
@@ -145,9 +143,7 @@ public partial class SemaBuzzConnectDialog : Window
         ClearAvatarBtn.IsEnabled = false;
     }
 
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Profile management
-    // â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void LoadProfiles()
     {
@@ -245,7 +241,7 @@ public partial class SemaBuzzConnectDialog : Window
 
         SemaBuzzProfileStore.Save(_profiles);
         _isEditingProfile = false;
-        RefreshPicker(); // re-selects _selectedProfile â†’ triggers ShowProfileCard
+        RefreshPicker(); // re-selects _selectedProfile  triggers ShowProfileCard
     }
 
     private void DeleteProfile_Click(object sender, RoutedEventArgs e)
@@ -278,7 +274,7 @@ public partial class SemaBuzzConnectDialog : Window
             var parsed   = SemaBuzzUriHandler.TryParse(buzzAddr);
             if (parsed?.RelayToken is not { Length: > 0 } tok)
             {
-                MessageBox.Show("No Buzz address â€” click NEW to generate one.", "SemaBuzz",
+                MessageBox.Show("No Buzz address  click NEW to generate one.", "SemaBuzz",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }

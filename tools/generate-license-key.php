@@ -1,6 +1,6 @@
 <?php
 /**
- * SemaBuzz Pro â€” License Key Generator
+ * SemaBuzz Pro  License Key Generator
  *
  * Intended use: Lemon Squeezy webhook handler. After a successful order,
  * generate a key, email it to the customer, and log it.
@@ -12,20 +12,18 @@
  * KEEP HMAC_SECRET IN SYNC WITH SemaBuzzLicense.cs
  */
 
-// â”€â”€ KEEP THIS IN SYNC WITH SemaBuzzLicense.cs â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  KEEP THIS IN SYNC WITH SemaBuzzLicense.cs
 define('HMAC_SECRET', 'SB-PRO-2026-CHANGEME');
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// â”€â”€ Lemon Squeezy config â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-define('LS_WEBHOOK_SECRET', 'CHANGEME');   // Lemon Squeezy â†’ Settings â†’ Webhooks â†’ Signing secret
+//  Lemon Squeezy config
+define('LS_WEBHOOK_SECRET', 'CHANGEME');   // Lemon Squeezy  Settings  Webhooks  Signing secret
 define('MAIL_FROM',         'noreply@semabuzz.com');
 define('MAIL_FROM_NAME',    'SemaBuzz');
-// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-// â”€â”€ Key generation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Key generation
 
 /**
- * Generate a cryptographically random nonce (4 bytes â†’ 8 uppercase hex chars).
+ * Generate a cryptographically random nonce (4 bytes  8 uppercase hex chars).
  */
 function generate_nonce(): string
 {
@@ -38,7 +36,7 @@ function generate_nonce(): string
 function compute_signature(string $nonce): string
 {
     $hash = hash_hmac('sha256', $nonce, HMAC_SECRET, true); // raw binary
-    return strtoupper(bin2hex(substr($hash, 0, 8)));        // first 8 bytes â†’ 16 hex chars
+    return strtoupper(bin2hex(substr($hash, 0, 8)));        // first 8 bytes  16 hex chars
 }
 
 /**
@@ -55,7 +53,7 @@ function generate_license_key(): string
     return implode('-', str_split($raw, 4));
 }
 
-// â”€â”€ Lemon Squeezy webhook handler â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Lemon Squeezy webhook handler
 
 /**
  * Verify the Lemon Squeezy webhook signature.
@@ -98,7 +96,7 @@ To activate:
   3. Scroll to the LICENSE section
   4. Paste your key and click ACTIVATE
 
-Your key never expires and works offline â€” keep it safe.
+Your key never expires and works offline  keep it safe.
 
 Thanks,
 The SemaBuzz Team
@@ -110,7 +108,7 @@ TEXT;
     return mail($toEmail, $subject, $body, $headers);
 }
 
-// â”€â”€ Entry point â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Entry point
 
 // Allow CLI usage: php generate-license-key.php [count]
 if (PHP_SAPI === 'cli') {
@@ -121,7 +119,7 @@ if (PHP_SAPI === 'cli') {
     exit(0);
 }
 
-// â”€â”€ Stripe webhook (HTTP POST only) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+//  Stripe webhook (HTTP POST only)
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

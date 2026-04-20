@@ -5,7 +5,7 @@ namespace SemaBuzz.Protocol;
 
 /// <summary>
 /// Encrypts and decrypts SemaBuzzPacket payloads using AES-256-GCM.
-/// The shield is always on â€” no plaintext crosses the wire.
+/// The shield is always on  no plaintext crosses the wire.
 /// </summary>
 public sealed class SemaBuzzShield : IDisposable
 {
@@ -103,7 +103,7 @@ public sealed class SemaBuzzShield : IDisposable
         }
         catch (System.Security.Cryptography.AuthenticationTagMismatchException)
         {
-            return null; // Tampered or wrong key â€” drop it.
+            return null; // Tampered or wrong key  drop it.
         }
     }
 

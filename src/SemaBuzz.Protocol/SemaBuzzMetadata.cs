@@ -48,7 +48,7 @@ public static class SemaBuzzMetadata
         if (!IsMetadataPacket(data)) return null;
 
         var handleLen = data[3];
-        // Reject unreasonably long handles â€” sender caps at 32 bytes, allow some headroom
+        // Reject unreasonably long handles  sender caps at 32 bytes, allow some headroom
         if (handleLen > 64) return null;
         if (data.Length < 4 + handleLen + 4) return null;
 

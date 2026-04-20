@@ -2,7 +2,7 @@ namespace SemaBuzz.Protocol;
 
 /// <summary>
 /// Converts a raw string into a stream of SemaBuzzPackets, one character at a time.
-/// The intensity is computed from typing rhythm â€” faster typing = higher intensity.
+/// The intensity is computed from typing rhythm  faster typing = higher intensity.
 /// This is the "Live-Wire" engine.
 /// </summary>
 public sealed class SemaBuzzStreamer
@@ -10,7 +10,7 @@ public sealed class SemaBuzzStreamer
     private DateTime _lastKeyTime = DateTime.UtcNow;
     private const double MaxIntervalMs = 500.0; // Slower than this = minimum intensity
 
-    /// <summary>Per-session sequence counter â€” wraps at 65 535.</summary>
+    /// <summary>Per-session sequence counter  wraps at 65 535.</summary>
     private ushort _seqNum;
 
     public event EventHandler<SemaBuzzPacketEventArgs>? PacketReady;
@@ -33,8 +33,8 @@ public sealed class SemaBuzzStreamer
 
     /// <summary>
     /// Map a keystroke interval to a 0â€“255 intensity byte.
-    /// Short interval (fast typing) â†’ high intensity.
-    /// Long interval (slow typing)  â†’ low intensity.
+    /// Short interval (fast typing)  high intensity.
+    /// Long interval (slow typing)   low intensity.
     /// </summary>
     private static byte ComputeIntensity(double intervalMs)
     {

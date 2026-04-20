@@ -27,9 +27,9 @@ public enum LogPersistenceMode
 
 public enum IndicatorStyleId
 {
-    Flicker = 0, // Default (free) â€” chaotic multi-harmonic
-    Pulse   = 1, // PRO â€” clean single-harmonic heartbeat
-    Wave    = 2, // PRO â€” slow rolling sine
+    Flicker = 0, // Default (free)  chaotic multi-harmonic
+    Pulse   = 1, // PRO  clean single-harmonic heartbeat
+    Wave    = 2, // PRO  slow rolling sine
 }
 
 public sealed class SemaBuzzSettings
@@ -60,7 +60,7 @@ public sealed class SemaBuzzSettings
     /// </summary>
     public string             RelayUri             { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
-    // â”€â”€â”€ Persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Persistence
 
     internal static readonly string DataDir =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SemaBuzz");

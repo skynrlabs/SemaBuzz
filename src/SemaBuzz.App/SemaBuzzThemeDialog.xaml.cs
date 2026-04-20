@@ -69,7 +69,7 @@ public partial class SemaBuzzThemeDialog : Window
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
     }
 
-    // â”€â”€ Theme preview handlers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Theme preview handlers
 
     private void ThemeObsidian_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
@@ -107,7 +107,7 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemeSteel_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Steel);
 
-    // â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Footer
 
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
     {

@@ -6,10 +6,10 @@ namespace SemaBuzz.Protocol;
 /// Control packets exchanged between SemaBuzz clients and the relay server.
 ///
 /// Wire format:
-///   [0x52][0x4C] â€” 2-byte magic ("RL")
-///   [0x01]       â€” version
-///   [type]       â€” 1-byte packet type
-///   [token:6]    â€” 6-byte ASCII room token (uppercase alphanumeric)
+///   [0x52][0x4C]  2-byte magic ("RL")
+///   [0x01]        version
+///   [type]        1-byte packet type
+///   [token:6]     6-byte ASCII room token (uppercase alphanumeric)
 /// Total: 10 bytes.
 ///
 /// After pairing, data packets are forwarded raw (no relay wrapper) so the
@@ -25,7 +25,7 @@ public static class SemaBuzzRelayPacket
     public const int  TokenLength = 6;
 
     // Relay server connection details.
-    // DefaultRelayUri is the WebSocket endpoint â€” used by both the listener and client.
+    // DefaultRelayUri is the WebSocket endpoint  used by both the listener and client.
     // Change this to your deployed relay URL before shipping.
     public const string DefaultRelayUri  = "wss://relay.semabuzz.me/relay";
     public const string DefaultRelayHost = "relay.semabuzz.me"; // kept for reference
@@ -72,9 +72,9 @@ public static class SemaBuzzRelayPacket
 
 public enum SemaBuzzRelayPacketType : byte
 {
-    JoinHost   = 0x01, // Client â†’ relay: register as host for this token
-    JoinDial   = 0x02, // Client â†’ relay: dial into room with this token
-    Paired     = 0x03, // Relay â†’ client: both peers connected, start the wire
-    RelayError = 0x04, // Relay â†’ client: token not found or other error
+    JoinHost   = 0x01, // Client  relay: register as host for this token
+    JoinDial   = 0x02, // Client  relay: dial into room with this token
+    Paired     = 0x03, // Relay  client: both peers connected, start the wire
+    RelayError = 0x04, // Relay  client: token not found or other error
     Ping       = 0x05, // Bidirectional keepalive to maintain NAT mappings
 }

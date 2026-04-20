@@ -6,9 +6,9 @@ namespace SemaBuzz.App;
 /// Handles the custom <c>buzz://</c> URI scheme.
 ///
 /// URI formats:
-///   buzz://host:port               â€” dial host:port directly
-///   buzz://handle@host:port        â€” dial with a display hint (handle ignored locally)
-///   buzz://TOKEN                   â€” dial via relay using a 6-char room token
+///   buzz://host:port                dial host:port directly
+///   buzz://handle@host:port         dial with a display hint (handle ignored locally)
+///   buzz://TOKEN                    dial via relay using a 6-char room token
 ///
 /// Examples:
 ///   buzz://192.168.1.42:7070
@@ -21,7 +21,7 @@ internal static class SemaBuzzUriHandler
     private const string ProgId      = "SemaBuzz.BuzzUri";
     private const int    DefaultPort = 7070;
 
-    // â”€â”€â”€ Parse â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Parse
 
     /// <summary>
     /// Parsed representation of a <c>buzz://</c> URI.
@@ -47,7 +47,7 @@ internal static class SemaBuzzUriHandler
 
         if (string.IsNullOrWhiteSpace(host)) return null;
 
-        // Detect relay token: buzz://X7K2QP â€” host looks like a token (â‰¤8 chars, no dots, no colons)
+        // Detect relay token: buzz://X7K2QP  host looks like a token (â‰¤8 chars, no dots, no colons)
         if (uri.Port < 0 && !host.Contains('.') && host.Length is >= 4 and <= 8)
             return new BuzzUri(string.Empty, 0, handle, host.ToUpperInvariant());
 
@@ -67,13 +67,13 @@ internal static class SemaBuzzUriHandler
     /// </summary>
     public static string BuildRelay(string token) => $"buzz://{token.ToUpperInvariant()}";
 
-    // â”€â”€â”€ Registry â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    //  Registry
 
     /// <summary>
     /// Registers the <c>buzz://</c> URI scheme in HKCU so Windows opens
     /// SemaBuzz when a user clicks a buzz:// link in a browser or document.
     ///
-    /// Writes to HKCU (no elevation required).  Safe to call on every launch â€”
+    /// Writes to HKCU (no elevation required).  Safe to call on every launch
     /// skipped when the exe path has not changed since last registration.
     /// </summary>
     public static void EnsureRegistered()
@@ -86,7 +86,7 @@ internal static class SemaBuzzUriHandler
             using var key = Registry.CurrentUser.CreateSubKey(
                 $@"Software\Classes\{Scheme}", writable: true);
 
-            // Check if already registered with the same exe â€” avoid unnecessary writes
+            // Check if already registered with the same exe  avoid unnecessary writes
             using var cmdKey = key.OpenSubKey(@"shell\open\command");
             if (cmdKey?.GetValue(null) is string existing && existing == command) return;
 
@@ -99,6 +99,6 @@ internal static class SemaBuzzUriHandler
             using var shellKey   = key.CreateSubKey(@"shell\open\command");
             shellKey.SetValue(null, command);
         }
-        catch { /* registry unavailable â€” silently skip */ }
+        catch { /* registry unavailable  silently skip */ }
     }
 }
