@@ -33,16 +33,12 @@ Everything is end-to-end encrypted with ECDH P-256 key exchange and AES-256-GCM.
 
 ## How Connections Work
 
-### Direct P2P (default)
-One peer **listens** on a UDP port (default 7070). The other peer **dials** their IP:port. STUN is queried automatically to surface your external address when behind NAT.
-
-### Relay Mode
-When direct connections aren't possible, both peers connect to a relay server via WebSocket and exchange a shared token. The relay pairs them and forwards encrypted frames transparently — the relay never sees plaintext.
+Connections are relay-first. The host generates a short `buzz://TOKEN` address and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted end-to-end through the tunnel.
 
 Default relay: `wss://relay.semabuzz.me` (configurable in Settings)
 
 ### `buzz://` Deep Links
-The app registers the `buzz://` URI scheme. Sharing a `buzz://` link pre-populates the dial dialog so peers can connect with a single click.
+The app registers the `buzz://` URI scheme. A `buzz://TOKEN` link opens the app and pre-populates the dial dialog. Direct `buzz://host:port` URIs are also supported at the protocol level for advanced use.
 
 ---
 
