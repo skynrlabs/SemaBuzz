@@ -189,7 +189,7 @@
         <TextBlock TextWrapping="Wrap" Foreground="#555" FontSize="10" Margin="0 0 0 4"
                    Text="WebSocket address of the relay server (must start with wss:// or ws://). Click RESET to restore the default."/>
         <TextBlock TextWrapping="Wrap" Foreground="#444" FontSize="10" Margin="0 0 0 20"
-                   Text="Only use a relay you trust. The default relay is end-to-end encrypted and cannot read your messages."/>
+                   Text="Only use a relay you trust. All traffic is encrypted on your device before it reaches the relay — the relay sees only ciphertext and holds no keys."/>
 
         </StackPanel>
         </ScrollViewer>

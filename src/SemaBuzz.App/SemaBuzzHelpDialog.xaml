@@ -41,7 +41,7 @@
                 <Border Background="#1A1A1A" BorderBrush="#333" BorderThickness="1"
                         CornerRadius="4" Padding="14 10" Margin="0 0 0 20">
                     <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12"
-                               Text="SemaBuzz is a private, encrypted 1-to-1 communication tool. No accounts. No servers storing your messages. Everything is end-to-end encrypted and lives only on the two devices in the conversation."/>
+                               Text="SemaBuzz is a private, encrypted 1-to-1 communication tool. No accounts. Messages are encrypted on your device using ECDH P-256 and AES-256-GCM before leaving it. The relay server forwards your packets but holds no keys and can never read them."/>
                 </Border>
 
                 <!-- Q1 -->

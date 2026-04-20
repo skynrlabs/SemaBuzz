@@ -1,7 +1,7 @@
 # ⚡ SemaBuzz for Windows
 
 > **Built for the desktop. Made for the wire.**
-> A P2P encrypted live-typing chat for Windows — no accounts, no cloud, no middlemen.
+> A live-typing chat for Windows — encrypted in transit, no accounts, relay-assisted connection.
 
 ---
 
@@ -9,7 +9,7 @@
 
 SemaBuzz is a C# / .NET 9 WPF desktop application that lets two people communicate in real time over a direct encrypted connection. Text is streamed **character-by-character** as it is typed, so the other person sees your thoughts form live on their screen. A visual "filament" indicator pulses with the rhythm of incoming data, making the connection feel tactile and alive.
 
-Everything is end-to-end encrypted with ECDH P-256 key exchange and AES-256-GCM. No account required — just a handle, a port (or a relay token), and a peer.
+Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-GCM before leaving it. The relay forwards packets but never holds the keys and cannot read your messages. No account required — just a handle, a port (or a relay token), and a peer.
 
 ---
 
@@ -18,7 +18,7 @@ Everything is end-to-end encrypted with ECDH P-256 key exchange and AES-256-GCM.
 ### Core
 - **Live-wire typing** — characters stream keystroke-by-keystroke in real time
 - **Buzz alerts** — send an instant ⚡ that shakes the peer's window and pulses the filament
-- **End-to-end encryption** — ephemeral ECDH P-256 key exchange + AES-256-GCM on every session
+- **Strong encryption** — ephemeral ECDH P-256 key exchange + AES-256-GCM; relay sees only ciphertext
 - **Three connection modes** — direct P2P, relay (WebSocket), or `buzz://` URI deep-links
 - **STUN NAT discovery** — auto-detects your external IP/port to simplify direct connections
 - **Identity profiles** — named handles with optional avatar images, saved locally
@@ -33,7 +33,7 @@ Everything is end-to-end encrypted with ECDH P-256 key exchange and AES-256-GCM.
 
 ## How Connections Work
 
-Connections are relay-first. The host generates a short `buzz://TOKEN` address and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted end-to-end through the tunnel.
+Connections are relay-first. The host generates a short `buzz://TOKEN` address and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted on-device before transmission. The relay forwards opaque ciphertext only.
 
 Default relay: `wss://relay.semabuzz.me` (configurable in Settings)
 
