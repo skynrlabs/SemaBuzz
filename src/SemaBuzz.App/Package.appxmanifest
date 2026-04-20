@@ -6,11 +6,11 @@
   xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
   IgnorableNamespaces="mp uap rescap">
 
-  <!-- ── IDENTITY ─────────────────────────────────────────────────────────────
+  <!-- â”€â”€ IDENTITY â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
        Replace Name and Publisher with the exact values shown on your Partner
-       Center dashboard under App management → App identity.
+       Center dashboard under App management â†’ App identity.
        The Publisher CN= string must match your code-signing certificate.
-  ──────────────────────────────────────────────────────────────────────────── -->
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
   <Identity
     Name="YourPublisher.SemaBuzz"
     Publisher="CN=YourPublisher"
@@ -23,7 +23,7 @@
   <Properties>
     <DisplayName>SemaBuzz</DisplayName>
     <PublisherDisplayName>Your Company</PublisherDisplayName>
-    <!-- 50×50 PNG. Use VS → Project → Generate Image Assets to create all sizes. -->
+    <!-- 50Ã—50 PNG. Use VS â†’ Project â†’ Generate Image Assets to create all sizes. -->
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
@@ -56,12 +56,12 @@
 
       <Extensions>
 
-        <!-- ── buzz:// URI scheme ──────────────────────────────────────────────
+        <!-- â”€â”€ buzz:// URI scheme â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
              When installed from the Store, Windows reads this and registers
-             the protocol automatically — no registry write required.
+             the protocol automatically â€” no registry write required.
              SemaBuzzUriHandler.EnsureRegistered() is still used as a fallback
              for sideloaded / unpackaged installs.
-        ─────────────────────────────────────────────────────────────────────── -->
+        â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
         <uap:Extension Category="windows.protocol">
           <uap:Protocol Name="buzz">
             <uap:DisplayName>SemaBuzz Connection Link</uap:DisplayName>

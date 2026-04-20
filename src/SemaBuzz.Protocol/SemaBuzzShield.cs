@@ -5,7 +5,7 @@ namespace SemaBuzz.Protocol;
 
 /// <summary>
 /// Encrypts and decrypts SemaBuzzPacket payloads using AES-256-GCM.
-/// The shield is always on — no plaintext crosses the wire.
+/// The shield is always on â€” no plaintext crosses the wire.
 /// </summary>
 public sealed class SemaBuzzShield : IDisposable
 {
@@ -27,7 +27,7 @@ public sealed class SemaBuzzShield : IDisposable
     /// <summary>
     /// Derive a key from a shared passphrase using PBKDF2-SHA256 (100 000 iterations).
     /// A fixed protocol salt is used because both peers must derive the same key
-    /// independently. This makes dictionary/brute-force attacks ~100 000× harder
+    /// independently. This makes dictionary/brute-force attacks ~100 000Ã— harder
     /// than raw SHA-256 and prevents precomputed rainbow tables for other salts.
     /// </summary>
     public static SemaBuzzShield FromPassphrase(string passphrase)
@@ -103,7 +103,7 @@ public sealed class SemaBuzzShield : IDisposable
         }
         catch (System.Security.Cryptography.AuthenticationTagMismatchException)
         {
-            return null; // Tampered or wrong key — drop it.
+            return null; // Tampered or wrong key â€” drop it.
         }
     }
 

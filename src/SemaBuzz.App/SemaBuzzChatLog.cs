@@ -17,7 +17,7 @@ internal static class SemaBuzzChatLog
     private static readonly string LogFile =
         Path.Combine(SemaBuzzSettings.DataDir, "chatlog.bin");
 
-    // ─── Write ────────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Write â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <param name="direction">"out" for sent, "in" for received.</param>
     public static void Append(string direction, string handle, string message)
@@ -39,7 +39,7 @@ internal static class SemaBuzzChatLog
         catch { }
     }
 
-    // ─── Read ─────────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Read â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static IReadOnlyList<ChatLogEntry> LoadAll()
     {
@@ -54,7 +54,7 @@ internal static class SemaBuzzChatLog
             while (fs.Read(lenBuf, 0, 4) == 4)
             {
                 var cipherLen = BitConverter.ToUInt32(lenBuf, 0);
-                if (cipherLen > 1_000_000) break; // sanity cap — corrupt entry
+                if (cipherLen > 1_000_000) break; // sanity cap â€” corrupt entry
 
                 var cipher = new byte[cipherLen];
                 if (fs.Read(cipher, 0, (int)cipherLen) != (int)cipherLen) break;
@@ -79,7 +79,7 @@ internal static class SemaBuzzChatLog
         return results;
     }
 
-    // ─── Housekeeping ─────────────────────────────────────────────────────────
+    // â”€â”€â”€ Housekeeping â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static void Clear()
     {

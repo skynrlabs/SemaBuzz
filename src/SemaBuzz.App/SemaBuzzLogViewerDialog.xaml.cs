@@ -68,7 +68,7 @@ public partial class SemaBuzzLogViewerDialog : Window
                 lastDate = dateStr;
                 LogPanel.Children.Add(new System.Windows.Controls.TextBlock
                 {
-                    Text                = $"── {dateStr} ──",
+                    Text                = $"â”€â”€ {dateStr} â”€â”€",
                     Foreground          = dimBrush,
                     FontSize            = 11,
                     HorizontalAlignment = HorizontalAlignment.Center,

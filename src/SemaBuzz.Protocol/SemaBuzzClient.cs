@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
@@ -286,7 +286,7 @@ public sealed class SemaBuzzClient : IDisposable
                 // Only accept traffic from the host we dialed
                 if (_peer != null && !result.RemoteEndPoint.Equals(_peer)) continue;
 
-                // ── ECDH key exchange (plaintext, during handshake only) ──────
+                //  ECDH key exchange (plaintext, during handshake only)
                 if (SemaBuzzKeyExchange.IsKeyExchangePacket(data))
                 {
                     if (Shield != null) continue; // already established — ignore
@@ -305,7 +305,7 @@ public sealed class SemaBuzzClient : IDisposable
                     continue;
                 }
 
-                // ── Decrypt if shield is active ───────────────────────────────
+                //  Decrypt if shield is active
                 if (Shield != null)
                 {
                     var decrypted = Shield.Decrypt(data);
@@ -313,7 +313,7 @@ public sealed class SemaBuzzClient : IDisposable
                     data = decrypted;
                 }
 
-                // ── Variable-length packets ───────────────────────────────────
+                //  Variable-length packets
                 if (SemaBuzzMetadata.IsMetadataPacket(data))
                 {
                     var meta = SemaBuzzMetadata.Deserialize(data);
@@ -322,7 +322,7 @@ public sealed class SemaBuzzClient : IDisposable
                     continue;
                 }
 
-                // ── Fixed-size packet frame(s) — may be batched ───────────────
+                //  Fixed-size packet frame(s) — may be batched
                 for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length;
                          offset += SemaBuzzPacket.WireSize)
                 {

@@ -17,7 +17,7 @@ using SemaBuzz.Protocol;
 namespace SemaBuzz.App;
 
 /// <summary>
-/// MainWindow � the SemaBuzz command center.
+/// MainWindow ï¿½ the SemaBuzz command center.
 /// Coordinates the wire (SemaBuzzClient/Listener), the streamer,
 /// and all visual feedback.
 /// </summary>
@@ -103,7 +103,7 @@ public partial class MainWindow : Window
     // ---------------------------------------------
 
     /// <summary>
-    /// Called when the app is launched (or focused) with a buzz:// URI —
+    /// Called when the app is launched (or focused) with a buzz:// URI â€”
     /// either from the command line or forwarded by a secondary instance.
     /// Pre-populates and opens the connect dialog in dial mode.
     /// </summary>
@@ -207,7 +207,7 @@ public partial class MainWindow : Window
     private void View_OpenLog_Click(object sender, RoutedEventArgs e)
         => new SemaBuzzLogViewerDialog { Owner = this }.ShowDialog();
 
-    // ── SETTINGS menu ─────────────────────────────────────────────────────────
+    // â”€â”€ SETTINGS menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void Settings_Themes_Click(object sender, RoutedEventArgs e)
     {
@@ -215,7 +215,7 @@ public partial class MainWindow : Window
         var dlg = new SemaBuzzThemeDialog { Owner = this };
         if (dlg.ShowDialog() != true)
         {
-            // Cancelled — revert to what was active before
+            // Cancelled â€” revert to what was active before
             SemaBuzzThemeManager.Apply(originalTheme);
             return;
         }
@@ -240,7 +240,7 @@ public partial class MainWindow : Window
         ApplyIndicatorSettings();
     }
 
-    // ── HELP menu ─────────────────────────────────────────────────────────────
+    // â”€â”€ HELP menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private void Help_About_Click(object sender, RoutedEventArgs e)
         => new SemaBuzzAboutDialog { Owner = this }.ShowDialog();
@@ -267,7 +267,7 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
-        SetStatus($"📡 listening on port {port}...");
+        SetStatus($"ðŸ“¡ listening on port {port}...");
         _ = _listener.ListenAsync(port, ct);
     }
 
@@ -280,7 +280,7 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
-        SetStatus($"📡 waiting via relay (token: {token})...");
+        SetStatus($"ðŸ“¡ waiting via relay (token: {token})...");
         _ = _listener.ListenViaRelayAsync(
             App.Settings.RelayUri,
             token, ct);
@@ -294,7 +294,7 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
 
-        SetStatus($"📡 dialing {host}:{port}...");
+        SetStatus($"ðŸ“¡ dialing {host}:{port}...");
         _ = _client.ConnectAsync(host, port, ct);
     }
 
@@ -306,14 +306,14 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
 
-        SetStatus($"📡 joining relay room {token}...");
+        SetStatus($"ðŸ“¡ joining relay room {token}...");
         _ = _client.ConnectViaRelayAsync(
             App.Settings.RelayUri,
             token, ct);
     }
 
     // ---------------------------------------------
-    // Input handling � Live-Wire typing
+    // Input handling ï¿½ Live-Wire typing
     // ---------------------------------------------
 
     private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -380,7 +380,7 @@ public partial class MainWindow : Window
                 SemaBuzzChatLog.Append("out", _localHandle, msg);
         }
 
-        // When LivePreview is off the streamer hasn't seen the chars yet — feed them now.
+        // When LivePreview is off the streamer hasn't seen the chars yet â€” feed them now.
         if (!App.Settings.LivePreview && InputBox.Text.Length > 0)
             foreach (var c in InputBox.Text)
                 _streamer.Feed(c);
@@ -416,14 +416,14 @@ public partial class MainWindow : Window
 
         if (text.Length < prev.Length)
         {
-            // Characters were deleted � send a backspace for each one removed
+            // Characters were deleted ï¿½ send a backspace for each one removed
             var deleted = prev.Length - text.Length;
             for (var i = 0; i < deleted; i++)
                 _streamer.Feed('\b');
         }
         else if (text.Length > prev.Length)
         {
-            // Characters were added � feed each new character
+            // Characters were added ï¿½ feed each new character
             for (var i = prev.Length; i < text.Length; i++)
                 _streamer.Feed(text[i]);
         }
@@ -478,7 +478,7 @@ public partial class MainWindow : Window
             {
                 BuzzIndicator.MaxBurst();
                 ShakeWindow();
-                ShowToastIfUnfocused(_peerHandle, "⚡ Buzzed you!");
+                ShowToastIfUnfocused(_peerHandle, "âš¡ Buzzed you!");
                 return;
             }
 
@@ -509,7 +509,7 @@ public partial class MainWindow : Window
     /// <summary>Reset all UI chrome back to the cold/idle state.</summary>
     private void ResetToIdle()
     {
-        SetStatus("� wire is cold");
+        SetStatus("ï¿½ wire is cold");
         TitleSessionLabel.Text         = "NO WIRE";
         ConnectMenuItem.IsEnabled      = true;
         DisconnectMenuItem.IsEnabled   = false;
@@ -530,7 +530,7 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            SetStatus($"� {e.Message ?? e.State.ToString().ToLower()}");
+            SetStatus($"ï¿½ {e.Message ?? e.State.ToString().ToLower()}");
             UpdateWireStateDot(e.State);
 
             if (e.State == SemaBuzzWireState.Warming)
@@ -552,8 +552,8 @@ public partial class MainWindow : Window
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
                 AddChatDivider(e.State == SemaBuzzWireState.Secured
-                    ? "� sema secured � wire is live"
-                    : "� wire is live");
+                    ? "ï¿½ sema secured ï¿½ wire is live"
+                    : "ï¿½ wire is live");
 
                 // Exchange identity with the peer
                 if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng);
@@ -580,12 +580,12 @@ public partial class MainWindow : Window
                 DisconnectMenuItem.IsEnabled = false;
 
                 var divider = _warmingTimedOut
-                    ? "⏱ no dialer arrived — session closed after 5 minutes"
+                    ? "â± no dialer arrived â€” session closed after 5 minutes"
                     : e.Message switch
                     {
-                        "peer-disconnect" => $"⚡ {savedHandle} disconnected — wire has been closed",
-                        "not-available"  => $"⚡ {savedHandle} is not available at this time",
-                        _                => "⚡ wire is dead",
+                        "peer-disconnect" => $"âš¡ {savedHandle} disconnected â€” wire has been closed",
+                        "not-available"  => $"âš¡ {savedHandle} is not available at this time",
+                        _                => "âš¡ wire is dead",
                     };
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
@@ -602,7 +602,7 @@ public partial class MainWindow : Window
         try { await Task.Delay(TimeSpan.FromMinutes(5), ct); }
         catch (OperationCanceledException) { return; }
 
-        // Timeout fired — cancel the main CTS so the relay loop closes,
+        // Timeout fired â€” cancel the main CTS so the relay loop closes,
         // which raises WireStateChanged(Dead). Set the flag so the Dead
         // handler shows the right divider.
         _warmingTimedOut = true;
@@ -649,7 +649,7 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrEmpty(text))
         {
-            // All text cleared � remove the live row entirely
+            // All text cleared ï¿½ remove the live row entirely
             if (_localLiveRow != null)
             {
                 ChatPanel.Children.Remove(_localLiveRow);
@@ -661,7 +661,7 @@ public partial class MainWindow : Window
 
         if (_localLiveBlock == null)
         {
-            // Starting a new local message � freeze the peer's live line first
+            // Starting a new local message ï¿½ freeze the peer's live line first
             _peerLiveRow   = null;
             _livePeerBlock = null;
             var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, Color.FromRgb(0xFF, 0xB3, 0x00));
@@ -676,14 +676,14 @@ public partial class MainWindow : Window
 
     private void AppendPeerCharacter(char ch)
     {
-        // '\n' commits a live line � if there's no live line, nothing to freeze.
-        // '\b' removes a character � if there's no live line, nothing to delete.
+        // '\n' commits a live line ï¿½ if there's no live line, nothing to freeze.
+        // '\b' removes a character ï¿½ if there's no live line, nothing to delete.
         // Creating a row just to immediately freeze/no-op it would leave an empty row.
         if (_livePeerBlock == null && ch is '\n' or '\b') return;
 
         if (_livePeerBlock == null)
         {
-            // Starting a new peer message � freeze local's live line first
+            // Starting a new peer message ï¿½ freeze local's live line first
             _localLiveRow   = null;
             _localLiveBlock = null;
             var (row, tb) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x88, 0x88, 0x88));
@@ -698,7 +698,7 @@ public partial class MainWindow : Window
             if (_livePeerBlock.Text.Length > prefix.Length)
                 _livePeerBlock.Text = _livePeerBlock.Text[..^1];
 
-            // All text removed � remove the row
+            // All text removed ï¿½ remove the row
             if (_livePeerBlock.Text == prefix)
             {
                 ChatPanel.Children.Remove(_peerLiveRow);
@@ -785,7 +785,7 @@ public partial class MainWindow : Window
         grid.Children.Add(ellipse);
 
         // Text area
-        var prefix = $"{handle}  � ";
+        var prefix = $"{handle}  ï¿½ ";
         var tb = new TextBlock
         {
             Text         = prefix,
@@ -838,7 +838,7 @@ public partial class MainWindow : Window
     {
         var fullText = tb.Text;
         var matches  = UrlRegex.Matches(fullText);
-        if (matches.Count == 0) return; // no URLs � leave as plain text
+        if (matches.Count == 0) return; // no URLs ï¿½ leave as plain text
 
         // Switching to Inlines mode clears .Text automatically
         tb.Inlines.Clear();
@@ -967,7 +967,7 @@ public partial class MainWindow : Window
 
     public void ApplyLicenseBanner()
     {
-        if (SemaBuzzLicense.IsProUnlocked) return; // Pro — no banner
+        if (SemaBuzzLicense.IsProUnlocked) return; // Pro â€” no banner
 
         TrialBanner.Visibility      = Visibility.Visible;
         TrialBannerLabel.Text       = "You\u2019re using the free tier. Unlock more with SemaBuzz Pro.";

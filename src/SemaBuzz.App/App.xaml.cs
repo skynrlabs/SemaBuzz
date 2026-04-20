@@ -14,7 +14,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        // ── Single-instance: if another SemaBuzz is already running, forward
+        // â”€â”€ Single-instance: if another SemaBuzz is already running, forward
         //    any buzz:// URI from our command line to it and exit immediately.
         var buzzArg = e.Args.FirstOrDefault(
             a => a.StartsWith("buzz://", StringComparison.OrdinalIgnoreCase));
@@ -31,7 +31,7 @@ public partial class App : Application
         // Register buzz:// URI scheme and start the pipe listener in the background.
         Task.Run(SemaBuzzUriHandler.EnsureRegistered);
 
-        // ── Start listening for URIs forwarded by secondary instances.
+        // â”€â”€ Start listening for URIs forwarded by secondary instances.
         SemaBuzzSingleInstance.StartListening(_appExiting.Token);
         SemaBuzzSingleInstance.UriReceived += OnBuzzUriReceived;
         SemaBuzzSingleInstance.FocusRequested += OnFocusRequested;
@@ -41,7 +41,7 @@ public partial class App : Application
         {
             System.Windows.MessageBox.Show(
                 ex.Exception.ToString(),
-                "SemaBuzz — Unhandled Error",
+                "SemaBuzz â€” Unhandled Error",
                 MessageBoxButton.OK,
                 MessageBoxImage.Error);
             ex.Handled = true;
@@ -52,7 +52,7 @@ public partial class App : Application
         Settings = SemaBuzzSettings.Load();
         SemaBuzzThemeManager.Apply(Settings.Theme);
 
-        // Check the Microsoft Store license in the background — don't block startup.
+        // Check the Microsoft Store license in the background â€” don't block startup.
         // The main window's Loaded handler calls ApplyLicenseBanner() which will
         // reflect whatever state is set by the time it runs; if the check finishes
         // after the window is already shown, it calls ApplyLicenseBanner() directly.
@@ -63,7 +63,7 @@ public partial class App : Application
                     win.ApplyLicenseBanner();
             }));
 
-        // Register for toast notification activation in the background — the COM
+        // Register for toast notification activation in the background â€” the COM
         // server registration and Start Menu shortcut creation it performs can take
         // several seconds on first run after a build, so we must not block the UI thread.
         Task.Run(() =>
@@ -83,7 +83,7 @@ public partial class App : Application
                     });
                 };
             }
-            catch { /* toast activation unavailable — continue without it */ }
+            catch { /* toast activation unavailable â€” continue without it */ }
         });
 
         // If we were launched directly by a buzz:// click, handle it after

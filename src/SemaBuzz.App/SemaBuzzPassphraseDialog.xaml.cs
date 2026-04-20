@@ -7,10 +7,10 @@ public partial class SemaBuzzPassphraseDialog : Window
 {
     public string Passphrase { get; private set; } = string.Empty;
 
-    /// <summary>Optional hint shown as subtitle (e.g. "wrong passphrase — try again").</summary>
+    /// <summary>Optional hint shown as subtitle (e.g. "wrong passphrase â€” try again").</summary>
     public string? Hint
     {
-        set { if (value != null) HintLabel.Text = $"» {value}"; }
+        set { if (value != null) HintLabel.Text = $"Â» {value}"; }
     }
 
     public SemaBuzzPassphraseDialog()

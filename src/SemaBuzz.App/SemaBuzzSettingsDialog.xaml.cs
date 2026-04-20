@@ -170,7 +170,7 @@ public partial class SemaBuzzSettingsDialog : Window
         return panel;
     }
 
-    /// <summary>Standalone PRO badge — appended to an existing label panel.</summary>
+    /// <summary>Standalone PRO badge â€” appended to an existing label panel.</summary>
     private static Border MakeProBadge()
     {
         var accent      = SemaBuzzThemeManager.AccentColor;

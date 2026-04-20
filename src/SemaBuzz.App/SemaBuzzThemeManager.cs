@@ -11,7 +11,7 @@ namespace SemaBuzz.App;
 /// </summary>
 internal static class SemaBuzzThemeManager
 {
-    // ─── Theme palette definition ─────────────────────────────────────────────
+    // â”€â”€â”€ Theme palette definition â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private record struct ThemeDef(
         Color Background,
@@ -22,12 +22,12 @@ internal static class SemaBuzzThemeManager
         Color AccentGlow,
         Color Dead,
         Color Header,
-        Func<Brush> WindowBackground,   // factory — creates a fresh, unfrozen brush
+        Func<Brush> WindowBackground,   // factory â€” creates a fresh, unfrozen brush
         int DwmCaption,                 // COLORREF 0x00BBGGRR
         int DwmText,
         int DwmBorder);
 
-    // ─── Palettes ─────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Palettes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     // Helper shorthands
     private static Color C(byte r, byte g, byte b) => Color.FromRgb(r, g, b);
@@ -35,7 +35,7 @@ internal static class SemaBuzzThemeManager
 
     private static readonly Dictionary<SemaBuzzThemeId, ThemeDef> Palettes = new()
     {
-        // ── Obsidian Amber (default) ──────────────────────────────────────────
+        // â”€â”€ Obsidian Amber (default) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Obsidian] = new ThemeDef(
             Background:       C(0x12, 0x12, 0x12),
             Surface:          C(0x1E, 0x1E, 0x1E),
@@ -47,10 +47,10 @@ internal static class SemaBuzzThemeManager
             Header:           C(0x0D, 0x0D, 0x0D),
             WindowBackground: () => new SolidColorBrush(C(0x12, 0x12, 0x12)),
             DwmCaption:       0x00121212,
-            DwmText:          0x0000B3FF,   // #FFB300 → COLORREF (0x00BBGGRR)
+            DwmText:          0x0000B3FF,   // #FFB300 â†’ COLORREF (0x00BBGGRR)
             DwmBorder:        0x002A2A2A),
 
-        // ── Neon Pink / Purple gradient ───────────────────────────────────────
+        // â”€â”€ Neon Pink / Purple gradient â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Neon] = new ThemeDef(
             Background:       C(0x0D, 0x0B, 0x14),
             Surface:          C(0x1A, 0x10, 0x28),
@@ -68,11 +68,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x0D, 0x0B, 0x14), 1.0),
                 },
                 new Point(0, 0), new Point(1, 1)),
-            DwmCaption:       0x00140B0D,   // #0D0B14 → COLORREF
-            DwmText:          0x00FB40E0,   // #E040FB → COLORREF
-            DwmBorder:        0x005E2B3D),  // #3D2B5E → COLORREF
+            DwmCaption:       0x00140B0D,   // #0D0B14 â†’ COLORREF
+            DwmText:          0x00FB40E0,   // #E040FB â†’ COLORREF
+            DwmBorder:        0x005E2B3D),  // #3D2B5E â†’ COLORREF
 
-        // ── Matrix CRT Green / Black ──────────────────────────────────────────
+        // â”€â”€ Matrix CRT Green / Black â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Matrix] = new ThemeDef(
             Background:       C(0x00, 0x00, 0x00),
             Surface:          C(0x00, 0x0D, 0x00),
@@ -91,10 +91,10 @@ internal static class SemaBuzzThemeManager
                 },
                 new Point(0, 0), new Point(0, 1)),
             DwmCaption:       0x00000000,
-            DwmText:          0x0041FF00,   // #00FF41 → COLORREF
-            DwmBorder:        0x00002800),  // #002800 → COLORREF
+            DwmText:          0x0041FF00,   // #00FF41 â†’ COLORREF
+            DwmBorder:        0x00002800),  // #002800 â†’ COLORREF
 
-        // ── Blood Moon (deep crimson) ─────────────────────────────────────────
+        // â”€â”€ Blood Moon (deep crimson) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.BloodMoon] = new ThemeDef(
             Background:       C(0x0F, 0x00, 0x00),
             Surface:          C(0x1C, 0x00, 0x00),
@@ -112,11 +112,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x0F, 0x00, 0x00), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x0000000F,   // #0F0000 → COLORREF
-            DwmText:          0x004417FF,   // #FF1744 → COLORREF
-            DwmBorder:        0x0005053A),  // #3A0505 → COLORREF
+            DwmCaption:       0x0000000F,   // #0F0000 â†’ COLORREF
+            DwmText:          0x004417FF,   // #FF1744 â†’ COLORREF
+            DwmBorder:        0x0005053A),  // #3A0505 â†’ COLORREF
 
-        // ── Arctic (icy cyan) ────────────────────────────────────────────────
+        // â”€â”€ Arctic (icy cyan) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Arctic] = new ThemeDef(
             Background:       C(0x06, 0x0B, 0x14),
             Surface:          C(0x0D, 0x16, 0x26),
@@ -134,11 +134,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x06, 0x0B, 0x14), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x00140B06,   // #060B14 → COLORREF
-            DwmText:          0x00FFE500,   // #00E5FF → COLORREF
-            DwmBorder:        0x005A3A1E),  // #1E3A5A → COLORREF
+            DwmCaption:       0x00140B06,   // #060B14 â†’ COLORREF
+            DwmText:          0x00FFE500,   // #00E5FF â†’ COLORREF
+            DwmBorder:        0x005A3A1E),  // #1E3A5A â†’ COLORREF
 
-        // ── Sepia (old gold / warm dark) ─────────────────────────────────────
+        // â”€â”€ Sepia (old gold / warm dark) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Sepia] = new ThemeDef(
             Background:       C(0x1A, 0x12, 0x00),
             Surface:          C(0x26, 0x1A, 0x00),
@@ -149,11 +149,11 @@ internal static class SemaBuzzThemeManager
             Dead:             C(0x4A, 0x3A, 0x10),
             Header:           C(0x12, 0x0D, 0x00),
             WindowBackground: () => new SolidColorBrush(C(0x1A, 0x12, 0x00)),
-            DwmCaption:       0x0000121A,   // #1A1200 → COLORREF
-            DwmText:          0x0017A0D4,   // #D4A017 → COLORREF
-            DwmBorder:        0x00002E3D),  // #3D2E00 → COLORREF
+            DwmCaption:       0x0000121A,   // #1A1200 â†’ COLORREF
+            DwmText:          0x0017A0D4,   // #D4A017 â†’ COLORREF
+            DwmBorder:        0x00002E3D),  // #3D2E00 â†’ COLORREF
 
-        // ── Midnight (electric blue) ─────────────────────────────────────────
+        // â”€â”€ Midnight (electric blue) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Midnight] = new ThemeDef(
             Background:       C(0x00, 0x08, 0x14),
             Surface:          C(0x00, 0x10, 0x2A),
@@ -171,11 +171,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x00, 0x08, 0x14), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x00140800,   // #000814 → COLORREF
-            DwmText:          0x00FF7929,   // #2979FF → COLORREF
-            DwmBorder:        0x004A1E00),  // #001E4A → COLORREF
+            DwmCaption:       0x00140800,   // #000814 â†’ COLORREF
+            DwmText:          0x00FF7929,   // #2979FF â†’ COLORREF
+            DwmBorder:        0x004A1E00),  // #001E4A â†’ COLORREF
 
-        // ── Sunset (deep orange) ─────────────────────────────────────────────
+        // â”€â”€ Sunset (deep orange) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Sunset] = new ThemeDef(
             Background:       C(0x14, 0x08, 0x00),
             Surface:          C(0x1F, 0x0E, 0x00),
@@ -193,11 +193,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x14, 0x08, 0x00), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x00000814,   // #140800 → COLORREF
-            DwmText:          0x00006DFF,   // #FF6D00 → COLORREF
-            DwmBorder:        0x0000203D),  // #3D2000 → COLORREF
+            DwmCaption:       0x00000814,   // #140800 â†’ COLORREF
+            DwmText:          0x00006DFF,   // #FF6D00 â†’ COLORREF
+            DwmBorder:        0x0000203D),  // #3D2000 â†’ COLORREF
 
-        // ── Rose (hot pink / deep rose) ──────────────────────────────────────
+        // â”€â”€ Rose (hot pink / deep rose) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Rose] = new ThemeDef(
             Background:       C(0x14, 0x00, 0x10),
             Surface:          C(0x20, 0x00, 0x18),
@@ -215,11 +215,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x14, 0x00, 0x10), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x00100014,   // #140010 → COLORREF
-            DwmText:          0x005700F5,   // #F50057 → COLORREF
-            DwmBorder:        0x00300042),  // #420030 → COLORREF
+            DwmCaption:       0x00100014,   // #140010 â†’ COLORREF
+            DwmText:          0x005700F5,   // #F50057 â†’ COLORREF
+            DwmBorder:        0x00300042),  // #420030 â†’ COLORREF
 
-        // ── Violet (electric purple) ─────────────────────────────────────────
+        // â”€â”€ Violet (electric purple) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Violet] = new ThemeDef(
             Background:       C(0x0A, 0x00, 0x14),
             Surface:          C(0x12, 0x00, 0x20),
@@ -237,11 +237,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x0A, 0x00, 0x14), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x0014000A,   // #0A0014 → COLORREF
-            DwmText:          0x00FF00AA,   // #AA00FF → COLORREF
-            DwmBorder:        0x0050002A),  // #2A0050 → COLORREF
+            DwmCaption:       0x0014000A,   // #0A0014 â†’ COLORREF
+            DwmText:          0x00FF00AA,   // #AA00FF â†’ COLORREF
+            DwmBorder:        0x0050002A),  // #2A0050 â†’ COLORREF
 
-        // ── Emerald (rich green) ─────────────────────────────────────────────
+        // â”€â”€ Emerald (rich green) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Emerald] = new ThemeDef(
             Background:       C(0x00, 0x12, 0x09),
             Surface:          C(0x00, 0x1A, 0x0E),
@@ -259,11 +259,11 @@ internal static class SemaBuzzThemeManager
                     new GradientStop(C(0x00, 0x12, 0x09), 1.0),
                 },
                 new Point(0, 0), new Point(0, 1)),
-            DwmCaption:       0x00091200,   // #001209 → COLORREF
-            DwmText:          0x0053C800,   // #00C853 → COLORREF
-            DwmBorder:        0x00223D00),  // #003D22 → COLORREF
+            DwmCaption:       0x00091200,   // #001209 â†’ COLORREF
+            DwmText:          0x0053C800,   // #00C853 â†’ COLORREF
+            DwmBorder:        0x00223D00),  // #003D22 â†’ COLORREF
 
-        // ── Steel (blue-grey / industrial) ───────────────────────────────────
+        // â”€â”€ Steel (blue-grey / industrial) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         [SemaBuzzThemeId.Steel] = new ThemeDef(
             Background:       C(0x0A, 0x0D, 0x10),
             Surface:          C(0x11, 0x16, 0x20),
@@ -274,19 +274,19 @@ internal static class SemaBuzzThemeManager
             Dead:             C(0x2A, 0x35, 0x40),
             Header:           C(0x06, 0x08, 0x0A),
             WindowBackground: () => new SolidColorBrush(C(0x0A, 0x0D, 0x10)),
-            DwmCaption:       0x00100D0A,   // #0A0D10 → COLORREF
-            DwmText:          0x009C9078,   // #78909C → COLORREF
-            DwmBorder:        0x00352A20),  // #202A35 → COLORREF
+            DwmCaption:       0x00100D0A,   // #0A0D10 â†’ COLORREF
+            DwmText:          0x009C9078,   // #78909C â†’ COLORREF
+            DwmBorder:        0x00352A20),  // #202A35 â†’ COLORREF
     };
 
-    // ─── State ────────────────────────────────────────────────────────────────
+    // â”€â”€â”€ State â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static SemaBuzzThemeId Current { get; private set; } = SemaBuzzThemeId.Obsidian;
 
     /// <summary>The accent <see cref="Color"/> of the currently active theme.</summary>
     public static Color AccentColor => Palettes[Current].Accent;
 
-    // ─── Apply ────────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Apply â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
     /// Switch the application to <paramref name="theme"/>, updating all
@@ -299,7 +299,7 @@ internal static class SemaBuzzThemeManager
         var p   = Palettes[theme];
         var res = Application.Current.Resources;
 
-        // Brush resources — replaced wholesale so DynamicResource picks them up
+        // Brush resources â€” replaced wholesale so DynamicResource picks them up
         res["ObsidianBrush"]        = Solid(p.Background);
         res["ObsidianSurfaceBrush"] = Solid(p.Surface);
         res["ObsidianBorderBrush"]  = Solid(p.Border);
@@ -318,17 +318,17 @@ internal static class SemaBuzzThemeManager
         res["AmberGlowColor"]       = p.AccentGlow;
         res["WireDeadColor"]        = p.Dead;
 
-        // Window background — may be a LinearGradientBrush for gradient themes
+        // Window background â€” may be a LinearGradientBrush for gradient themes
         res["WindowBackgroundBrush"] = p.WindowBackground();
 
-        // DWM chrome — apply to every currently-open window
+        // DWM chrome â€” apply to every currently-open window
         foreach (Window w in Application.Current.Windows)
             SemaBuzzTheme.Apply(w, p.DwmCaption, p.DwmText, p.DwmBorder);
     }
 
     /// <summary>
     /// Apply only the DWM chrome (caption/text/border colors) of the current
-    /// theme to a single window — use this in dialog <c>OnSourceInitialized</c>
+    /// theme to a single window â€” use this in dialog <c>OnSourceInitialized</c>
     /// overrides so newly-opened windows match the active theme.
     /// </summary>
     public static void ApplyChrome(Window window)
@@ -337,7 +337,7 @@ internal static class SemaBuzzThemeManager
         SemaBuzzTheme.Apply(window, p.DwmCaption, p.DwmText, p.DwmBorder);
     }
 
-    // ─── Helpers ──────────────────────────────────────────────────────────────
+    // â”€â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     private static SolidColorBrush Solid(Color c) => new(c);
 }

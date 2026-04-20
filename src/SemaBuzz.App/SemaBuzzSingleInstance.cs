@@ -30,7 +30,7 @@ internal static class SemaBuzzSingleInstance
     // Raised when a secondary instance starts without a URI (user double-clicked the exe).
     public static event Action? FocusRequested;
 
-    // ─── First-instance check ─────────────────────────────────────────────────
+    // â”€â”€â”€ First-instance check â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
     /// Returns true if this is the first (primary) instance.
@@ -47,7 +47,7 @@ internal static class SemaBuzzSingleInstance
             // Mutex already existed. Try to acquire with zero timeout.
             try
             {
-                if (_mutex.WaitOne(0)) return true; // unowned — we got it
+                if (_mutex.WaitOne(0)) return true; // unowned â€” we got it
             }
             catch (AbandonedMutexException)
             {
@@ -56,17 +56,17 @@ internal static class SemaBuzzSingleInstance
 
             // Mutex is held by another process. Verify it's actually alive by
             // probing the named pipe with a short timeout. If it doesn't answer,
-            // it's a zombie holding the mutex — we proceed as primary anyway.
+            // it's a zombie holding the mutex â€” we proceed as primary anyway.
             try
             {
                 using var probe = new System.IO.Pipes.NamedPipeClientStream(
                     ".", PipeName, System.IO.Pipes.PipeDirection.Out);
                 probe.Connect(timeout: 500);
-                return false; // pipe answered — a real primary is running
+                return false; // pipe answered â€” a real primary is running
             }
             catch
             {
-                return true; // no pipe server — zombie process; we become primary
+                return true; // no pipe server â€” zombie process; we become primary
             }
         }
         catch (AbandonedMutexException)
@@ -75,7 +75,7 @@ internal static class SemaBuzzSingleInstance
         }
     }
 
-    // ─── Secondary instance ───────────────────────────────────────────────────
+    // â”€â”€â”€ Secondary instance â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     // Sent to the primary when a secondary instance is launched with no URI,
     // so the primary window still gets focused.
@@ -97,10 +97,10 @@ internal static class SemaBuzzSingleInstance
             writer.Flush();
             pipe.WaitForPipeDrain();
         }
-        catch { /* primary may have exited — ignore */ }
+        catch { /* primary may have exited â€” ignore */ }
     }
 
-    // ─── Primary instance listener ────────────────────────────────────────────
+    // â”€â”€â”€ Primary instance listener â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
     /// Starts listening for URIs forwarded from secondary instances.
@@ -136,7 +136,7 @@ internal static class SemaBuzzSingleInstance
                     UriReceived?.Invoke(line);
             }
             catch (OperationCanceledException) { break; }
-            catch { /* pipe error — restart listener */ }
+            catch { /* pipe error â€” restart listener */ }
         }
     }
 }

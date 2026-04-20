@@ -3,7 +3,7 @@ namespace SemaBuzz.Protocol;
 /// <summary>
 /// Variable-length wire packet carrying an ECDH public key for in-handshake
 /// key exchange. All SemaBuzz connections use ephemeral ECDH P-256 to establish
-/// a per-session AES-256-GCM shield — no passphrase required.
+/// a per-session AES-256-GCM shield â€” no passphrase required.
 ///
 /// Wire format:
 ///   [0x4B][0x45]      2-byte magic ("KE")

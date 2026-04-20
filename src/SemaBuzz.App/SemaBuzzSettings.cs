@@ -27,9 +27,9 @@ public enum LogPersistenceMode
 
 public enum IndicatorStyleId
 {
-    Flicker = 0, // Default (free) — chaotic multi-harmonic
-    Pulse   = 1, // PRO — clean single-harmonic heartbeat
-    Wave    = 2, // PRO — slow rolling sine
+    Flicker = 0, // Default (free) â€” chaotic multi-harmonic
+    Pulse   = 1, // PRO â€” clean single-harmonic heartbeat
+    Wave    = 2, // PRO â€” slow rolling sine
 }
 
 public sealed class SemaBuzzSettings
@@ -42,13 +42,13 @@ public sealed class SemaBuzzSettings
     /// </summary>
     public int?               DefaultListenPort { get; set; } = null;
 
-    /// <summary>Multiplier (0.5–2.0) applied to packet intensity before driving the filament.</summary>
+    /// <summary>Multiplier (0.5â€“2.0) applied to packet intensity before driving the filament.</summary>
     public double             IndicatorSensitivity { get; set; } = 1.0;
 
     /// <summary>PRO: filament animation style.</summary>
     public IndicatorStyleId   IndicatorStyle       { get; set; } = IndicatorStyleId.Flicker;
 
-    /// <summary>Font size used for chat message text (11–20).</summary>
+    /// <summary>Font size used for chat message text (11â€“20).</summary>
     public double             ChatFontSize         { get; set; } = 13.0;
 
     /// <summary>When true, keystrokes are streamed live to the peer as the user types.</summary>
@@ -60,7 +60,7 @@ public sealed class SemaBuzzSettings
     /// </summary>
     public string             RelayUri             { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
-    // ─── Persistence ──────────────────────────────────────────────────────────
+    // â”€â”€â”€ Persistence â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     internal static readonly string DataDir =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SemaBuzz");

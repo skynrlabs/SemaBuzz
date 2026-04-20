@@ -43,6 +43,6 @@ public static class SemaBuzzProfileStore
             Directory.CreateDirectory(_dir);
             File.WriteAllText(_path, JsonSerializer.Serialize(profiles, _opts));
         }
-        catch { /* best-effort — a disk error never breaks the session */ }
+        catch { /* best-effort â€” a disk error never breaks the session */ }
     }
 }
