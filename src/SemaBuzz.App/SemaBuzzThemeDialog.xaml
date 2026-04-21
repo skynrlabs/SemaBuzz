@@ -35,11 +35,7 @@
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0 0 6 0">
         <StackPanel Margin="28 22">
 
-        <!-- ── Standard ── -->
-        <TextBlock Text="STANDARD"
-                   Foreground="{DynamicResource AmberBrush}"
-                   FontWeight="Bold" FontSize="11"
-                   Margin="0 0 0 14"/>
+        <!-- Themes -->
 
         <!-- Obsidian Amber -->
         <Grid Margin="0 0 0 18">
@@ -60,24 +56,6 @@
                 </StackPanel>
             </Border>
         </Grid>
-
-        <!-- Divider -->
-        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 18"/>
-
-        <!-- ── Pro Themes ── -->
-        <StackPanel Orientation="Horizontal" Margin="0 0 0 14">
-            <TextBlock Text="PRO THEMES"
-                       Foreground="{DynamicResource AmberBrush}"
-                       FontWeight="Bold" FontSize="11"
-                       VerticalAlignment="Center"/>
-            <Border CornerRadius="3"
-                    BorderBrush="{DynamicResource AmberBrush}" BorderThickness="1"
-                    Background="Transparent" Padding="5 1" Margin="10 0 0 0"
-                    VerticalAlignment="Center">
-                <TextBlock Text="PRO" Foreground="{DynamicResource AmberBrush}"
-                           FontSize="9" FontWeight="Bold"/>
-            </Border>
-        </StackPanel>
 
         <!-- Neon -->
         <Grid x:Name="ThemeNeonRow" Margin="0 0 0 12">
@@ -305,6 +283,26 @@
             </Border>
         </Grid>
 
+        <!-- Powwow -->
+        <Grid x:Name="ThemePowwowRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemePowwow"
+                         Content="Powwow  (turquoise · earth)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemePowwow_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#130D07" BorderBrush="#4D2E12" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#00C8A0" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#1F1208" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         </StackPanel>
         </ScrollViewer>
 
@@ -313,13 +311,6 @@
 
         <!-- Footer -->
         <Grid Grid.Row="4" Margin="20 0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button x:Name="BuyNowThemeButton"
-                        Style="{StaticResource SemaBuzzButton}"
-                        Content="UPGRADE TO PRO"
-                        Visibility="Collapsed"
-                        Click="BuyNow_Click"/>
-            </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Button Style="{StaticResource SemaBuzzButton}" Content="CANCEL"
                         Margin="0 0 10 0" Click="Cancel_Click"/>

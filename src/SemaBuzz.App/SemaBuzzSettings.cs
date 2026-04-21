@@ -17,6 +17,7 @@ public enum SemaBuzzThemeId
     Violet    = 9,
     Emerald   = 10,
     Steel     = 11,
+    Powwow    = 12,
 }
 
 public enum LogPersistenceMode

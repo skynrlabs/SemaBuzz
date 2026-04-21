@@ -25,8 +25,9 @@ public partial class SemaBuzzThemeDialog : Window
             case SemaBuzzThemeId.Rose:      ThemeRose.IsChecked      = true; break;
             case SemaBuzzThemeId.Violet:    ThemeViolet.IsChecked    = true; break;
             case SemaBuzzThemeId.Emerald:   ThemeEmerald.IsChecked   = true; break;
-            case SemaBuzzThemeId.Steel:     ThemeSteel.IsChecked     = true; break;
-            default:                        ThemeObsidian.IsChecked  = true; break;
+            case SemaBuzzThemeId.Steel:    ThemeSteel.IsChecked    = true; break;
+            case SemaBuzzThemeId.Powwow:   ThemePowwow.IsChecked   = true; break;
+            default:                       ThemeObsidian.IsChecked = true; break;
         }
 
 
@@ -82,6 +83,9 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemeSteel_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Steel);
 
+    private void ThemePowwow_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Powwow);
+
     //  Footer
 
     private void Close_Click(object sender, RoutedEventArgs e)
@@ -90,5 +94,4 @@ public partial class SemaBuzzThemeDialog : Window
     private void Cancel_Click(object sender, RoutedEventArgs e)
         => DialogResult = false;
 
-    private void BuyNow_Click(object sender, RoutedEventArgs e) { }
 }

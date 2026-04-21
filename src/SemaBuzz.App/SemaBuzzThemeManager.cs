@@ -277,6 +277,28 @@ internal static class SemaBuzzThemeManager
             DwmCaption:       0x00100D0A,   // #0A0D10  COLORREF
             DwmText:          0x009C9078,   // #78909C  COLORREF
             DwmBorder:        0x00352A20),  // #202A35  COLORREF
+
+        //  Powwow (earth brown / turquoise)
+        [SemaBuzzThemeId.Powwow] = new ThemeDef(
+            Background:       C(0x13, 0x0D, 0x07),
+            Surface:          C(0x1F, 0x12, 0x08),
+            Border:           C(0x4D, 0x2E, 0x12),
+            Accent:           C(0x00, 0xC8, 0xA0),      // turquoise stone
+            AccentDim:        A(0x80, 0x00, 0xC8, 0xA0),
+            AccentGlow:       A(0x33, 0x00, 0xC8, 0xA0),
+            Dead:             C(0x3A, 0x22, 0x10),
+            Header:           C(0x0D, 0x08, 0x04),
+            WindowBackground: () => new LinearGradientBrush(
+                new GradientStopCollection
+                {
+                    new GradientStop(C(0x13, 0x0D, 0x07), 0.0),
+                    new GradientStop(C(0x1C, 0x10, 0x06), 0.5),
+                    new GradientStop(C(0x13, 0x0D, 0x07), 1.0),
+                },
+                new Point(0, 0), new Point(0, 1)),
+            DwmCaption:       0x00070D13,   // #130D07  COLORREF
+            DwmText:          0x00A0C800,   // #00C8A0  COLORREF
+            DwmBorder:        0x00122E4D),  // #4D2E12  COLORREF
     };
 
     //  State
