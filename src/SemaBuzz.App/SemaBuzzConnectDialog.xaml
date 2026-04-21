@@ -147,30 +147,24 @@
                        Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 6"/>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="buzz://"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource AmberBrush}"
-                           FontSize="13" FontWeight="Bold"
-                           Margin="0 0 4 0"/>
                 <TextBox x:Name="HostBuzzAddressBox"
-                         Grid.Column="1"
+                         Grid.Column="0"
                          Style="{StaticResource SemaBuzzInput}"
                          IsReadOnly="True"
                          FontSize="16"
                          FontWeight="Bold"
                          Margin="0 0 6 0"/>
                 <Button x:Name="CopyHostBuzzBtn"
-                        Grid.Column="2"
+                        Grid.Column="1"
                         Style="{StaticResource SemaBuzzButton}"
                         Content="COPY"
                         Click="CopyHostBuzz_Click"
                         Margin="0 0 4 0"/>
-                <Button Grid.Column="3"
+                <Button Grid.Column="2"
                         Style="{StaticResource SemaBuzzButton}"
                         Content="NEW"
                         Click="NewHostBuzz_Click"/>
@@ -180,21 +174,9 @@
         <!-- Buzz address (DIAL IN mode) -->
         <StackPanel x:Name="BuzzUrlPanel" Visibility="Collapsed" Margin="0 0 0 12">
             <TextBlock Text="Buzz Address" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="buzz://"
-                           VerticalAlignment="Center"
-                           Foreground="{DynamicResource AmberBrush}"
-                           FontSize="13" FontWeight="Bold"
-                           Margin="0 0 4 0"/>
-                <TextBox x:Name="BuzzUrlBox"
-                         Grid.Column="1"
-                         Style="{StaticResource SemaBuzzInput}"
-                         Text=""/>
-            </Grid>
+            <TextBox x:Name="BuzzUrlBox"
+                     Style="{StaticResource SemaBuzzInput}"
+                     Text=""/>
         </StackPanel>
 
         </StackPanel>

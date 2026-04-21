@@ -58,10 +58,8 @@ public partial class SemaBuzzConnectDialog : Window
         Loaded += (_, _) =>
         {
             DialMode.IsChecked = true;
-            // Strip buzz:// prefix — the box now shows only the token
-            BuzzUrlBox.Text = dialBuzzUri.StartsWith("buzz://", StringComparison.OrdinalIgnoreCase)
-                ? dialBuzzUri["buzz://".Length..].ToUpperInvariant()
-                : dialBuzzUri.ToUpperInvariant();
+            // Preserve full buzz:// address — user can also paste bare token
+            BuzzUrlBox.Text = dialBuzzUri;
         };
     }
 
