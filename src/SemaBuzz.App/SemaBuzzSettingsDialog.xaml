@@ -166,10 +166,11 @@
         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
 
         <!-- ═══ RELAY SERVER ═══ -->
-        <TextBlock Text="RELAY SERVER"
-                   Foreground="{DynamicResource AmberBrush}"
-                   FontWeight="Bold" FontSize="11"
-                   Margin="0 0 0 10"/>
+        <StackPanel x:Name="RelayLabelRow" Orientation="Horizontal" Margin="0 0 0 10">
+            <TextBlock Text="RELAY SERVER"
+                       Foreground="{DynamicResource AmberBrush}"
+                       FontWeight="Bold" FontSize="11"/>
+        </StackPanel>
 
         <Grid Margin="0 0 0 6">
             <Grid.ColumnDefinitions>
@@ -180,7 +181,8 @@
                      Grid.Column="0"
                      Style="{StaticResource SemaBuzzInput}"
                      Margin="0 0 6 0"/>
-            <Button Grid.Column="1"
+            <Button x:Name="ResetRelayButton"
+                    Grid.Column="1"
                     Style="{StaticResource SemaBuzzButton}"
                     Content="RESET"
                     Click="ResetRelayUri_Click"/>

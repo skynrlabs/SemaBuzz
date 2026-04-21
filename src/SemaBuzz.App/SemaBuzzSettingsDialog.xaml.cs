@@ -55,6 +55,11 @@ public partial class SemaBuzzSettingsDialog : Window
             });
             IndicatorStyleLabelRow.Children.Add(MakeProBadge());
 
+            RelayUriBox.IsEnabled       = false;
+            ResetRelayButton.IsEnabled  = false;
+            RelayLabelRow.Children.Add(MakeProBadge());
+            RelayUriBox.Text            = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+
             // Fall back to free options if a gated one is currently active
             if (s.IndicatorStyle != IndicatorStyleId.Flicker)
                 StyleFlicker.IsChecked = true;
@@ -110,9 +115,9 @@ public partial class SemaBuzzSettingsDialog : Window
         SelectedLivePreview = LivePreviewCheck.IsChecked == true;
 
         var relayUri = RelayUriBox.Text.Trim();
-        SelectedRelayUri = string.IsNullOrWhiteSpace(relayUri)
-            ? SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri
-            : relayUri;
+        SelectedRelayUri = SemaBuzzLicense.IsProUnlocked && !string.IsNullOrWhiteSpace(relayUri)
+            ? relayUri
+            : SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
         DialogResult = true;
     }
@@ -152,6 +157,10 @@ public partial class SemaBuzzSettingsDialog : Window
             StyleWave.Content    = "Wave";
             if (IndicatorStyleLabelRow.Children.Count > 1)
                 IndicatorStyleLabelRow.Children.RemoveAt(IndicatorStyleLabelRow.Children.Count - 1);
+            RelayUriBox.IsEnabled      = true;
+            ResetRelayButton.IsEnabled = true;
+            if (RelayLabelRow.Children.Count > 1)
+                RelayLabelRow.Children.RemoveAt(RelayLabelRow.Children.Count - 1);
             BuyNowSettingsButton.IsEnabled = false;
             BuyNowSettingsButton.Content   = "\u2713 SemaBuzz Pro";
         }

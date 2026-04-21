@@ -59,6 +59,22 @@ public partial class App : Application
         _ = Task.Run(SemaBuzzLicense.CheckAsync).ContinueWith(_ =>
             Dispatcher.InvokeAsync(() =>
             {
+                if (!SemaBuzzLicense.IsProUnlocked)
+                {
+                    var changed = false;
+                    if (Settings.Theme != SemaBuzzThemeId.Obsidian)
+                    {
+                        Settings.Theme = SemaBuzzThemeId.Obsidian;
+                        SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
+                        changed = true;
+                    }
+                    if (Settings.RelayUri != SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri)
+                    {
+                        Settings.RelayUri = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+                        changed = true;
+                    }
+                    if (changed) Settings.Save();
+                }
                 if (MainWindow is MainWindow win)
                     win.ApplyLicenseBanner();
             }));

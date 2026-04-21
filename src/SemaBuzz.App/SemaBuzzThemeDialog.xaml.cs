@@ -1,5 +1,7 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SemaBuzz.App;
 
@@ -30,7 +32,38 @@ public partial class SemaBuzzThemeDialog : Window
             default:                       ThemeObsidian.IsChecked = true; break;
         }
 
-
+        if (!SemaBuzzLicense.IsProUnlocked)
+        {
+            (RadioButton Rb, string Label)[] proThemes =
+            [
+                (ThemeNeon,      "Neon  (pink \u00b7 purple)"),
+                (ThemeMatrix,    "Matrix  (CRT green \u00b7 black)"),
+                (ThemeBloodMoon, "Blood Moon  (crimson \u00b7 black)"),
+                (ThemeArctic,    "Arctic  (icy cyan \u00b7 deep navy)"),
+                (ThemeSepia,     "Sepia  (old gold \u00b7 dark oak)"),
+                (ThemeMidnight,  "Midnight  (electric blue \u00b7 void)"),
+                (ThemeSunset,    "Sunset  (deep orange \u00b7 char)"),
+                (ThemeRose,      "Rose  (hot pink \u00b7 dark)"),
+                (ThemeViolet,    "Violet  (electric purple \u00b7 void)"),
+                (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
+                (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
+                (ThemePowwow,    "Powwow  (turquoise \u00b7 earth)"),
+            ];
+            foreach (var (rb, label) in proThemes)
+            {
+                rb.IsEnabled = false;
+                rb.Content   = MakeProContent(label);
+            }
+            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian)
+            {
+                ThemeObsidian.IsChecked = true;
+                SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
+            }
+        }
+        else
+        {
+            BuyNowThemeButton.Visibility = Visibility.Collapsed;
+        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -88,10 +121,98 @@ public partial class SemaBuzzThemeDialog : Window
 
     //  Footer
 
+    private async void BuyNow_Click(object sender, RoutedEventArgs e)
+    {
+        var purchased = await SemaBuzzLicense.PurchaseAsync();
+        if (purchased)
+        {
+            (RadioButton Rb, string Label)[] proThemes =
+            [
+                (ThemeNeon,      "Neon  (pink \u00b7 purple)"),
+                (ThemeMatrix,    "Matrix  (CRT green \u00b7 black)"),
+                (ThemeBloodMoon, "Blood Moon  (crimson \u00b7 black)"),
+                (ThemeArctic,    "Arctic  (icy cyan \u00b7 deep navy)"),
+                (ThemeSepia,     "Sepia  (old gold \u00b7 dark oak)"),
+                (ThemeMidnight,  "Midnight  (electric blue \u00b7 void)"),
+                (ThemeSunset,    "Sunset  (deep orange \u00b7 char)"),
+                (ThemeRose,      "Rose  (hot pink \u00b7 dark)"),
+                (ThemeViolet,    "Violet  (electric purple \u00b7 void)"),
+                (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
+                (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
+                (ThemePowwow,    "Powwow  (turquoise \u00b7 earth)"),
+            ];
+            foreach (var (rb, label) in proThemes)
+            {
+                rb.IsEnabled = true;
+                rb.Content   = label;
+            }
+            BuyNowThemeButton.IsEnabled = false;
+            BuyNowThemeButton.Content   = "\u2713 SemaBuzz Pro";
+        }
+    }
+
     private void Close_Click(object sender, RoutedEventArgs e)
         => DialogResult = true;
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
         => DialogResult = false;
+
+    //  Pro badge helpers
+
+    private static StackPanel MakeProContent(string label) => BuildProPanel(label);
+
+    private static Border MakeProBadge()
+    {
+        var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
+        var badge = new Border
+        {
+            CornerRadius      = new CornerRadius(3),
+            BorderBrush       = accentBrush,
+            BorderThickness   = new Thickness(1),
+            Background        = Brushes.Transparent,
+            Padding           = new Thickness(5, 1, 5, 1),
+            Margin            = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        badge.Child = new TextBlock
+        {
+            Text       = "PRO",
+            Foreground = accentBrush,
+            FontSize   = 9,
+            FontWeight = FontWeights.Bold,
+            FontFamily = new FontFamily("Cascadia Code, Consolas"),
+        };
+        return badge;
+    }
+
+    private static StackPanel BuildProPanel(string label)
+    {
+        var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
+        var panel = new StackPanel { Orientation = Orientation.Horizontal };
+        panel.Children.Add(new TextBlock
+        {
+            Text              = label,
+            VerticalAlignment = VerticalAlignment.Center,
+        });
+        panel.Children.Add(new Border
+        {
+            CornerRadius      = new CornerRadius(3),
+            BorderBrush       = accentBrush,
+            BorderThickness   = new Thickness(1),
+            Background        = Brushes.Transparent,
+            Padding           = new Thickness(5, 1, 5, 1),
+            Margin            = new Thickness(8, 0, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center,
+            Child             = new TextBlock
+            {
+                Text       = "PRO",
+                Foreground = accentBrush,
+                FontSize   = 9,
+                FontWeight = FontWeights.Bold,
+                FontFamily = new FontFamily("Cascadia Code, Consolas"),
+            },
+        });
+        return panel;
+    }
 
 }
