@@ -15,6 +15,7 @@ public sealed class SemaBuzzClient : IDisposable
     private UdpClient?     _udp;
     private ClientWebSocket? _wsClient;          // non-null when in WebSocket relay mode
     private Func<byte[], Task>? _wsSend;          // send delegate set after relay pairing
+    private readonly SemaphoreSlim _wsSendLock = new(1, 1); // serializes concurrent ws.SendAsync calls
     private IPEndPoint? _peer;
     private CancellationTokenSource? _cts;
     private bool _disposed;
@@ -205,7 +206,14 @@ public sealed class SemaBuzzClient : IDisposable
         _wsSend = async data =>
         {
             if (ws.State != WebSocketState.Open) return;
-            try { await ws.SendAsync(data, WebSocketMessageType.Binary, true, _cts!.Token); } catch { }
+            await _wsSendLock.WaitAsync();
+            try
+            {
+                if (ws.State != WebSocketState.Open) return;
+                await ws.SendAsync(data, WebSocketMessageType.Binary, true, _cts!.Token);
+            }
+            catch { }
+            finally { _wsSendLock.Release(); }
         };
 
         SetState(SemaBuzzWireState.Warming, "Relay paired \u2014 completing handshake...");
