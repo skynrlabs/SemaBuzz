@@ -19,6 +19,7 @@ public sealed class SemaBuzzListener : IDisposable
     private int _port;
     private bool _disposed;
     private byte[]? _localPubKeyBytes; // saved so we can resend on client retransmit
+    private ECDiffieHellman? _pendingEcdh;  // set in relay mode so we reuse the initiated key pair
 
     public event EventHandler<SemaBuzzPacketEventArgs>?    PacketReceived;
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
@@ -95,6 +96,12 @@ public sealed class SemaBuzzListener : IDisposable
         };
 
         _port = 0;
+
+        // Host initiates ECDH so web-based dialers (which wait for the host to go first) work.
+        _pendingEcdh      = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
+        _localPubKeyBytes = _pendingEcdh.PublicKey.ExportSubjectPublicKeyInfo();
+        await _wsSend(SemaBuzzKeyExchange.Serialize(_localPubKeyBytes));
+
         SetState(SemaBuzzWireState.Warming, "Peer connected via relay \u2014 completing handshake...");
 
         // Relay dummy endpoint: used as the stand-in remote address in HandleIncomingAsync.
@@ -197,9 +204,16 @@ public sealed class SemaBuzzListener : IDisposable
             var peerPubKeyBytes = SemaBuzzKeyExchange.Deserialize(data);
             if (peerPubKeyBytes == null) return;
 
-            using var localEcdh = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
-            var localPubKeyBytes = localEcdh.PublicKey.ExportSubjectPublicKeyInfo();
-            _localPubKeyBytes = localPubKeyBytes; // save for retransmits
+            // If we already sent our KE (relay host-initiates flow), reuse that key pair.
+            // Otherwise generate a fresh ephemeral pair now (classic dialer-initiates flow).
+            ECDiffieHellman? newLocalEcdh = _pendingEcdh == null
+                ? ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256)
+                : null;
+            var localEcdh        = _pendingEcdh ?? newLocalEcdh!;
+            var localPubKeyBytes = _pendingEcdh != null
+                ? _localPubKeyBytes!
+                : localEcdh.PublicKey.ExportSubjectPublicKeyInfo();
+            if (_pendingEcdh == null) _localPubKeyBytes = localPubKeyBytes;
 
             using var peerEcdh = ECDiffieHellman.Create();
             peerEcdh.ImportSubjectPublicKeyInfo(peerPubKeyBytes, out _);
@@ -210,8 +224,18 @@ public sealed class SemaBuzzListener : IDisposable
             Shield = new SemaBuzzShield(rawSecret);
             CryptographicOperations.ZeroMemory(rawSecret);
 
-            // Send our public key back (key exchange is always plaintext)
-            await SendRawAsync(SemaBuzzKeyExchange.Serialize(localPubKeyBytes), result.RemoteEndPoint);
+            if (_pendingEcdh != null)
+            {
+                // Host-initiates flow: our key was already sent — don't send again.
+                _pendingEcdh.Dispose();
+                _pendingEcdh = null;
+            }
+            else
+            {
+                // Classic flow: send our public key back now.
+                await SendRawAsync(SemaBuzzKeyExchange.Serialize(localPubKeyBytes), result.RemoteEndPoint);
+                newLocalEcdh!.Dispose();
+            }
 
             PeerEndPoint = result.RemoteEndPoint;
             SetState(SemaBuzzWireState.Warming, "Handshake received \u2014 awaiting host approval...");
@@ -421,6 +445,8 @@ public sealed class SemaBuzzListener : IDisposable
             _udp?.Dispose();
             _wsClient?.Dispose();
             _cts?.Dispose();
+            _pendingEcdh?.Dispose();
+            _pendingEcdh = null;
             _disposed = true;
         }
     }

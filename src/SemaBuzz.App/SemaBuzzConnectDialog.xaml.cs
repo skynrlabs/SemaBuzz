@@ -45,7 +45,7 @@ public partial class SemaBuzzConnectDialog : Window
 
         Loaded += (_, _) =>
         {
-            HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken());
+            HostBuzzAddressBox.Text = SemaBuzzRelayPacket.GenerateToken().ToUpperInvariant();
         };
     }
 
@@ -96,7 +96,7 @@ public partial class SemaBuzzConnectDialog : Window
     }
 
     private void NewHostBuzz_Click(object sender, RoutedEventArgs e)
-        => HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken());
+        => HostBuzzAddressBox.Text = SemaBuzzRelayPacket.GenerateToken().ToUpperInvariant();
 
     protected override void OnClosed(EventArgs e) => base.OnClosed(e);
 
@@ -270,11 +270,10 @@ public partial class SemaBuzzConnectDialog : Window
 
         if (IsHost)
         {
-            var buzzAddr = HostBuzzAddressBox.Text?.Trim() ?? string.Empty;
-            var parsed   = SemaBuzzUriHandler.TryParse(buzzAddr);
-            if (parsed?.RelayToken is not { Length: > 0 } tok)
+            var tok = (HostBuzzAddressBox.Text?.Trim() ?? string.Empty).ToUpperInvariant();
+            if (tok.Length is < 4 or > 8)
             {
-                MessageBox.Show("No Buzz address  click NEW to generate one.", "SemaBuzz",
+                MessageBox.Show("No session token — click NEW to generate one.", "SemaBuzz",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
