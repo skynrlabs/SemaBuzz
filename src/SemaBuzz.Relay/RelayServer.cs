@@ -186,8 +186,8 @@ internal sealed class RelayServer
         var cutoff = DateTime.UtcNow - RoomTtl;
         foreach (var kvp in _rooms.ToArray())
         {
-            if (kvp.Value.LastActive < cutoff && _rooms.TryRemove(kvp.Key, out _))
-                Console.WriteLine($"[relay] swept  token={kvp.Key}");
+            if (kvp.Value.LastActive < cutoff)
+                _rooms.TryRemove(kvp.Key, out _);
         }
     }
 
