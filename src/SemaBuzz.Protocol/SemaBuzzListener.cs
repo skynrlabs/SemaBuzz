@@ -217,12 +217,8 @@ public sealed class SemaBuzzListener : IDisposable
 
             using var peerEcdh = ECDiffieHellman.Create();
             peerEcdh.ImportSubjectPublicKeyInfo(peerPubKeyBytes, out _);
-            var rawSecret = localEcdh.DeriveKeyFromHash(
-                peerEcdh.PublicKey, HashAlgorithmName.SHA256,
-                secretPrepend: "SemaBuzz-ecdh-v2"u8.ToArray(),
-                secretAppend:  null);
-            Shield = new SemaBuzzShield(rawSecret);
-            CryptographicOperations.ZeroMemory(rawSecret);
+            var rawSecret = localEcdh.DeriveRawSecretAgreement(peerEcdh.PublicKey);
+            Shield = SemaBuzzShield.FromEcdhSecret(rawSecret);
 
             if (_pendingEcdh != null)
             {

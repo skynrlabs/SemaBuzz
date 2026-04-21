@@ -182,11 +182,8 @@ public sealed class SemaBuzzClient : IDisposable
                     if (peerPub == null) continue;
                     using var peerEcdh = ECDiffieHellman.Create();
                     peerEcdh.ImportSubjectPublicKeyInfo(peerPub, out _);
-                    var raw = localEcdh.DeriveKeyFromHash(
-                        peerEcdh.PublicKey, HashAlgorithmName.SHA256,
-                        secretPrepend: "SemaBuzz-ecdh-v2"u8.ToArray(), secretAppend: null);
-                    Shield = new SemaBuzzShield(raw);
-                    CryptographicOperations.ZeroMemory(raw);
+                    var raw = localEcdh.DeriveRawSecretAgreement(peerEcdh.PublicKey);
+                    Shield = SemaBuzzShield.FromEcdhSecret(raw);
                     continue;
                 }
 
@@ -296,12 +293,8 @@ public sealed class SemaBuzzClient : IDisposable
                     // Import the host's public key and derive the shared AES key.
                     using var peerEcdh = ECDiffieHellman.Create();
                     peerEcdh.ImportSubjectPublicKeyInfo(peerPubKeyBytes, out _);
-                    var rawSecret = localEcdh.DeriveKeyFromHash(
-                        peerEcdh.PublicKey, HashAlgorithmName.SHA256,
-                        secretPrepend: "SemaBuzz-ecdh-v2"u8.ToArray(),
-                        secretAppend:  null);
-                    Shield = new SemaBuzzShield(rawSecret);
-                    CryptographicOperations.ZeroMemory(rawSecret);
+                    var rawSecret = localEcdh.DeriveRawSecretAgreement(peerEcdh.PublicKey);
+                    Shield = SemaBuzzShield.FromEcdhSecret(rawSecret);
                     continue;
                 }
 
