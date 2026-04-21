@@ -372,27 +372,28 @@ public partial class MainWindow : Window
 
     private void CommitLine()
     {
-        // Capture message for the encrypted log BEFORE clearing/hyperlinkifying
-        if (_localLiveBlock != null && App.Settings.LogPersistence == LogPersistenceMode.PermanentEncrypted)
-        {
-            var prefix = (string)_localLiveBlock.Tag;
-            var msg    = _localLiveBlock.Text.Length > prefix.Length
-                             ? _localLiveBlock.Text[prefix.Length..]
-                             : string.Empty;
-            if (!string.IsNullOrWhiteSpace(msg))
-                SemaBuzzChatLog.Append("out", _localHandle, msg);
-        }
+        var msg = InputBox.Text;
+        if (string.IsNullOrEmpty(msg)) return;
 
-        // When LivePreview is off the streamer hasn't seen the chars yet  feed them now.
-        if (!App.Settings.LivePreview && InputBox.Text.Length > 0)
-            foreach (var c in InputBox.Text)
+        // When LivePreview is off the streamer hasn't seen the chars yet — feed them now.
+        if (!App.Settings.LivePreview)
+            foreach (var c in msg)
                 _streamer.Feed(c);
 
-        // Freeze current live line, clear the box.
+        // Persist to encrypted log
+        if (App.Settings.LogPersistence == LogPersistenceMode.PermanentEncrypted)
+            SemaBuzzChatLog.Append("out", _localHandle, msg);
+
+        // Add the committed row to the local pane
+        var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
+        tb.Text = (string)tb.Tag + msg;
+        HyperlinkifyTextBlock(tb);
+        LocalPanel.Children.Add(row);
+        LocalScrollViewer.ScrollToEnd();
+
+        // Clear the box.
         // Set _previousInputText to "" BEFORE Clear() so TextChanged
         // sees no length change and doesn't send spurious backspaces.
-        if (_localLiveBlock != null)
-            HyperlinkifyTextBlock(_localLiveBlock);
         _localLiveRow      = null;
         _localLiveBlock    = null;
         _previousInputText = string.Empty;
@@ -435,9 +436,6 @@ public partial class MainWindow : Window
     // Called by the streamer - fires on UI thread already
     private void OnLocalPacketReady(object? sender, SemaBuzzPacketEventArgs e)
     {
-        // Update our own live display
-        UpdateLocalChatLine(InputBox.Text);
-
         // Queue for batch send (flushed every 50 ms by _batchTimer)
         _pendingPackets.Add(e.Packet);
         if (!_batchTimer!.IsEnabled) _batchTimer.Start();
@@ -647,32 +645,6 @@ public partial class MainWindow : Window
         }
         anim.KeyFrames.Add(new LinearDoubleKeyFrame(origin, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(steps * 40))));
         BeginAnimation(LeftProperty, anim);
-    }
-
-    private void UpdateLocalChatLine(string text)
-    {
-        if (string.IsNullOrEmpty(text))
-        {
-            // All text cleared — remove the live row entirely
-            if (_localLiveRow != null)
-            {
-                LocalPanel.Children.Remove(_localLiveRow);
-                _localLiveRow   = null;
-                _localLiveBlock = null;
-            }
-            return;
-        }
-
-        if (_localLiveBlock == null)
-        {
-            var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
-            _localLiveRow   = row;
-            _localLiveBlock = tb;
-            LocalPanel.Children.Add(_localLiveRow);
-        }
-
-        _localLiveBlock.Text = (string)_localLiveBlock.Tag + text;
-        LocalScrollViewer.ScrollToEnd();
     }
 
     private void AppendPeerCharacter(char ch)
