@@ -164,14 +164,67 @@
             </Grid>
         </Border>
 
-        <!-- Chat Area -->
-        <ScrollViewer Grid.Row="3" x:Name="ChatScrollViewer"
-                      Background="{DynamicResource WindowBackgroundBrush}"
-                      VerticalScrollBarVisibility="Auto"
-                      HorizontalScrollBarVisibility="Disabled"
-                      Padding="20 16">
-            <StackPanel x:Name="ChatPanel" Orientation="Vertical"/>
-        </ScrollViewer>
+        <!-- Two-pane chat area: local (left) | peer (right) -->
+        <Grid Grid.Row="3" Background="{DynamicResource WindowBackgroundBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Local pane -->
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0"
+                        Background="{DynamicResource WindowHeaderBrush}"
+                        Padding="14 5">
+                    <TextBlock x:Name="LocalPaneLabel"
+                               Text="YOU"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource AmberBrush}"
+                               Opacity="0.7"/>
+                </Border>
+                <ScrollViewer Grid.Row="1"
+                              x:Name="LocalScrollViewer"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="14 10">
+                    <StackPanel x:Name="LocalPanel" Orientation="Vertical"/>
+                </ScrollViewer>
+            </Grid>
+
+            <!-- Divider -->
+            <Rectangle Grid.Column="1" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+            <!-- Peer pane -->
+            <Grid Grid.Column="2">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border Grid.Row="0"
+                        Background="{DynamicResource WindowHeaderBrush}"
+                        Padding="14 5">
+                    <TextBlock x:Name="PeerPaneLabel"
+                               Text="PEER"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="#888888"
+                               Opacity="0.7"/>
+                </Border>
+                <ScrollViewer Grid.Row="1"
+                              x:Name="PeerScrollViewer"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              Padding="14 10">
+                    <StackPanel x:Name="PeerPanel" Orientation="Vertical"/>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
 
         <!-- BuzzIndicator -->
         <Border Grid.Row="4" Background="{DynamicResource WindowHeaderBrush}" Padding="20 0">

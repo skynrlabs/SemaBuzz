@@ -125,6 +125,7 @@ public partial class MainWindow : Window
 
             _localHandle    = dialog.Handle;
             _localAvatarPng = dialog.AvatarPng;
+            LocalPaneLabel.Text = dialog.Handle.ToUpperInvariant();
 
             StartConnecting(dialog.PeerHost, dialog.Port, _cts.Token);
         }
@@ -152,6 +153,7 @@ public partial class MainWindow : Window
 
             _localHandle    = dialog.Handle;
             _localAvatarPng = dialog.AvatarPng;
+            LocalPaneLabel.Text = dialog.Handle.ToUpperInvariant();
 
             if (dialog.IsHost)
             {
@@ -196,7 +198,8 @@ public partial class MainWindow : Window
 
     private void View_ClearChat_Click(object sender, RoutedEventArgs e)
     {
-        ChatPanel.Children.Clear();
+        LocalPanel.Children.Clear();
+        PeerPanel.Children.Clear();
         _localLiveRow      = null;
         _localLiveBlock    = null;
         _peerLiveRow       = null;
@@ -620,7 +623,8 @@ public partial class MainWindow : Window
         {
             _peerHandle    = e.Handle;
             _peerAvatarPng = e.AvatarPng;
-            PeerLabel.Text = e.Handle;
+            PeerLabel.Text     = e.Handle;
+            PeerPaneLabel.Text = e.Handle.ToUpperInvariant();
         });
     }
 
@@ -649,10 +653,10 @@ public partial class MainWindow : Window
     {
         if (string.IsNullOrEmpty(text))
         {
-            // All text cleared ï¿½ remove the live row entirely
+            // All text cleared — remove the live row entirely
             if (_localLiveRow != null)
             {
-                ChatPanel.Children.Remove(_localLiveRow);
+                LocalPanel.Children.Remove(_localLiveRow);
                 _localLiveRow   = null;
                 _localLiveBlock = null;
             }
@@ -661,17 +665,14 @@ public partial class MainWindow : Window
 
         if (_localLiveBlock == null)
         {
-            // Starting a new local message ï¿½ freeze the peer's live line first
-            _peerLiveRow   = null;
-            _livePeerBlock = null;
             var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, Color.FromRgb(0xFF, 0xB3, 0x00));
             _localLiveRow   = row;
             _localLiveBlock = tb;
-            ChatPanel.Children.Add(_localLiveRow);
+            LocalPanel.Children.Add(_localLiveRow);
         }
 
         _localLiveBlock.Text = (string)_localLiveBlock.Tag + text;
-        ChatScrollViewer.ScrollToEnd();
+        LocalScrollViewer.ScrollToEnd();
     }
 
     private void AppendPeerCharacter(char ch)
@@ -683,13 +684,10 @@ public partial class MainWindow : Window
 
         if (_livePeerBlock == null)
         {
-            // Starting a new peer message ï¿½ freeze local's live line first
-            _localLiveRow   = null;
-            _localLiveBlock = null;
             var (row, tb) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x88, 0x88, 0x88));
             _peerLiveRow   = row;
             _livePeerBlock = tb;
-            ChatPanel.Children.Add(_peerLiveRow);
+            PeerPanel.Children.Add(_peerLiveRow);
         }
 
         if (ch == '\b')
@@ -701,7 +699,7 @@ public partial class MainWindow : Window
             // All text removed ï¿½ remove the row
             if (_livePeerBlock.Text == prefix)
             {
-                ChatPanel.Children.Remove(_peerLiveRow);
+                PeerPanel.Children.Remove(_peerLiveRow);
                 _peerLiveRow   = null;
                 _livePeerBlock = null;
                 return;
@@ -733,7 +731,7 @@ public partial class MainWindow : Window
         {
             _livePeerBlock.Text += ch;
         }
-        ChatScrollViewer.ScrollToEnd();
+        PeerScrollViewer.ScrollToEnd();
     }
 
     /// <summary>
@@ -918,7 +916,7 @@ public partial class MainWindow : Window
         _livePeerBlock     = null;
         _previousInputText = string.Empty;
 
-        var divider = new TextBlock
+        var makeDiv = () => new TextBlock
         {
             Text       = message,
             Foreground = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x44)),
@@ -926,8 +924,10 @@ public partial class MainWindow : Window
             FontStyle  = FontStyles.Italic,
             Margin     = new Thickness(0, 8, 0, 8),
         };
-        ChatPanel.Children.Add(divider);
-        ChatScrollViewer.ScrollToEnd();
+        LocalPanel.Children.Add(makeDiv());
+        PeerPanel.Children.Add(makeDiv());
+        LocalScrollViewer.ScrollToEnd();
+        PeerScrollViewer.ScrollToEnd();
     }
 
     // ---------------------------------------------
@@ -983,7 +983,7 @@ public partial class MainWindow : Window
 
         foreach (var entry in entries)
         {
-            var isOut    = entry.Direction == "out";
+            var isOut = entry.Direction == "out";
             var nameColor = isOut
                 ? SemaBuzzThemeManager.AccentColor
                 : Color.FromRgb(0x88, 0x88, 0x88);
@@ -991,11 +991,13 @@ public partial class MainWindow : Window
             var (row, tb) = MakeChatLine(entry.Handle, null, nameColor);
             tb.Text = (string)tb.Tag + entry.Message;
             HyperlinkifyTextBlock(tb);
-            ChatPanel.Children.Add(row);
+            if (isOut) LocalPanel.Children.Add(row);
+            else       PeerPanel.Children.Add(row);
         }
 
         AddChatDivider("--- this session ---");
-        ChatScrollViewer.ScrollToEnd();
+        LocalScrollViewer.ScrollToEnd();
+        PeerScrollViewer.ScrollToEnd();
     }
 
     protected override void OnClosed(EventArgs e)
