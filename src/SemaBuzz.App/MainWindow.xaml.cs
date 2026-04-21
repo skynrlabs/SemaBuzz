@@ -665,7 +665,7 @@ public partial class MainWindow : Window
 
         if (_localLiveBlock == null)
         {
-            var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, Color.FromRgb(0xFF, 0xB3, 0x00));
+            var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
             _localLiveRow   = row;
             _localLiveBlock = tb;
             LocalPanel.Children.Add(_localLiveRow);
@@ -737,8 +737,11 @@ public partial class MainWindow : Window
     /// <summary>
     /// Returns a Grid row containing an avatar Ellipse (or initials fallback) and a TextBlock.
     /// TextBlock.Tag stores the prefix string so we can clear content back to it.
+    /// Pass <paramref name="accentResourceKey"/> (e.g. "AmberBrush") to bind Foreground as a
+    /// DynamicResource so the text recolors automatically when the theme changes.
     /// </summary>
-    private static (Grid Row, TextBlock TextBlock) MakeChatLine(string handle, byte[]? avatarPng, Color nameColor)
+    private static (Grid Row, TextBlock TextBlock) MakeChatLine(
+        string handle, byte[]? avatarPng, Color nameColor, string? accentResourceKey = null)
     {
         var grid = new Grid { Margin = new Thickness(0, 3, 0, 3) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
@@ -783,7 +786,7 @@ public partial class MainWindow : Window
         grid.Children.Add(ellipse);
 
         // Text area
-        var prefix = $"{handle}  ï¿½ ";
+        var prefix = $"{handle}  \u00bb ";
         var tb = new TextBlock
         {
             Text         = prefix,
@@ -795,6 +798,8 @@ public partial class MainWindow : Window
             VerticalAlignment = VerticalAlignment.Top,
             Margin       = new Thickness(4, 2, 0, 0),
         };
+        if (accentResourceKey != null)
+            tb.SetResourceReference(TextBlock.ForegroundProperty, accentResourceKey);
 
         Grid.SetColumn(tb, 1);
         grid.Children.Add(tb);
@@ -988,7 +993,8 @@ public partial class MainWindow : Window
                 ? SemaBuzzThemeManager.AccentColor
                 : Color.FromRgb(0x88, 0x88, 0x88);
 
-            var (row, tb) = MakeChatLine(entry.Handle, null, nameColor);
+            var resourceKey = isOut ? "AmberBrush" : null;
+            var (row, tb) = MakeChatLine(entry.Handle, null, nameColor, resourceKey);
             tb.Text = (string)tb.Tag + entry.Message;
             HyperlinkifyTextBlock(tb);
             if (isOut) LocalPanel.Children.Add(row);
