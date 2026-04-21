@@ -45,9 +45,7 @@ public partial class MainWindow : Window
     private bool   _peerSeqInitialized;
 
     // Chat row containers (tracked so they can be removed when cleared)
-    private Grid?      _localLiveRow;
     private Grid?      _peerLiveRow;
-    private TextBlock? _localLiveBlock;
     private TextBlock? _livePeerBlock;
 
     // Local identity (set from connect dialog)
@@ -200,8 +198,6 @@ public partial class MainWindow : Window
     {
         LocalPanel.Children.Clear();
         PeerPanel.Children.Clear();
-        _localLiveRow      = null;
-        _localLiveBlock    = null;
         _peerLiveRow       = null;
         _livePeerBlock     = null;
         _previousInputText = string.Empty;
@@ -394,8 +390,6 @@ public partial class MainWindow : Window
         // Clear the box.
         // Set _previousInputText to "" BEFORE Clear() so TextChanged
         // sees no length change and doesn't send spurious backspaces.
-        _localLiveRow      = null;
-        _localLiveBlock    = null;
         _previousInputText = string.Empty;
         InputBox.Clear();
         SendButton.IsEnabled = false;
@@ -515,9 +509,7 @@ public partial class MainWindow : Window
         ConnectMenuItem.IsEnabled      = true;
         DisconnectMenuItem.IsEnabled   = false;
         InputBox.IsEnabled             = false;
-        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        _localLiveRow                  = null;
-        _localLiveBlock                = null;
-        _peerLiveRow                   = null;
+        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        _peerLiveRow                   = null;
         _livePeerBlock                 = null;
         _peerHandle                    = "peer";
         _peerAvatarPng                 = null;
@@ -568,8 +560,6 @@ public partial class MainWindow : Window
                 InputBox.IsEnabled           = false;
                 SendButton.IsEnabled         = false;
                 BuzzButton.IsEnabled         = false;
-                _localLiveRow                = null;
-                _localLiveBlock              = null;
                 _peerLiveRow                 = null;
                 _livePeerBlock               = null;
                 var savedHandle              = _peerHandle;
@@ -887,8 +877,6 @@ public partial class MainWindow : Window
     private void AddChatDivider(string message)
     {
         // Commit any live blocks as finalized
-        _localLiveRow      = null;
-        _localLiveBlock    = null;
         _peerLiveRow       = null;
         _livePeerBlock     = null;
         _previousInputText = string.Empty;
@@ -896,7 +884,7 @@ public partial class MainWindow : Window
         var makeDiv = () => new TextBlock
         {
             Text       = message,
-            Foreground = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x44)),
+            Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E)),
             FontSize   = 11,
             FontStyle  = FontStyles.Italic,
             Margin     = new Thickness(0, 8, 0, 8),
