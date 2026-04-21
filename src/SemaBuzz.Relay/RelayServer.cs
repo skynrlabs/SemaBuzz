@@ -12,10 +12,16 @@ namespace SemaBuzz.Relay;
 /// </summary>
 internal sealed class RelayServer
 {
-    private static readonly TimeSpan RoomTtl = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan RoomTtl       = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan JoinTimeout   = TimeSpan.FromSeconds(10);
+    private const            int     MaxRooms       = 500;   // global cap
+    private const            int     MaxPerIp       = 5;     // concurrent sockets per IP
 
     private readonly ConcurrentDictionary<string, RelayRoom> _rooms =
         new(StringComparer.OrdinalIgnoreCase);
+
+    // IP → number of currently-open WebSocket connections from that IP.
+    private readonly ConcurrentDictionary<string, int> _connByIp = new();
 
     private readonly System.Timers.Timer _sweepTimer;
 
@@ -28,13 +34,36 @@ internal sealed class RelayServer
 
     // Entry point  one call per accepted WebSocket connection
 
-    public async Task HandleClientAsync(WebSocket ws, CancellationToken ct)
+    public async Task HandleClientAsync(WebSocket ws, string remoteIp, CancellationToken ct)
     {
-        // Every client must begin with a JoinHost or JoinDial frame.
+        // --- Per-IP connection cap ---
+        var count = _connByIp.AddOrUpdate(remoteIp, 1, (_, c) => c + 1);
+        if (count > MaxPerIp)
+        {
+            _connByIp.AddOrUpdate(remoteIp, 0, (_, c) => Math.Max(0, c - 1));
+            await CloseAsync(ws, WebSocketCloseStatus.PolicyViolation, "Too many connections", ct);
+            return;
+        }
+
+        try
+        {
+            await HandleInnerAsync(ws, remoteIp, ct);
+        }
+        finally
+        {
+            _connByIp.AddOrUpdate(remoteIp, 0, (_, c) => Math.Max(0, c - 1));
+        }
+    }
+
+    private async Task HandleInnerAsync(WebSocket ws, string remoteIp, CancellationToken ct)
+    {
+        // --- Join phase: client must send a valid join frame within JoinTimeout ---
         var buf = new byte[64];
         WebSocketReceiveResult recv;
-        try { recv = await ws.ReceiveAsync(buf, ct); }
-        catch { return; }
+        using var joinCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        joinCts.CancelAfter(JoinTimeout);
+        try { recv = await ws.ReceiveAsync(buf, joinCts.Token); }
+        catch { await CloseAsync(ws, WebSocketCloseStatus.PolicyViolation, "Join timeout", ct); return; }
 
         if (recv.MessageType == WebSocketMessageType.Close || recv.Count < SemaBuzzRelayPacket.Size)
         {
@@ -53,11 +82,24 @@ internal sealed class RelayServer
 
         if (type == SemaBuzzRelayPacketType.JoinHost)
         {
+            // --- Global room cap ---
+            if (_rooms.Count >= MaxRooms)
+            {
+                await CloseAsync(ws, WebSocketCloseStatus.PolicyViolation, "Server busy", ct);
+                return;
+            }
+
             var room = new RelayRoom(token, ws);
             _rooms[token] = room;
-            Console.WriteLine($"[relay] host   token={token}");
-            // Block here until the WebSocket closes (or the dialer arrives and the session ends).
-            await ForwardLoopAsync(ws, room, ct);
+            try
+            {
+                // Block here until the WebSocket closes (or the dialer arrives and the session ends).
+                await ForwardLoopAsync(ws, room, ct);
+            }
+            finally
+            {
+                _rooms.TryRemove(token, out _);
+            }
         }
         else if (type == SemaBuzzRelayPacketType.JoinDial)
         {
@@ -70,7 +112,6 @@ internal sealed class RelayServer
             }
 
             room.SetDialer(ws);
-            Console.WriteLine($"[relay] dialer token={token}");
 
             var paired = SemaBuzzRelayPacket.Build(SemaBuzzRelayPacketType.Paired, token);
             await room.SendToHostAsync(paired, ct);

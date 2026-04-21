@@ -37,7 +37,11 @@ app.Map("/relay", async ctx =>
         return;
     }
     var ws = await ctx.WebSockets.AcceptWebSocketAsync();
-    await relay.HandleClientAsync(ws, ctx.RequestAborted);
+    // Prefer X-Forwarded-For set by Railway's reverse proxy; fall back to direct IP.
+    var remoteIp = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
+                   ?? ctx.Connection.RemoteIpAddress?.ToString()
+                   ?? "unknown";
+    await relay.HandleClientAsync(ws, remoteIp, ctx.RequestAborted);
 });
 
 // Health check for Railway / Render uptime monitors.

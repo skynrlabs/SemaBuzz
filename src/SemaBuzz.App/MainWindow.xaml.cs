@@ -246,7 +246,7 @@ public partial class MainWindow : Window
         => new SemaBuzzAboutDialog { Owner = this }.ShowDialog();
 
     private void Help_FAQ_Click(object sender, RoutedEventArgs e)
-        => new SemaBuzzHelpDialog { Owner = this }.ShowDialog();
+        => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://semabuzz.me/faq") { UseShellExecute = true });
 
     private void Help_NewsUpdates_Click(object sender, RoutedEventArgs e)
         => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://x.com/semabuzzp2p") { UseShellExecute = true });
