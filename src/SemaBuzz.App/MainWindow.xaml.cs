@@ -554,6 +554,7 @@ public partial class MainWindow : Window
             }
             else if (e.State == SemaBuzzWireState.Dead)
             {
+                PlayErrorSound();
                 _warmingCts?.Cancel();
                 _warmingCts = null;
                 TitleSessionLabel.Text       = "NO WIRE";
@@ -898,6 +899,16 @@ public partial class MainWindow : Window
     // ---------------------------------------------
     // Status helpers
     // ---------------------------------------------
+
+    private static void PlayErrorSound()
+    {
+        var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "error.mp3");
+        if (!File.Exists(path)) return;
+        var player = new MediaPlayer();
+        player.MediaEnded += (_, _) => player.Close();
+        player.Open(new Uri(path));
+        player.Play();
+    }
 
     private void SetStatus(string text) => StatusLabel.Text = text;
 
