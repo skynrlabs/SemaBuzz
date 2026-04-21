@@ -87,8 +87,91 @@ public sealed class SemaBuzzListener : IDisposable
 
         if (!paired) { SetState(SemaBuzzWireState.Dead, "Wire closed."); return; }
 
+        // ── STUN / UDP hole-punch attempt ─────────────────────────────────────────
+        // Bind a fresh UDP socket and use STUN to discover our external endpoint.
+        // Send it to the relay via PunchReady; wait up to 5 s for the peer's endpoint
+        // (PeerAddress frame), then try direct UDP. If successful we drop the relay.
+        // If anything fails we proceed with the relay session transparently.
+        UdpClient? directUdp      = null;
+        IPEndPoint? peerDirectEp  = null;
+        try
+        {
+            directUdp = new UdpClient(0); // ephemeral port
+            var myExternalEp = await SemaBuzzStun.DiscoverAsync(directUdp, _cts.Token);
+            if (myExternalEp != null)
+            {
+                var punchReady = SemaBuzzRelayPacket.BuildPunchReady(token, myExternalEp);
+                await _wsClient.SendAsync(punchReady, WebSocketMessageType.Binary, true, _cts.Token);
+
+                // Wait for PeerAddress (relay sends it once both sides have checked in).
+                using var peerAddrCts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token);
+                peerAddrCts.CancelAfter(TimeSpan.FromSeconds(5));
+                var ctrlBuf2 = new byte[32];
+                try
+                {
+                    while (!peerAddrCts.Token.IsCancellationRequested)
+                    {
+                        var r2 = await _wsClient.ReceiveAsync(ctrlBuf2, peerAddrCts.Token);
+                        if (r2.MessageType == WebSocketMessageType.Close) break;
+                        if (r2.Count < SemaBuzzRelayPacket.PunchPacketSize) continue;
+                        if (SemaBuzzRelayPacket.IsRelayPacket(ctrlBuf2)
+                            && (SemaBuzzRelayPacketType)ctrlBuf2[3] == SemaBuzzRelayPacketType.PeerAddress)
+                        {
+                            peerDirectEp = SemaBuzzRelayPacket.ParseEndpoint(ctrlBuf2[..r2.Count]);
+                            break;
+                        }
+                    }
+                }
+                catch (OperationCanceledException) { /* punch exchange timed out — fall back */ }
+
+                if (peerDirectEp != null)
+                {
+                    SetState(SemaBuzzWireState.Warming, "Trying direct UDP...");
+                    var directEp = await SemaBuzzPunchThrough.TryAsync(
+                        directUdp, peerDirectEp, TimeSpan.FromSeconds(4), _cts.Token);
+
+                    if (directEp != null)
+                    {
+                        // Direct path confirmed — switch to UDP socket.
+                        _udp        = directUdp;
+                        directUdp   = null; // ownership transferred
+                        _isRelayMode = false;
+                        _port        = ((System.Net.IPEndPoint)_udp.Client.LocalEndPoint!).Port;
+
+                        // Close the relay WebSocket (best effort).
+                        try { await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "direct", default); } catch { }
+                        _wsClient.Dispose();
+                        _wsClient = null;
+
+                        SetState(SemaBuzzWireState.Warming, "Direct UDP — completing handshake...");
+
+                        // Run the standard listener loop over the direct socket.
+                        try
+                        {
+                            while (!_cts.Token.IsCancellationRequested)
+                            {
+                                var res = await _udp.ReceiveAsync(_cts.Token);
+                                // Filter out any stray punch probe/ack frames.
+                                if (SemaBuzzPunchThrough.IsPunchProbe(res.Buffer)
+                                 || SemaBuzzPunchThrough.IsPunchAck(res.Buffer)) continue;
+                                await HandleIncomingAsync(res);
+                            }
+                        }
+                        catch (OperationCanceledException) { }
+                        catch (SocketException) { }
+                        finally { SetState(SemaBuzzWireState.Dead, "Wire closed."); }
+                        return; // done — skip relay session below
+                    }
+                }
+            }
+        }
+        catch (OperationCanceledException) { throw; }
+        catch { /* STUN/punch failed — continue with relay */ }
+        finally { directUdp?.Dispose(); }
+        // ── end punch-through attempt ─────────────────────────────────────────────
+
         // Wire up the WebSocket send delegate used by all internal send helpers.
-        var ws = _wsClient;
+        var ws = _wsClient!;
         _wsSend = async data =>
         {
             if (ws.State != WebSocketState.Open) return;
@@ -109,7 +192,7 @@ public sealed class SemaBuzzListener : IDisposable
         var dataBuf   = new byte[65_536];
         try
         {
-            while (!_cts.Token.IsCancellationRequested && _wsClient.State == WebSocketState.Open)
+            while (!_cts.Token.IsCancellationRequested && _wsClient!.State == WebSocketState.Open)
             {
                 WebSocketReceiveResult recv;
                 try { recv = await _wsClient.ReceiveAsync(dataBuf, _cts.Token); }

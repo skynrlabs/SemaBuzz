@@ -125,7 +125,9 @@ internal sealed class RelayServer
         }
     }
 
-    // Forward loop  read from this peer, send to the other
+    // Forward loop — read from this peer, send to the other
+    // PunchReady frames (0x06) are intercepted and used to exchange external endpoints;
+    // all other frames are forwarded transparently.
 
     private static async Task ForwardLoopAsync(WebSocket ws, RelayRoom room, CancellationToken ct)
     {
@@ -142,7 +144,33 @@ internal sealed class RelayServer
                 if (recv.MessageType == WebSocketMessageType.Close) break;
 
                 room.Touch();
-                await room.ForwardToAsync(ws, buf.AsMemory(0, recv.Count), ct);
+                var frame = buf.AsMemory(0, recv.Count);
+
+                // Intercept PunchReady — do NOT forward to peer.
+                if (recv.Count == SemaBuzzRelayPacket.PunchPacketSize
+                    && SemaBuzzRelayPacket.IsRelayPacket(buf)
+                    && (SemaBuzzRelayPacketType)buf[3] == SemaBuzzRelayPacketType.PunchReady)
+                {
+                    var ep = SemaBuzzRelayPacket.ParseEndpoint(buf[..recv.Count]);
+                    if (ep != null)
+                    {
+                        bool isHost = ReferenceEquals(ws, room.HostWs);
+                        if (isHost) room.SetHostExternalEp(ep);
+                        else        room.SetDialerExternalEp(ep);
+
+                        // Once both endpoints are known, tell each peer about the other.
+                        if (room.HostExternalEp != null && room.DialerExternalEp != null)
+                        {
+                            var toHost   = SemaBuzzRelayPacket.BuildPeerAddress(room.Token, room.DialerExternalEp);
+                            var toDialer = SemaBuzzRelayPacket.BuildPeerAddress(room.Token, room.HostExternalEp);
+                            await room.SendToHostAsync(toHost, ct);
+                            await room.SendToDialerAsync(toDialer, ct);
+                        }
+                    }
+                    continue; // never forward PunchReady frames
+                }
+
+                await room.ForwardToAsync(ws, frame, ct);
             }
         }
         finally

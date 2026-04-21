@@ -1,9 +1,11 @@
+using System.Net;
 using System.Net.WebSockets;
+using SemaBuzz.Protocol;
 
 namespace SemaBuzz.Relay;
 
 /// <summary>
-/// Represents an active relay room  a matched host + dialer pair connected via WebSocket.
+/// Represents an active relay room — a matched host + dialer pair connected via WebSocket.
 /// Serialises all sends per-socket so there are never concurrent SendAsync calls on the same WebSocket.
 /// </summary>
 internal sealed class RelayRoom
@@ -17,6 +19,10 @@ internal sealed class RelayRoom
     public DateTime   LastActive { get; private set; } = DateTime.UtcNow;
     public bool       IsPaired   => DialerWs != null;
 
+    // External UDP endpoints received via PunchReady frames.
+    public IPEndPoint? HostExternalEp   { get; private set; }
+    public IPEndPoint? DialerExternalEp { get; private set; }
+
     public RelayRoom(string token, WebSocket hostWs)
     {
         Token  = token;
@@ -29,6 +35,9 @@ internal sealed class RelayRoom
         _dialerLock = new SemaphoreSlim(1, 1);
         Touch();
     }
+
+    public void SetHostExternalEp(IPEndPoint ep)   => HostExternalEp   = ep;
+    public void SetDialerExternalEp(IPEndPoint ep) => DialerExternalEp = ep;
 
     public void Touch() => LastActive = DateTime.UtcNow;
 

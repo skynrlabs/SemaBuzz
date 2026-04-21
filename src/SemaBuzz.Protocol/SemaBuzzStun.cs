@@ -50,7 +50,53 @@ public static class SemaBuzzStun
                 if (ep != null) return ep;
             }
             catch (OperationCanceledException) { throw; }
-            catch { /* server unreachable  try next */ }
+            catch { /* server unreachable — try next */ }
+        }
+        return null;
+    }
+
+    /// <summary>
+    /// Discover the external endpoint of an already-bound <see cref="UdpClient"/>.
+    /// The socket is not disposed by this method.
+    /// </summary>
+    public static async Task<IPEndPoint?> DiscoverAsync(
+        UdpClient udp,
+        CancellationToken cancellationToken = default)
+    {
+        foreach (var (host, port) in Servers)
+        {
+            try
+            {
+                var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
+                var addr      = Array.Find(addresses, a => a.AddressFamily == AddressFamily.InterNetwork)
+                             ?? addresses[0];
+                var serverEp  = new IPEndPoint(addr, port);
+
+                var txId    = new byte[12];
+                var request = new byte[20];
+                for (var attempt = 0; attempt < 3; attempt++)
+                {
+                    RandomNumberGenerator.Fill(txId);
+                    BuildBindingRequest(txId).CopyTo(request, 0);
+
+                    await udp.SendAsync(request, serverEp, cancellationToken);
+
+                    using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                    cts.CancelAfter(TimeSpan.FromSeconds(2));
+                    try
+                    {
+                        var result = await udp.ReceiveAsync(cts.Token);
+                        var ep     = ParseBindingResponse(result.Buffer, txId);
+                        if (ep != null) return ep;
+                    }
+                    catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
+                    {
+                        continue; // per-attempt timeout
+                    }
+                }
+            }
+            catch (OperationCanceledException) { throw; }
+            catch { /* try next server */ }
         }
         return null;
     }

@@ -21,8 +21,9 @@ public static class SemaBuzzRelayPacket
     public const byte Magic1      = 0x52; // 'R'
     public const byte Magic2      = 0x4C; // 'L'
     public const byte Version     = 0x01;
-    public const int  Size        = 10;   // 2 magic + 1 version + 1 type + 6 token
-    public const int  TokenLength = 6;
+    public const int  Size             = 10;   // 2 magic + 1 version + 1 type + 6 token
+    public const int  TokenLength      = 6;
+    public const int  PunchPacketSize  = 16;   // standard 10-byte header + 4-byte IPv4 + 2-byte port
 
     // Relay server connection details.
     // DefaultRelayUri is the WebSocket endpoint  used by both the listener and client.
@@ -57,6 +58,45 @@ public static class SemaBuzzRelayPacket
         return (type, token);
     }
 
+    /// <summary>Build a PunchReady packet (client → relay: my external UDP endpoint).</summary>
+    public static byte[] BuildPunchReady(string token, System.Net.IPEndPoint ep)
+        => BuildEndpointPacket(SemaBuzzRelayPacketType.PunchReady, token, ep);
+
+    /// <summary>Build a PeerAddress packet (relay → client: peer's external UDP endpoint).</summary>
+    public static byte[] BuildPeerAddress(string token, System.Net.IPEndPoint ep)
+        => BuildEndpointPacket(SemaBuzzRelayPacketType.PeerAddress, token, ep);
+
+    private static byte[] BuildEndpointPacket(SemaBuzzRelayPacketType type, string token, System.Net.IPEndPoint ep)
+    {
+        var buf        = new byte[PunchPacketSize];
+        buf[0]         = Magic1;
+        buf[1]         = Magic2;
+        buf[2]         = Version;
+        buf[3]         = (byte)type;
+        var tokenBytes = System.Text.Encoding.ASCII.GetBytes(
+            token.ToUpperInvariant().PadRight(TokenLength)[..TokenLength]);
+        tokenBytes.CopyTo(buf, 4);
+        // IPv4 address bytes 10–13 (big-endian)
+        var ipBytes = ep.Address.GetAddressBytes();
+        if (ipBytes.Length == 4) ipBytes.CopyTo(buf, 10);
+        // Port bytes 14–15 (big-endian)
+        buf[14] = (byte)(ep.Port >> 8);
+        buf[15] = (byte)(ep.Port & 0xFF);
+        return buf;
+    }
+
+    /// <summary>
+    /// Extract the IP:port payload from a PunchReady or PeerAddress packet.
+    /// Returns null if the data is too short or not a relay packet.
+    /// </summary>
+    public static System.Net.IPEndPoint? ParseEndpoint(byte[] data)
+    {
+        if (data.Length < PunchPacketSize || !IsRelayPacket(data)) return null;
+        var ip   = new System.Net.IPAddress(data[10..14]);
+        var port = (data[14] << 8) | data[15];
+        return new System.Net.IPEndPoint(ip, port);
+    }
+
     /// <summary>
     /// Generate a random 6-character uppercase token.
     /// Omits I, O, 0, 1 to avoid visual confusion when reading aloud.
@@ -72,9 +112,11 @@ public static class SemaBuzzRelayPacket
 
 public enum SemaBuzzRelayPacketType : byte
 {
-    JoinHost   = 0x01, // Client  relay: register as host for this token
-    JoinDial   = 0x02, // Client  relay: dial into room with this token
-    Paired     = 0x03, // Relay  client: both peers connected, start the wire
-    RelayError = 0x04, // Relay  client: token not found or other error
-    Ping       = 0x05, // Bidirectional keepalive to maintain NAT mappings
+    JoinHost    = 0x01, // Client → relay: register as host for this token
+    JoinDial    = 0x02, // Client → relay: dial into room with this token
+    Paired      = 0x03, // Relay → client: both peers connected, start the wire
+    RelayError  = 0x04, // Relay → client: token not found or other error
+    Ping        = 0x05, // Bidirectional keepalive to maintain NAT mappings
+    PunchReady  = 0x06, // Client → relay: my external UDP endpoint (extended packet)
+    PeerAddress = 0x07, // Relay → client: your peer's external UDP endpoint (extended packet)
 }
