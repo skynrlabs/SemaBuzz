@@ -58,7 +58,10 @@ public partial class SemaBuzzConnectDialog : Window
         Loaded += (_, _) =>
         {
             DialMode.IsChecked = true;
-            BuzzUrlBox.Text    = dialBuzzUri;
+            // Strip buzz:// prefix — the box now shows only the token
+            BuzzUrlBox.Text = dialBuzzUri.StartsWith("buzz://", StringComparison.OrdinalIgnoreCase)
+                ? dialBuzzUri["buzz://".Length..].ToUpperInvariant()
+                : dialBuzzUri.ToUpperInvariant();
         };
     }
 
@@ -86,9 +89,9 @@ public partial class SemaBuzzConnectDialog : Window
 
     private void CopyHostBuzz_Click(object sender, RoutedEventArgs e)
     {
-        var addr = HostBuzzAddressBox.Text?.Trim();
-        if (string.IsNullOrEmpty(addr)) return;
-        Clipboard.SetText(addr);
+        var token = HostBuzzAddressBox.Text?.Trim();
+        if (string.IsNullOrEmpty(token)) return;
+        Clipboard.SetText($"buzz://{token}");
         CopyHostBuzzBtn.Content = "COPIED!";
         var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
         timer.Tick += (_, _) => { CopyHostBuzzBtn.Content = "COPY"; timer.Stop(); };
