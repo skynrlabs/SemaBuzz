@@ -103,9 +103,9 @@
             <!-- Wire status -->
             <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="18 0 18 0">
                 <TextBlock x:Name="TitleSessionLabel" Text="NO WIRE"
-                           Foreground="#555555" FontSize="12" VerticalAlignment="Center"/>
+                           Foreground="#9E9E9E" FontSize="12" VerticalAlignment="Center"/>
                 <Ellipse x:Name="WireStateDot"
-                         Width="10" Height="10" Fill="#444444"
+                         Width="10" Height="10" Fill="#9E9E9E"
                          VerticalAlignment="Center" Margin="12 0 0 0"/>
             </StackPanel>
 
@@ -213,8 +213,7 @@
                                Text="PEER"
                                FontSize="10"
                                FontWeight="SemiBold"
-                               Foreground="#888888"
-                               Opacity="0.7"/>
+                               Foreground="#9E9E9E"/>
                 </Border>
                 <ScrollViewer Grid.Row="1"
                               x:Name="PeerScrollViewer"
@@ -297,7 +296,7 @@
             <TextBlock x:Name="StatusLabel"
                        Grid.Column="0"
                        Style="{StaticResource SemaBuzzStatusLabel}"
-                       Text="» wire is cold"
+                       Text="› wire is cold"
                        VerticalAlignment="Center"/>
             <TextBlock x:Name="PeerLabel"
                        Grid.Column="1"

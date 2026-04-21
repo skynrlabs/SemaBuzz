@@ -64,7 +64,7 @@
                  Margin="0 0 0 6"/>
 
         <TextBlock Text="Pre-fills the port field when you open the connect dialog."
-                   Foreground="#555" FontSize="10"
+                   Foreground="#9E9E9E" FontSize="10"
                    Margin="0 0 0 0"/>
 
         <!-- Divider -->
@@ -95,7 +95,7 @@
         </Grid>
 
         <TextBlock Text="How aggressively the filament reacts to incoming packets."
-                   Foreground="#555" FontSize="10" Margin="0 0 0 0"/>
+                   Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 0"/>
 
         <!-- Divider -->
         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 22 0 22"/>
@@ -147,7 +147,7 @@
         </Grid>
 
         <TextBlock Text="Adjusts the font size for all new chat messages."
-                   Foreground="#555" FontSize="10" Margin="0 0 0 20"/>
+                   Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
 
         <!-- ═══ LIVE PREVIEW ═══ -->
         <TextBlock Text="LIVE PREVIEW"
@@ -160,7 +160,7 @@
                   Margin="0 0 0 6"/>
 
         <TextBlock Text="When enabled, each keystroke is sent immediately so the peer sees what you type in real time."
-                   Foreground="#555" FontSize="10" Margin="0 0 0 20"/>
+                   Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
 
         <!-- Divider -->
         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
@@ -186,9 +186,9 @@
                     Click="ResetRelayUri_Click"/>
         </Grid>
 
-        <TextBlock TextWrapping="Wrap" Foreground="#555" FontSize="10" Margin="0 0 0 4"
+        <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
                    Text="WebSocket address of the relay server (must start with wss:// or ws://). Click RESET to restore the default."/>
-        <TextBlock TextWrapping="Wrap" Foreground="#444" FontSize="10" Margin="0 0 0 20"
+        <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"
                    Text="Only use a relay you trust. All traffic is encrypted on your device before it reaches the relay — the relay sees only ciphertext and holds no keys."/>
 
         </StackPanel>

@@ -270,7 +270,7 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
-        SetStatus($"ðŸ“¡ listening on port {port}...");
+        SetStatus($"› listening on port {port}...");
         _ = _listener.ListenAsync(port, ct);
     }
 
@@ -283,7 +283,7 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
-        SetStatus($"ðŸ“¡ waiting via relay (token: {token})...");
+        SetStatus($"› waiting via relay (token: {token})...");
         _ = _listener.ListenViaRelayAsync(
             App.Settings.RelayUri,
             token, ct);
@@ -297,7 +297,7 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
 
-        SetStatus($"ðŸ“¡ dialing {host}:{port}...");
+        SetStatus($"› dialing {host}:{port}...");
         _ = _client.ConnectAsync(host, port, ct);
     }
 
@@ -309,7 +309,7 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
 
-        SetStatus($"ðŸ“¡ joining relay room {token}...");
+        SetStatus($"› joining relay room {token}...");
         _ = _client.ConnectViaRelayAsync(
             App.Settings.RelayUri,
             token, ct);
@@ -479,7 +479,7 @@ public partial class MainWindow : Window
             {
                 BuzzIndicator.MaxBurst();
                 ShakeWindow();
-                ShowToastIfUnfocused(_peerHandle, "âš¡ Buzzed you!");
+                ShowToastIfUnfocused(_peerHandle, "Buzzed you!");
                 return;
             }
 
@@ -510,7 +510,7 @@ public partial class MainWindow : Window
     /// <summary>Reset all UI chrome back to the cold/idle state.</summary>
     private void ResetToIdle()
     {
-        SetStatus("ï¿½ wire is cold");
+        SetStatus("› wire is cold");
         TitleSessionLabel.Text         = "NO WIRE";
         ConnectMenuItem.IsEnabled      = true;
         DisconnectMenuItem.IsEnabled   = false;
@@ -531,7 +531,7 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            SetStatus($"ï¿½ {e.Message ?? e.State.ToString().ToLower()}");
+            SetStatus($"› {e.Message ?? e.State.ToString().ToLower()}");
             UpdateWireStateDot(e.State);
 
             if (e.State == SemaBuzzWireState.Warming)
@@ -553,8 +553,8 @@ public partial class MainWindow : Window
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
                 AddChatDivider(e.State == SemaBuzzWireState.Secured
-                    ? "ï¿½ sema secured ï¿½ wire is live"
-                    : "ï¿½ wire is live");
+                    ? "› sema secured · wire is live"
+                    : "› wire is live");
 
                 // Exchange identity with the peer
                 if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng);
@@ -581,12 +581,12 @@ public partial class MainWindow : Window
                 DisconnectMenuItem.IsEnabled = false;
 
                 var divider = _warmingTimedOut
-                    ? "â± no dialer arrived  session closed after 5 minutes"
+                    ? "› no dialer arrived · session closed after 5 minutes"
                     : e.Message switch
                     {
-                        "peer-disconnect" => $"âš¡ {savedHandle} disconnected  wire has been closed",
-                        "not-available"  => $"âš¡ {savedHandle} is not available at this time",
-                        _                => "âš¡ wire is dead",
+                        "peer-disconnect" => $"× {savedHandle} disconnected · wire has been closed",
+                        "not-available"  => $"× {savedHandle} is not available at this time",
+                        _                => "× wire is dead",
                     };
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
@@ -656,7 +656,7 @@ public partial class MainWindow : Window
 
         if (_livePeerBlock == null)
         {
-            var (row, tb) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x88, 0x88, 0x88));
+            var (row, tb) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x9E, 0x9E, 0x9E));
             _peerLiveRow   = row;
             _livePeerBlock = tb;
             PeerPanel.Children.Add(_peerLiveRow);
@@ -758,7 +758,7 @@ public partial class MainWindow : Window
         grid.Children.Add(ellipse);
 
         // Text area
-        var prefix = $"{handle}  \u00bb ";
+        var prefix = $"{handle} \u203a ";
         var tb = new TextBlock
         {
             Text         = prefix,
@@ -920,7 +920,7 @@ public partial class MainWindow : Window
             SemaBuzzWireState.Live     => new SolidColorBrush(Color.FromRgb(0xFF, 0xB3, 0x00)),
             SemaBuzzWireState.Secured  => new SolidColorBrush(Color.FromRgb(0x00, 0xFF, 0x41)),
             SemaBuzzWireState.Warming  => new SolidColorBrush(Color.FromRgb(0xFF, 0x80, 0x00)),
-            _                          => new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x44)),
+            _                          => new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E)),
         };
 
         // Animate a glow pulse when secured
@@ -963,7 +963,7 @@ public partial class MainWindow : Window
             var isOut = entry.Direction == "out";
             var nameColor = isOut
                 ? SemaBuzzThemeManager.AccentColor
-                : Color.FromRgb(0x88, 0x88, 0x88);
+                : Color.FromRgb(0x9E, 0x9E, 0x9E);
 
             var resourceKey = isOut ? "AmberBrush" : null;
             var (row, tb) = MakeChatLine(entry.Handle, null, nameColor, resourceKey);

@@ -13,7 +13,7 @@
             <Color x:Key="AmberDimColor">#80FFB300</Color>
             <Color x:Key="AmberGlowColor">#33FFB300</Color>
             <Color x:Key="CrtGreenColor">#FF00FF41</Color>
-            <Color x:Key="WireDeadColor">#FF444444</Color>
+            <Color x:Key="WireDeadColor">#FF9E9E9E</Color>
 
             <!-- ═══ Brushes ═══ -->
             <SolidColorBrush x:Key="ObsidianBrush"        Color="{StaticResource ObsidianColor}"/>
@@ -107,10 +107,9 @@
             </Style>
 
             <Style x:Key="SemaBuzzStatusLabel" TargetType="TextBlock">
-                <Setter Property="Foreground" Value="{DynamicResource WireDeadBrush}"/>
+                <Setter Property="Foreground" Value="#9E9E9E"/>
                 <Setter Property="FontFamily" Value="{StaticResource MonoFont}"/>
-                <Setter Property="FontSize"   Value="11"/>
-                <Setter Property="FontStyle"  Value="Italic"/>
+                <Setter Property="FontSize"   Value="12"/>
             </Style>
 
             <!-- Window chrome control buttons (minimize / maximize / close) -->

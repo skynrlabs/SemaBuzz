@@ -35,7 +35,7 @@
         <StackPanel Grid.Row="2" Margin="24 16">
 
         <!-- ─── Profile picker ─── -->
-        <TextBlock Text="Identity" Foreground="#666" FontSize="11" Margin="0 0 0 4"/>
+        <TextBlock Text="Identity" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
         <Grid Margin="0 0 0 14">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -57,8 +57,8 @@
         <!-- Profile card: compact view when a saved profile is active -->
         <Border x:Name="ProfileCard"
                 Visibility="Collapsed"
-                Background="#181818"
-                BorderBrush="#2A2A2A"
+                Background="{DynamicResource ObsidianSurfaceBrush}"
+                BorderBrush="{DynamicResource ObsidianBorderBrush}"
                 BorderThickness="1"
                 Padding="14"
                 Margin="0 0 0 16">
@@ -70,17 +70,16 @@
                 </Grid.ColumnDefinitions>
                 <Ellipse x:Name="CardAvatarEllipse"
                          Width="52" Height="52"
-                         Stroke="#2A2A2A" StrokeThickness="1"
+                         Fill="{DynamicResource ObsidianSurfaceBrush}"
+                         Stroke="{DynamicResource ObsidianBorderBrush}" StrokeThickness="1"
                          VerticalAlignment="Center"
-                         Margin="0 0 14 0">
-                    <Ellipse.Fill><SolidColorBrush Color="#1E1E1E"/></Ellipse.Fill>
-                </Ellipse>
+                         Margin="0 0 14 0"/>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
                     <TextBlock x:Name="CardHandleLabel"
                                FontSize="15" FontWeight="Bold"
                                Foreground="{DynamicResource AmberBrush}"/>
                     <TextBlock Text="Saved profile"
-                               Foreground="#555555" FontSize="11"
+                               Foreground="#9E9E9E" FontSize="11"
                                Margin="0 3 0 0"/>
                 </StackPanel>
                 <Button Grid.Column="2"
@@ -95,23 +94,20 @@
         <StackPanel x:Name="IdentityFields">
 
             <!-- Handle -->
-            <TextBlock Text="Handle" Foreground="#666" FontSize="11" Margin="0 0 0 4"/>
+            <TextBlock Text="Handle" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
             <TextBox x:Name="HandleBox"
                      Style="{StaticResource SemaBuzzInput}"
                      Text="anonymous"
                      Margin="0 0 0 12"/>
 
             <!-- Avatar -->
-            <TextBlock Text="Avatar (optional)" Foreground="#666" FontSize="11" Margin="0 0 0 6"/>
+            <TextBlock Text="Avatar (optional)" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 6"/>
             <StackPanel Orientation="Horizontal" Margin="0 0 0 8">
                 <Ellipse x:Name="AvatarPreview"
                          Width="44" Height="44"
-                         Stroke="#2A2A2A" StrokeThickness="1"
-                         Margin="0 0 10 0">
-                    <Ellipse.Fill>
-                        <SolidColorBrush Color="#1E1E1E"/>
-                    </Ellipse.Fill>
-                </Ellipse>
+                         Fill="{DynamicResource ObsidianSurfaceBrush}"
+                         Stroke="{DynamicResource ObsidianBorderBrush}" StrokeThickness="1"
+                         Margin="0 0 10 0"/>
                 <StackPanel VerticalAlignment="Center">
                     <Button Style="{StaticResource SemaBuzzButton}"
                             Content="CHOOSE IMAGE"
@@ -148,7 +144,7 @@
         <!-- Buzz address (HOST mode) — share with your peer -->
         <StackPanel x:Name="HostBuzzPanel" Margin="0 0 0 12">
             <TextBlock Text="Session token — share this with your peer"
-                       Foreground="#666" FontSize="11" Margin="0 0 0 6"/>
+                       Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 6"/>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -177,7 +173,7 @@
 
         <!-- Buzz (DIAL mode only) -->
         <StackPanel x:Name="BuzzUrlPanel" Visibility="Collapsed" Margin="0 0 0 12">
-            <TextBlock Text="Session token" Foreground="#666" FontSize="11" Margin="0 0 0 4"/>
+            <TextBlock Text="Session token" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
             <TextBox x:Name="BuzzUrlBox"
                      Style="{StaticResource SemaBuzzInput}"
                      Text=""/>

@@ -16,8 +16,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
-    <!-- Build output on the system drive for fast I/O. -->
-    <OutputPath>C:\SemaBuzz\bin\$(Configuration)\</OutputPath>
+    <OutputPath>C:\Users\bills\Documents\Development\SemaBuzz-Windows\build\$(Configuration)\</OutputPath>
     <!-- Store packaging: set WindowsPackageType=MSIX when publishing via VS Publish wizard -->
     <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
     <!-- Pre-compile to native on publish so the Store build starts instantly -->

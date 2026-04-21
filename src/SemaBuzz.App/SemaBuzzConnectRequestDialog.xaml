@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — Incoming Connection"
         Height="200" Width="440"
-        Background="#121212" Foreground="#FFB300"
+        Background="{DynamicResource WindowBackgroundBrush}" Foreground="{DynamicResource AmberBrush}"
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
         FontSize="13"
         WindowStartupLocation="CenterOwner"
@@ -12,19 +12,19 @@
 
     <StackPanel Margin="24 20">
 
-        <TextBlock Text="» incoming connection request"
-                   Foreground="#666666" FontSize="11" FontStyle="Italic"
+        <TextBlock Text="› incoming connection request"
+                   Foreground="#9E9E9E" FontSize="11"
                    Margin="0 0 0 6"/>
 
         <TextBlock x:Name="FromLabel"
-                   Foreground="#FFB300" Margin="0 0 0 4" TextWrapping="Wrap"/>
+                   Foreground="{DynamicResource AmberBrush}" Margin="0 0 0 4" TextWrapping="Wrap"/>
 
         <TextBlock Text="Accept this connection and open the wire?"
-                   Foreground="#AAAAAA" FontSize="11"
+                   Foreground="#9E9E9E" FontSize="11"
                    Margin="0 0 0 4"/>
 
         <TextBlock x:Name="CountdownLabel"
-                   Foreground="#555555" FontSize="11" FontStyle="Italic"
+                   Foreground="#9E9E9E" FontSize="11"
                    Margin="0 0 0 20"/>
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

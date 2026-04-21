@@ -39,7 +39,7 @@ public partial class SemaBuzzLogViewerDialog : Window
             LogPanel.Children.Add(new System.Windows.Controls.TextBlock
             {
                 Text              = msg,
-                Foreground        = new SolidColorBrush(Color.FromRgb(0x55, 0x55, 0x55)),
+                Foreground        = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E)),
                 FontStyle         = FontStyles.Italic,
                 TextWrapping      = TextWrapping.Wrap,
                 Margin            = new Thickness(0, 8, 0, 0),
@@ -49,9 +49,9 @@ public partial class SemaBuzzLogViewerDialog : Window
 
         var accent      = SemaBuzzThemeManager.AccentColor;
         var accentBrush = new SolidColorBrush(accent);
-        var greyBrush   = new SolidColorBrush(Color.FromRgb(0x88, 0x88, 0x88));
-        var dimBrush    = new SolidColorBrush(Color.FromRgb(0x44, 0x44, 0x44));
-        var textBrush   = new SolidColorBrush(Color.FromRgb(0xCC, 0xCC, 0xCC));
+        var greyBrush   = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E));
+        var dimBrush    = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E));
+        var textBrush   = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E));
 
         string? lastDate = null;
 
