@@ -41,6 +41,7 @@ public partial class MainWindow : Window
     private DispatcherTimer? _batchTimer;
 
     // Sequence number tracking for duplicate / out-of-order rejection
+    private const int MaxPendingPeerPackets = 8;
     private ushort _lastPeerSeq;
     private bool   _peerSeqInitialized;
     private readonly Dictionary<ushort, SemaBuzzPacket> _pendingPeerPackets = [];
@@ -505,6 +506,8 @@ public partial class MainWindow : Window
                 // Packet arrived ahead of one or more earlier chars. Buffer it and
                 // wait for the missing sequence(s) so fast typing stays in order.
                 _pendingPeerPackets.TryAdd(e.Packet.SeqNum, e.Packet);
+                if (_pendingPeerPackets.Count >= MaxPendingPeerPackets)
+                    ResyncPendingPeerPackets();
                 return;
             }
 
@@ -529,6 +532,19 @@ public partial class MainWindow : Window
             _lastPeerSeq = nextSeq;
             RenderPeerPacket(packet);
         }
+    }
+
+    private void ResyncPendingPeerPackets()
+    {
+        if (_pendingPeerPackets.Count == 0)
+            return;
+
+        // One missing packet should not permanently stall the remote transcript.
+        // When the small reorder buffer fills up, resume from the earliest packet
+        // we do have and continue rendering from there.
+        var nextAvailableSeq = _pendingPeerPackets.Keys.Min();
+        _lastPeerSeq = (ushort)(nextAvailableSeq - 1);
+        FlushPendingPeerPackets();
     }
 
     // ---------------------------------------------
