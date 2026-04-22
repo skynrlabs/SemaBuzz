@@ -289,6 +289,8 @@ public partial class MainWindow : Window
         App.Settings.ChatFontSize         = dlg.SelectedChatFontSize;
         App.Settings.LivePreview          = dlg.SelectedLivePreview;
         App.Settings.MinimizeToTray       = dlg.SelectedMinimizeToTray;
+        App.Settings.BuzzSoundEnabled     = dlg.SelectedBuzzSoundEnabled;
+        App.Settings.BuzzSoundVolume      = dlg.SelectedBuzzSoundVolume;
         App.Settings.RelayUri             = dlg.SelectedRelayUri;
         App.Settings.Save();
 
@@ -404,7 +406,38 @@ public partial class MainWindow : Window
         if (_listener != null) await _listener.SendBuzzAsync();
 
         // Also pulse our own filament so the sender feels it
+        PlayBuzzSound();
         BuzzIndicator.MaxBurst();
+        InputBox.Focus();
+    }
+
+    private void EmoticonPickerButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!InputBox.IsEnabled || EmoticonPickerButton.ContextMenu == null)
+            return;
+
+        EmoticonPickerButton.ContextMenu.PlacementTarget = EmoticonPickerButton;
+        EmoticonPickerButton.ContextMenu.IsOpen = true;
+    }
+
+    private void EmoticonButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (!InputBox.IsEnabled)
+            return;
+
+        var emoticon = sender switch
+        {
+            Button { Tag: string buttonTag } => buttonTag,
+            MenuItem { Tag: string menuTag } => menuTag,
+            _ => null,
+        };
+
+        if (string.IsNullOrEmpty(emoticon))
+            return;
+
+        var caretIndex = InputBox.CaretIndex;
+        InputBox.Text = InputBox.Text.Insert(caretIndex, emoticon);
+        InputBox.CaretIndex = caretIndex + emoticon.Length;
         InputBox.Focus();
     }
 
@@ -535,6 +568,7 @@ public partial class MainWindow : Window
         {
             if (e.Packet.Type == SemaBuzzPacketType.Buzz)
             {
+                PlayBuzzSound();
                 BuzzIndicator.MaxBurst();
                 ShakeWindow();
                 ShowToastIfUnfocused(_peerHandle, "Buzzed you!");
@@ -1015,6 +1049,22 @@ public partial class MainWindow : Window
         var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "error.mp3");
         if (!File.Exists(path)) return;
         var player = new MediaPlayer();
+        player.MediaEnded += (_, _) => player.Close();
+        player.Open(new Uri(path));
+        player.Play();
+    }
+
+    private static void PlayBuzzSound()
+    {
+        if (!App.Settings.BuzzSoundEnabled) return;
+
+        var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "buzz.mp3");
+        if (!File.Exists(path)) return;
+
+        var player = new MediaPlayer
+        {
+            Volume = Math.Clamp(App.Settings.BuzzSoundVolume, 0.0, 1.0)
+        };
         player.MediaEnded += (_, _) => player.Close();
         player.Open(new Uri(path));
         player.Play();

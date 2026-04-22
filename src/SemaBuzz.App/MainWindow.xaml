@@ -240,13 +240,43 @@
                      Style="{StaticResource SemaBuzzInput}"
                      AcceptsReturn="False"
                      MaxLength="512"
-                     Padding="16 12 90 12"
+                     Padding="16 12 132 12"
                      VerticalAlignment="Center"
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
                      IsEnabled="False"
                      PreviewKeyDown="InputBox_PreviewKeyDown"
                      TextChanged="InputBox_TextChanged"/>
+            <Button x:Name="EmoticonPickerButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 90 0"
+                    IsEnabled="{Binding IsEnabled, ElementName=InputBox}"
+                    ToolTip="Emoticons"
+                    Click="EmoticonPickerButton_Click">
+                <Button.ContextMenu>
+                    <ContextMenu x:Name="EmoticonMenu"
+                                 Placement="Top"
+                                 Foreground="{DynamicResource AmberBrush}"
+                                 Background="{DynamicResource ObsidianSurfaceBrush}">
+                        <MenuItem Header=":)" Tag=":)" Click="EmoticonButton_Click"/>
+                        <MenuItem Header=";)" Tag=";)" Click="EmoticonButton_Click"/>
+                        <MenuItem Header=":(" Tag=":(" Click="EmoticonButton_Click"/>
+                        <MenuItem Header=":D" Tag=":D" Click="EmoticonButton_Click"/>
+                        <MenuItem Header=":P" Tag=":P" Click="EmoticonButton_Click"/>
+                        <MenuItem Header="XD" Tag="XD" Click="EmoticonButton_Click"/>
+                        <MenuItem Header="&lt;3" Tag="&lt;3" Click="EmoticonButton_Click"/>
+                        <MenuItem Header=":O" Tag=":O" Click="EmoticonButton_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
+                <TextBlock Text="☺"
+                           FontSize="16"
+                           Foreground="{DynamicResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
             <!-- Buzz button — slam the remote's filament -->
             <Button x:Name="BuzzButton"
                     Style="{StaticResource SemaBuzzSendButton}"

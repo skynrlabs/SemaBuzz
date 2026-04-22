@@ -15,6 +15,8 @@ public partial class SemaBuzzSettingsDialog : Window
     public double             SelectedChatFontSize         { get; private set; }
     public bool               SelectedLivePreview          { get; private set; }
     public bool               SelectedMinimizeToTray       { get; private set; }
+    public bool               SelectedBuzzSoundEnabled     { get; private set; }
+    public double             SelectedBuzzSoundVolume      { get; private set; }
     public string             SelectedRelayUri             { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
     public SemaBuzzSettingsDialog()
@@ -31,6 +33,8 @@ public partial class SemaBuzzSettingsDialog : Window
         FontSizeSlider.Value       = s.ChatFontSize;
         LivePreviewCheck.IsChecked = s.LivePreview;
         MinimizeToTrayCheck.IsChecked = s.MinimizeToTray;
+        BuzzSoundEnabledCheck.IsChecked = s.BuzzSoundEnabled;
+        BuzzVolumeSlider.Value     = s.BuzzSoundVolume;
         RelayUriBox.Text           = s.RelayUri;
 
         // Gate Pro features when the user has not purchased the Pro add-on
@@ -107,6 +111,9 @@ public partial class SemaBuzzSettingsDialog : Window
 
         SelectedMinimizeToTray = MinimizeToTrayCheck.IsChecked == true;
 
+        SelectedBuzzSoundEnabled = BuzzSoundEnabledCheck.IsChecked == true;
+        SelectedBuzzSoundVolume  = BuzzVolumeSlider.Value;
+
         var relayUri = RelayUriBox.Text.Trim();
         SelectedRelayUri = SemaBuzzLicense.IsProUnlocked && !string.IsNullOrWhiteSpace(relayUri)
             ? relayUri
@@ -131,6 +138,12 @@ public partial class SemaBuzzSettingsDialog : Window
     {
         if (FontSizeLabel is null) return;
         FontSizeLabel.Text = $"{(int)e.NewValue}px";
+    }
+
+    private void BuzzVolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        if (BuzzVolumeLabel is null) return;
+        BuzzVolumeLabel.Text = $"{(int)Math.Round(e.NewValue * 100):0}%";
     }
 
     private async void BuyNow_Click(object sender, RoutedEventArgs e)

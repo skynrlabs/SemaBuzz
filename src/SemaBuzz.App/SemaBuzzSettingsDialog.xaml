@@ -162,6 +162,40 @@
         <!-- Divider -->
         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
 
+         <!-- ═══ BUZZ SOUND ═══ -->
+         <TextBlock Text="BUZZ SOUND"
+             Foreground="{DynamicResource AmberBrush}"
+             FontWeight="Bold" FontSize="11"
+             Margin="0 0 0 10"/>
+
+         <CheckBox x:Name="BuzzSoundEnabledCheck"
+            Content="Play buzz sound locally"
+            Margin="0 0 0 10"/>
+
+         <Grid Margin="0 0 0 6">
+             <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="44"/>
+             </Grid.ColumnDefinitions>
+             <Slider x:Name="BuzzVolumeSlider"
+                  Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.1"
+                  Foreground="{DynamicResource AmberBrush}"
+                  VerticalAlignment="Center"
+                  ValueChanged="BuzzVolumeSlider_ValueChanged"/>
+             <TextBlock x:Name="BuzzVolumeLabel"
+                  Grid.Column="1"
+                  Text="75%"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"
+                  FontSize="11"/>
+         </Grid>
+
+         <TextBlock Text="Used when you click Buzz and when a peer buzzes you."
+             Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
+
+         <!-- Divider -->
+         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
+
         <!-- ═══ RELAY SERVER ═══ -->
         <StackPanel x:Name="RelayLabelRow" Orientation="Horizontal" Margin="0 0 0 10">
             <TextBlock Text="RELAY SERVER"

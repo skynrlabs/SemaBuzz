@@ -48,6 +48,12 @@ public sealed class SemaBuzzSettings
     /// <summary>When true, minimizing the main window hides it to the system tray.</summary>
     public bool               MinimizeToTray       { get; set; } = false;
 
+    /// <summary>When true, buzz actions play the configured local sound.</summary>
+    public bool               BuzzSoundEnabled     { get; set; } = true;
+
+    /// <summary>Playback volume for the local buzz sound (0.0-1.0).</summary>
+    public double             BuzzSoundVolume      { get; set; } = 0.75;
+
     /// <summary>
     /// WebSocket relay endpoint. Defaults to the hosted SemaBuzz relay.
     /// Users can override this to point at a self-hosted relay.
