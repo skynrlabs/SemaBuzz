@@ -45,6 +45,9 @@ public sealed class SemaBuzzSettings
     /// <summary>When true, keystrokes are streamed live to the peer as the user types.</summary>
     public bool               LivePreview          { get; set; } = true;
 
+    /// <summary>When true, minimizing the main window hides it to the system tray.</summary>
+    public bool               MinimizeToTray       { get; set; } = false;
+
     /// <summary>
     /// WebSocket relay endpoint. Defaults to the hosted SemaBuzz relay.
     /// Users can override this to point at a self-hosted relay.

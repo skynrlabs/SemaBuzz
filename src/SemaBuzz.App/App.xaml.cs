@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Windows;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Application = System.Windows.Application;
 
 namespace SemaBuzz.App;
 

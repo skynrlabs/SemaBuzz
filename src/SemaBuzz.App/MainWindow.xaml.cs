@@ -11,6 +11,10 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using Forms = System.Windows.Forms;
+using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using SemaBuzz.App.Controls;
 using SemaBuzz.Protocol;
 
@@ -57,6 +61,8 @@ public partial class MainWindow : Window
     // Remote peer identity (received via metadata exchange)
     private string  _peerHandle     = "peer";
     private byte[]? _peerAvatarPng;
+    private readonly Forms.NotifyIcon _trayIcon;
+    private bool _trayTipShown;
 
     public MainWindow()
     {
@@ -70,6 +76,8 @@ public partial class MainWindow : Window
         {
             ApplyLicenseBanner();
         };
+
+        _trayIcon = CreateTrayIcon();
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -84,6 +92,9 @@ public partial class MainWindow : Window
         // Toggle the glyph between ? (maximize) and ? (restore)
         MaximizeGlyph.Text = WindowState == WindowState.Maximized ? "\u2750" : "\u25A1";
         MaximizeButton.ToolTip = WindowState == WindowState.Maximized ? "Restore" : "Maximize";
+
+        if (WindowState == WindowState.Minimized && App.Settings.MinimizeToTray)
+            HideToTray();
     }
 
     private void WinBtn_Minimize_Click(object sender, RoutedEventArgs e)
@@ -96,6 +107,50 @@ public partial class MainWindow : Window
 
     private void WinBtn_Close_Click(object sender, RoutedEventArgs e)
         => Close();
+
+    private Forms.NotifyIcon CreateTrayIcon()
+    {
+        var trayMenu = new Forms.ContextMenuStrip();
+        trayMenu.Items.Add("Open SemaBuzz", null, (_, _) => RestoreFromTray());
+        trayMenu.Items.Add("Exit", null, (_, _) => Close());
+
+        var iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "icon.ico");
+        var trayIcon = new Forms.NotifyIcon
+        {
+            Text = "SemaBuzz",
+            Visible = false,
+            ContextMenuStrip = trayMenu,
+        };
+
+        if (File.Exists(iconPath))
+            trayIcon.Icon = new System.Drawing.Icon(iconPath);
+
+        trayIcon.DoubleClick += (_, _) => RestoreFromTray();
+        return trayIcon;
+    }
+
+    private void HideToTray()
+    {
+        Hide();
+        ShowInTaskbar = false;
+        _trayIcon.Visible = true;
+
+        if (_trayTipShown) return;
+
+        _trayIcon.BalloonTipTitle = "SemaBuzz";
+        _trayIcon.BalloonTipText = "SemaBuzz is still running in the system tray.";
+        _trayIcon.ShowBalloonTip(2500);
+        _trayTipShown = true;
+    }
+
+    private void RestoreFromTray()
+    {
+        Show();
+        ShowInTaskbar = true;
+        WindowState = WindowState.Normal;
+        Activate();
+        _trayIcon.Visible = false;
+    }
 
     // ---------------------------------------------
     // buzz:// URI handling
@@ -233,6 +288,7 @@ public partial class MainWindow : Window
         App.Settings.IndicatorStyle       = dlg.SelectedIndicatorStyle;
         App.Settings.ChatFontSize         = dlg.SelectedChatFontSize;
         App.Settings.LivePreview          = dlg.SelectedLivePreview;
+        App.Settings.MinimizeToTray       = dlg.SelectedMinimizeToTray;
         App.Settings.RelayUri             = dlg.SelectedRelayUri;
         App.Settings.Save();
 
@@ -455,6 +511,13 @@ public partial class MainWindow : Window
         bool approved = false;
         await Dispatcher.InvokeAsync(() =>
         {
+            SemaBuzzConnectRequestDialog.PlayRequestSoundOnce();
+            if (!IsVisible)
+                RestoreFromTray();
+            else if (WindowState == WindowState.Minimized)
+                WindowState = WindowState.Normal;
+
+            Activate();
             var dlg = new SemaBuzzConnectRequestDialog(remote) { Owner = this };
             dlg.ShowDialog();
             approved = dlg.Accepted;
@@ -993,6 +1056,8 @@ public partial class MainWindow : Window
 
     protected override void OnClosed(EventArgs e)
     {
+        _trayIcon.Visible = false;
+        _trayIcon.Dispose();
         _cts?.Cancel();
         _client?.Dispose();
         _listener?.Dispose();

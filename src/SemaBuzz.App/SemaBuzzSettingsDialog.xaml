@@ -146,6 +146,22 @@
         <!-- Divider -->
         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
 
+        <!-- ═══ SYSTEM TRAY ═══ -->
+        <TextBlock Text="SYSTEM TRAY"
+               Foreground="{DynamicResource AmberBrush}"
+               FontWeight="Bold" FontSize="11"
+               Margin="0 0 0 10"/>
+
+        <CheckBox x:Name="MinimizeToTrayCheck"
+              Content="Minimize window to system tray"
+              Margin="0 0 0 6"/>
+
+        <TextBlock Text="When enabled, clicking minimize hides SemaBuzz to the Windows tray. Double-click the tray icon to restore it."
+               Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
+
         <!-- ═══ RELAY SERVER ═══ -->
         <StackPanel x:Name="RelayLabelRow" Orientation="Horizontal" Margin="0 0 0 10">
             <TextBlock Text="RELAY SERVER"

@@ -21,11 +21,7 @@ public partial class SemaBuzzConnectRequestDialog : Window
 
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
         _timer.Tick += Timer_Tick;
-        Loaded += (_, _) =>
-        {
-            _timer.Start();
-            StartRing();
-        };
+        Loaded += (_, _) => _timer.Start();
         Closed += (_, _) => StopRing();
     }
 
@@ -68,14 +64,17 @@ public partial class SemaBuzzConnectRequestDialog : Window
         DialogResult = false;
     }
 
-    private void StartRing()
+    public static void PlayRequestSoundOnce()
     {
         var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "request.mp3");
         if (!System.IO.File.Exists(path)) return;
-        _ring = new MediaPlayer();
-        _ring.MediaEnded += (_, _) => { _ring.Position = TimeSpan.Zero; _ring.Play(); };
-        _ring.Open(new Uri(path));
-        _ring.Play();
+        var ring = new MediaPlayer();
+        ring.MediaEnded += (_, _) =>
+        {
+            ring.Close();
+        };
+        ring.Open(new Uri(path));
+        ring.Play();
     }
 
     private void StopRing()

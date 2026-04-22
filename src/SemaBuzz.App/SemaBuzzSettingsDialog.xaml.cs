@@ -14,6 +14,7 @@ public partial class SemaBuzzSettingsDialog : Window
     public IndicatorStyleId   SelectedIndicatorStyle       { get; private set; }
     public double             SelectedChatFontSize         { get; private set; }
     public bool               SelectedLivePreview          { get; private set; }
+    public bool               SelectedMinimizeToTray       { get; private set; }
     public string             SelectedRelayUri             { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
     public SemaBuzzSettingsDialog()
@@ -29,6 +30,7 @@ public partial class SemaBuzzSettingsDialog : Window
         StyleWave.IsChecked        = s.IndicatorStyle == IndicatorStyleId.Wave;
         FontSizeSlider.Value       = s.ChatFontSize;
         LivePreviewCheck.IsChecked = s.LivePreview;
+        MinimizeToTrayCheck.IsChecked = s.MinimizeToTray;
         RelayUriBox.Text           = s.RelayUri;
 
         // Gate Pro features when the user has not purchased the Pro add-on
@@ -102,6 +104,8 @@ public partial class SemaBuzzSettingsDialog : Window
         SelectedChatFontSize = FontSizeSlider.Value;
 
         SelectedLivePreview = LivePreviewCheck.IsChecked == true;
+
+        SelectedMinimizeToTray = MinimizeToTrayCheck.IsChecked == true;
 
         var relayUri = RelayUriBox.Text.Trim();
         SelectedRelayUri = SemaBuzzLicense.IsProUnlocked && !string.IsNullOrWhiteSpace(relayUri)

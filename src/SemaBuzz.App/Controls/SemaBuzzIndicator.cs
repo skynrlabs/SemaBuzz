@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Windows.Threading;
+using Brush = System.Windows.Media.Brush;
+using UserControl = System.Windows.Controls.UserControl;
 
 namespace SemaBuzz.App.Controls;
 
