@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -19,6 +20,7 @@ public sealed class SemaBuzzListener : IDisposable
     private CancellationTokenSource? _cts;
     private int _port;
     private bool _disposed;
+    private string? _lastStateMessage;
     private byte[]? _localPubKeyBytes; // saved so we can resend on client retransmit
     private ECDiffieHellman? _pendingEcdh;  // set in relay mode so we reuse the initiated key pair
 
@@ -202,17 +204,11 @@ public sealed class SemaBuzzListener : IDisposable
         {
             while (!_cts.Token.IsCancellationRequested && _wsClient!.State == WebSocketState.Open)
             {
-                WebSocketReceiveResult recv;
-                try { recv = await _wsClient.ReceiveAsync(dataBuf, _cts.Token); }
-                catch (OperationCanceledException) { break; }
-                catch { break; }
-
-                if (recv.MessageType == WebSocketMessageType.Close) break;
-                if (recv.Count < SemaBuzzPacket.WireSize) continue;
+                var data = await ReceiveWsMessageAsync(_wsClient, dataBuf, _cts.Token);
+                if (data == null) break;
+                if (data.Length < SemaBuzzPacket.WireSize) continue;
                 // Skip stray relay control frames.
-                if (recv.Count == SemaBuzzRelayPacket.Size && SemaBuzzRelayPacket.IsRelayPacket(dataBuf)) continue;
-
-                var data = dataBuf[..recv.Count];
+                if (data.Length == SemaBuzzRelayPacket.Size && SemaBuzzRelayPacket.IsRelayPacket(data)) continue;
                 await HandleIncomingAsync(new UdpReceiveResult(data, relayPeer));
             }
         }
@@ -279,6 +275,8 @@ public sealed class SemaBuzzListener : IDisposable
         {
             if (Shield != null)
             {
+                if (_wsSend != null && State == SemaBuzzWireState.Secured) return;
+
                 // Client is retransmitting  our KE response or HandshakeAck was lost.
                 // Resend whatever is appropriate for the current state.
                 if (PeerEndPoint?.Equals(result.RemoteEndPoint) == true && _localPubKeyBytes != null)
@@ -518,9 +516,29 @@ public sealed class SemaBuzzListener : IDisposable
     public Task SendBuzzAsync() => SendAsync(SemaBuzzPacket.Control(SemaBuzzPacketType.Buzz));
 
 
+    private static async Task<byte[]?> ReceiveWsMessageAsync(WebSocket ws, byte[] buffer, CancellationToken ct)
+    {
+        using var stream = new MemoryStream();
+        while (true)
+        {
+            WebSocketReceiveResult recv;
+            try { recv = await ws.ReceiveAsync(buffer, ct); }
+            catch (OperationCanceledException) { throw; }
+            catch { return null; }
+
+            if (recv.MessageType == WebSocketMessageType.Close) return null;
+            if (recv.Count > 0) stream.Write(buffer, 0, recv.Count);
+            if (recv.EndOfMessage) return stream.ToArray();
+        }
+    }
+
+
     private void SetState(SemaBuzzWireState state, string? message = null)
     {
+        if (State == state && string.Equals(message, _lastStateMessage, StringComparison.Ordinal))
+            return;
         State = state;
+        _lastStateMessage = message;
         WireStateChanged?.Invoke(this, new SemaBuzzWireStateEventArgs(state, message));
     }
 

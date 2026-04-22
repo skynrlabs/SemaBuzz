@@ -1,3 +1,4 @@
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.WebSockets;
@@ -19,6 +20,7 @@ public sealed class SemaBuzzClient : IDisposable
     private IPEndPoint? _peer;
     private CancellationTokenSource? _cts;
     private bool _disposed;
+    private string? _lastStateMessage;
 
     private static readonly TimeSpan HandshakeTimeout   = TimeSpan.FromSeconds(12);
     private static readonly TimeSpan ApprovalWaitTimeout = TimeSpan.FromSeconds(60);
@@ -239,14 +241,8 @@ public sealed class SemaBuzzClient : IDisposable
         {
             while (!ct.IsCancellationRequested && ws.State == WebSocketState.Open)
             {
-                WebSocketReceiveResult recv;
-                try { recv = await ws.ReceiveAsync(buf, ct); }
-                catch (OperationCanceledException) { break; }
-                catch { break; }
-
-                if (recv.MessageType == WebSocketMessageType.Close) break;
-
-                var data = buf[..recv.Count];
+                var data = await ReceiveWsMessageAsync(ws, buf, ct);
+                if (data == null) break;
                 const int MaxPayload = 16_384;
                 if (data.Length < SemaBuzzPacket.WireSize || data.Length > MaxPayload) continue;
                 if (SemaBuzzRelayPacket.IsRelayPacket(data)) continue; // stray control frame
@@ -539,8 +535,27 @@ public sealed class SemaBuzzClient : IDisposable
 
     private void SetState(SemaBuzzWireState state, string? message = null)
     {
+        if (State == state && string.Equals(message, _lastStateMessage, StringComparison.Ordinal))
+            return;
         State = state;
+        _lastStateMessage = message;
         WireStateChanged?.Invoke(this, new SemaBuzzWireStateEventArgs(state, message));
+    }
+
+    private static async Task<byte[]?> ReceiveWsMessageAsync(WebSocket ws, byte[] buffer, CancellationToken ct)
+    {
+        using var stream = new MemoryStream();
+        while (true)
+        {
+            WebSocketReceiveResult recv;
+            try { recv = await ws.ReceiveAsync(buffer, ct); }
+            catch (OperationCanceledException) { throw; }
+            catch { return null; }
+
+            if (recv.MessageType == WebSocketMessageType.Close) return null;
+            if (recv.Count > 0) stream.Write(buffer, 0, recv.Count);
+            if (recv.EndOfMessage) return stream.ToArray();
+        }
     }
 
     public void Dispose()
