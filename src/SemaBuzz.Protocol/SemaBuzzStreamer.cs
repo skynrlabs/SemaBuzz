@@ -16,6 +16,12 @@ public sealed class SemaBuzzStreamer
     public event EventHandler<SemaBuzzPacketEventArgs>? PacketReady;
 
     /// <summary>
+    /// Reserve the next per-session sequence number for manually constructed
+    /// packets that still participate in Char packet ordering.
+    /// </summary>
+    public ushort NextSequence() => _seqNum++;
+
+    /// <summary>
     /// Feed a single character into the streamer. Computes intensity from typing
     /// velocity and fires PacketReady with the resulting SemaBuzzPacket.
     /// </summary>
@@ -26,7 +32,7 @@ public sealed class SemaBuzzStreamer
         _lastKeyTime = now;
 
         var intensity = ComputeIntensity(intervalMs);
-        var seq    = _seqNum++;   // post-increment; wraps naturally as ushort
+        var seq    = NextSequence();
         var packet = new SemaBuzzPacket(character, intensity, SemaBuzzPacketType.Char, seq);
         PacketReady?.Invoke(this, new SemaBuzzPacketEventArgs(packet));
     }

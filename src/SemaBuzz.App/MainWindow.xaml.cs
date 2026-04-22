@@ -394,8 +394,9 @@ public partial class MainWindow : Window
         InputBox.Clear();
         SendButton.IsEnabled = false;
 
-        // Send a newline packet so the peer also freezes that line
-        var nlPacket = new SemaBuzzPacket('\n', 0);
+        // Send a newline packet with the next outbound sequence number so the
+        // peer's duplicate filter does not drop the sentence commit.
+        var nlPacket = new SemaBuzzPacket('\n', 0, SemaBuzzPacketType.Char, _streamer.NextSequence());
         if (_client   != null) _ = _client.SendAsync(nlPacket);
         if (_listener != null) _ = _listener.SendAsync(nlPacket);
     }
