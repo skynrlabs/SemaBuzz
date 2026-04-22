@@ -25,6 +25,7 @@ public sealed class SemaBuzzListener : IDisposable
     private ECDiffieHellman? _pendingEcdh;  // set in relay mode so we reuse the initiated key pair
 
     public event EventHandler<SemaBuzzPacketEventArgs>?    PacketReceived;
+    private const int MaxBatchPacketsPerSend = 8;
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
     public event EventHandler<SemaBuzzMetadataEventArgs>?   MetadataReceived;
 
@@ -504,12 +505,16 @@ public sealed class SemaBuzzListener : IDisposable
         if ((_udp == null && _wsSend == null) || (PeerEndPoint == null && _wsSend == null) || packets.Count == 0) return;
         if (State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
 
-        var plaintext = new byte[packets.Count * SemaBuzzPacket.WireSize];
-        for (var i = 0; i < packets.Count; i++)
-            packets[i].ToWireBytes().CopyTo(plaintext, i * SemaBuzzPacket.WireSize);
+        for (var offset = 0; offset < packets.Count; offset += MaxBatchPacketsPerSend)
+        {
+            var chunkCount = Math.Min(MaxBatchPacketsPerSend, packets.Count - offset);
+            var plaintext = new byte[chunkCount * SemaBuzzPacket.WireSize];
+            for (var i = 0; i < chunkCount; i++)
+                packets[offset + i].ToWireBytes().CopyTo(plaintext, i * SemaBuzzPacket.WireSize);
 
-        var bytes = Shield != null ? Shield.Encrypt(plaintext) : plaintext;
-        await SendRawAsync(bytes, PeerEndPoint);
+            var bytes = Shield != null ? Shield.Encrypt(plaintext) : plaintext;
+            await SendRawAsync(bytes, PeerEndPoint);
+        }
     }
 
     /// <summary>Send a Buzz to the peer  spikes their filament and shakes their window.</summary>

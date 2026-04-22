@@ -176,6 +176,7 @@
             <TextBlock Text="Buzz Address" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
             <TextBox x:Name="BuzzUrlBox"
                      Style="{StaticResource SemaBuzzInput}"
+                     TextChanged="BuzzUrlBox_TextChanged"
                      Text=""/>
         </StackPanel>
 

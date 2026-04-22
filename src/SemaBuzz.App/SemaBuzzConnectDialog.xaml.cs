@@ -45,7 +45,7 @@ public partial class SemaBuzzConnectDialog : Window
 
         Loaded += (_, _) =>
         {
-            HostBuzzAddressBox.Text = SemaBuzzRelayPacket.GenerateToken().ToUpperInvariant();
+            SetNewHostBuzzAddress();
         };
     }
 
@@ -58,8 +58,7 @@ public partial class SemaBuzzConnectDialog : Window
         Loaded += (_, _) =>
         {
             DialMode.IsChecked = true;
-            // Preserve full buzz:// address — user can also paste bare token
-            BuzzUrlBox.Text = dialBuzzUri;
+            BuzzUrlBox.Text = NormalizeBuzzAddressForDisplay(dialBuzzUri);
         };
     }
 
@@ -87,9 +86,9 @@ public partial class SemaBuzzConnectDialog : Window
 
     private void CopyHostBuzz_Click(object sender, RoutedEventArgs e)
     {
-        var token = HostBuzzAddressBox.Text?.Trim();
-        if (string.IsNullOrEmpty(token)) return;
-        Clipboard.SetText($"buzz://{token}");
+        var buzzAddress = HostBuzzAddressBox.Text?.Trim();
+        if (string.IsNullOrEmpty(buzzAddress)) return;
+        Clipboard.SetText(buzzAddress);
         CopyHostBuzzBtn.Content = "COPIED!";
         var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
         timer.Tick += (_, _) => { CopyHostBuzzBtn.Content = "COPY"; timer.Stop(); };
@@ -97,7 +96,31 @@ public partial class SemaBuzzConnectDialog : Window
     }
 
     private void NewHostBuzz_Click(object sender, RoutedEventArgs e)
-        => HostBuzzAddressBox.Text = SemaBuzzRelayPacket.GenerateToken().ToUpperInvariant();
+        => SetNewHostBuzzAddress();
+
+    private void SetNewHostBuzzAddress()
+        => HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken());
+
+    private static string NormalizeBuzzAddressForDisplay(string raw)
+    {
+        var parsed = SemaBuzzUriHandler.TryParse(raw);
+        if (parsed?.RelayToken is { } relayToken)
+            return SemaBuzzUriHandler.BuildRelay(relayToken);
+
+        return raw;
+    }
+
+    private void BuzzUrlBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (sender is not TextBox textBox) return;
+
+        var normalized = NormalizeBuzzAddressForDisplay(textBox.Text);
+        if (normalized == textBox.Text) return;
+
+        var caretIndex = textBox.CaretIndex;
+        textBox.Text = normalized;
+        textBox.CaretIndex = Math.Min(caretIndex, textBox.Text.Length);
+    }
 
     protected override void OnClosed(EventArgs e) => base.OnClosed(e);
 
@@ -271,8 +294,8 @@ public partial class SemaBuzzConnectDialog : Window
 
         if (IsHost)
         {
-            var tok = (HostBuzzAddressBox.Text?.Trim() ?? string.Empty).ToUpperInvariant();
-            if (tok.Length is < 4 or > 8)
+            var parsed = SemaBuzzUriHandler.TryParse(HostBuzzAddressBox.Text?.Trim());
+            if (parsed?.RelayToken is not { } tok)
             {
                 MessageBox.Show("No session token — click NEW to generate one.", "SemaBuzz",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -286,11 +309,15 @@ public partial class SemaBuzzConnectDialog : Window
         {
             var raw = BuzzUrlBox.Text.Trim();
 
-            // Allow entering a bare token (e.g. "X7K2QP") without the buzz:// prefix.
             if (!raw.StartsWith("buzz://", StringComparison.OrdinalIgnoreCase)
                 && !raw.Contains('.')
+                && !raw.Contains(':')
                 && raw.Length is >= 4 and <= 8)
-                raw = $"buzz://{raw}";
+            {
+                MessageBox.Show("Enter the full Buzz address with the buzz:// prefix (for example: buzz://X7K2QP). A token by itself is not a valid address.", "SemaBuzz",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
             var parsed = SemaBuzzUriHandler.TryParse(raw);
             if (parsed == null)
@@ -303,6 +330,7 @@ public partial class SemaBuzzConnectDialog : Window
             if (parsed.RelayToken is { } relayTok)
             {
                 RelayToken = relayTok;
+                BuzzUrlBox.Text = SemaBuzzUriHandler.BuildRelay(relayTok);
                 PeerHost   = string.Empty;
                 Port       = 0;
             }

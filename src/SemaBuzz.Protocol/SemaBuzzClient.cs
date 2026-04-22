@@ -23,6 +23,7 @@ public sealed class SemaBuzzClient : IDisposable
     private string? _lastStateMessage;
 
     private static readonly TimeSpan HandshakeTimeout   = TimeSpan.FromSeconds(12);
+    private const int MaxBatchPacketsPerSend = 8;
     private static readonly TimeSpan ApprovalWaitTimeout = TimeSpan.FromSeconds(60);
 
     public event EventHandler<SemaBuzzPacketEventArgs>?    PacketReceived;
@@ -498,13 +499,17 @@ public sealed class SemaBuzzClient : IDisposable
         if ((_udp == null && _wsSend == null) || packets.Count == 0) return;
         if (State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
 
-        var plaintext = new byte[packets.Count * SemaBuzzPacket.WireSize];
-        for (var i = 0; i < packets.Count; i++)
-            packets[i].ToWireBytes().CopyTo(plaintext, i * SemaBuzzPacket.WireSize);
+        for (var offset = 0; offset < packets.Count; offset += MaxBatchPacketsPerSend)
+        {
+            var chunkCount = Math.Min(MaxBatchPacketsPerSend, packets.Count - offset);
+            var plaintext = new byte[chunkCount * SemaBuzzPacket.WireSize];
+            for (var i = 0; i < chunkCount; i++)
+                packets[offset + i].ToWireBytes().CopyTo(plaintext, i * SemaBuzzPacket.WireSize);
 
-        var bytes = Shield != null ? Shield.Encrypt(plaintext) : plaintext;
-        if (_wsSend != null) { await _wsSend(bytes); return; }
-        await _udp!.SendAsync(bytes);
+            var bytes = Shield != null ? Shield.Encrypt(plaintext) : plaintext;
+            if (_wsSend != null) await _wsSend(bytes);
+            else await _udp!.SendAsync(bytes);
+        }
     }
 
     /// <summary>Send a Buzz to the peer — spikes their filament and shakes their window.</summary>
