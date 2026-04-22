@@ -66,7 +66,6 @@ public partial class MainWindow : Window
         InputBox.Focus();
         Loaded += (_, _) =>
         {
-            LoadPreviousChatLog();
             ApplyLicenseBanner();
         };
     }
@@ -203,9 +202,6 @@ public partial class MainWindow : Window
         _previousInputText = string.Empty;
     }
 
-    private void View_OpenLog_Click(object sender, RoutedEventArgs e)
-        => new SemaBuzzLogViewerDialog { Owner = this }.ShowDialog();
-
     //  SETTINGS menu
 
     private void Settings_Themes_Click(object sender, RoutedEventArgs e)
@@ -227,7 +223,6 @@ public partial class MainWindow : Window
         var dlg = new SemaBuzzSettingsDialog { Owner = this };
         if (dlg.ShowDialog() != true) return;
 
-        App.Settings.LogPersistence       = dlg.SelectedLogPersistence;
         App.Settings.DefaultListenPort    = dlg.SelectedDefaultListenPort;
         App.Settings.IndicatorSensitivity = dlg.SelectedIndicatorSensitivity;
         App.Settings.IndicatorStyle       = dlg.SelectedIndicatorStyle;
@@ -375,10 +370,6 @@ public partial class MainWindow : Window
         if (!App.Settings.LivePreview)
             foreach (var c in msg)
                 _streamer.Feed(c);
-
-        // Persist to encrypted log
-        if (App.Settings.LogPersistence == LogPersistenceMode.PermanentEncrypted)
-            SemaBuzzChatLog.Append("out", _localHandle, msg);
 
         // Add the committed row to the local pane
         var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
@@ -682,10 +673,6 @@ public partial class MainWindow : Window
                 HyperlinkifyTextBlock(_livePeerBlock);
                 ShowToastIfUnfocused(_peerHandle, msgText);
 
-                // Persist to encrypted log if enabled
-                if (!string.IsNullOrWhiteSpace(msgText)
-                    && App.Settings.LogPersistence == LogPersistenceMode.PermanentEncrypted)
-                    SemaBuzzChatLog.Append("in", _peerHandle, msgText);
             }
             _peerLiveRow   = null;
             _livePeerBlock = null;
@@ -944,39 +931,6 @@ public partial class MainWindow : Window
     public void ApplyLicenseBanner() { }
 
     private void BuyNowButton_Click(object sender, RoutedEventArgs e) { }
-
-    // ---------------------------------------------
-    // Encrypted chat log persistence
-    // ---------------------------------------------
-
-    private void LoadPreviousChatLog()
-    {
-        if (App.Settings.LogPersistence != LogPersistenceMode.PermanentEncrypted) return;
-
-        var entries = SemaBuzzChatLog.LoadAll();
-        if (entries.Count == 0) return;
-
-        AddChatDivider("--- previous session ---");
-
-        foreach (var entry in entries)
-        {
-            var isOut = entry.Direction == "out";
-            var nameColor = isOut
-                ? SemaBuzzThemeManager.AccentColor
-                : Color.FromRgb(0x9E, 0x9E, 0x9E);
-
-            var resourceKey = isOut ? "AmberBrush" : null;
-            var (row, tb) = MakeChatLine(entry.Handle, null, nameColor, resourceKey);
-            tb.Text = (string)tb.Tag + entry.Message;
-            HyperlinkifyTextBlock(tb);
-            if (isOut) LocalPanel.Children.Add(row);
-            else       PeerPanel.Children.Add(row);
-        }
-
-        AddChatDivider("--- this session ---");
-        LocalScrollViewer.ScrollToEnd();
-        PeerScrollViewer.ScrollToEnd();
-    }
 
     protected override void OnClosed(EventArgs e)
     {

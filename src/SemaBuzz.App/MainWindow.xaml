@@ -81,8 +81,6 @@
                 </MenuItem>
                 <MenuItem Header="VIEW">
                     <MenuItem Header="Clear Chat" Click="View_ClearChat_Click"/>
-                    <Separator/>
-                    <MenuItem Header="Open Log" Click="View_OpenLog_Click"/>
                 </MenuItem>
                 <MenuItem Header="SETTINGS">
                     <MenuItem Header="Themes" Click="Settings_Themes_Click"/>

@@ -20,12 +20,6 @@ public enum SemaBuzzThemeId
     Powwow    = 12,
 }
 
-public enum LogPersistenceMode
-{
-    SessionOnly        = 0,
-    PermanentEncrypted = 1,
-}
-
 public enum IndicatorStyleId
 {
     Flicker = 0, // Default (free)  chaotic multi-harmonic
@@ -36,7 +30,6 @@ public enum IndicatorStyleId
 public sealed class SemaBuzzSettings
 {
     public SemaBuzzThemeId    Theme             { get; set; } = SemaBuzzThemeId.Obsidian;
-    public LogPersistenceMode LogPersistence    { get; set; } = LogPersistenceMode.SessionOnly;
     /// <summary>Default port pre-filled in the connect dialog's listen port field. Null means use the built-in default (7070).</summary>
     public int?               DefaultListenPort { get; set; } = null;
 

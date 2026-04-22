@@ -8,7 +8,6 @@ namespace SemaBuzz.App;
 
 public partial class SemaBuzzSettingsDialog : Window
 {
-    public LogPersistenceMode SelectedLogPersistence    { get; private set; }
     /// <summary>The port the user chose, or null to keep the built-in default.</summary>
     public int?               SelectedDefaultListenPort { get; private set; }
     public double             SelectedIndicatorSensitivity { get; private set; }
@@ -23,8 +22,6 @@ public partial class SemaBuzzSettingsDialog : Window
 
         // Pre-select current settings
         var s = App.Settings;
-        LogSessionOnly.IsChecked   = s.LogPersistence == LogPersistenceMode.SessionOnly;
-        LogPermanent.IsChecked     = s.LogPersistence == LogPersistenceMode.PermanentEncrypted;
         DefaultPortBox.Text        = s.DefaultListenPort?.ToString() ?? "7070";
         SensitivitySlider.Value    = s.IndicatorSensitivity;
         StyleFlicker.IsChecked     = s.IndicatorStyle == IndicatorStyleId.Flicker;
@@ -37,8 +34,6 @@ public partial class SemaBuzzSettingsDialog : Window
         // Gate Pro features when the user has not purchased the Pro add-on
         if (!SemaBuzzLicense.IsProUnlocked)
         {
-            LogPermanent.IsEnabled   = false;
-            LogPermanent.Content     = MakeProContent("Permanent Encrypted");
             DefaultPortBox.IsEnabled = false;
             DefaultPortLabelRow.Children.Add(MakeProBadge());
             StylePulse.IsEnabled = false;
@@ -63,8 +58,6 @@ public partial class SemaBuzzSettingsDialog : Window
             // Fall back to free options if a gated one is currently active
             if (s.IndicatorStyle != IndicatorStyleId.Flicker)
                 StyleFlicker.IsChecked = true;
-            if (s.LogPersistence == LogPersistenceMode.PermanentEncrypted)
-                LogSessionOnly.IsChecked = true;
         }
         else
         {
@@ -94,10 +87,6 @@ public partial class SemaBuzzSettingsDialog : Window
 
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
-        SelectedLogPersistence = LogPermanent.IsChecked == true
-            ? LogPersistenceMode.PermanentEncrypted
-            : LogPersistenceMode.SessionOnly;
-
         if (int.TryParse(DefaultPortBox.Text.Trim(), out var parsedPort)
             && parsedPort is >= 1024 and <= 65535)
             SelectedDefaultListenPort = parsedPort;
@@ -146,8 +135,6 @@ public partial class SemaBuzzSettingsDialog : Window
         if (purchased)
         {
             // Unlock all gated controls in-place
-            LogPermanent.IsEnabled   = true;
-            LogPermanent.Content     = "Permanent Encrypted";
             DefaultPortBox.IsEnabled = true;
             if (DefaultPortLabelRow.Children.Count > 1)
                 DefaultPortLabelRow.Children.RemoveAt(DefaultPortLabelRow.Children.Count - 1);

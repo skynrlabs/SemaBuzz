@@ -32,25 +32,6 @@
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0 0 6 0">
         <StackPanel Margin="28 20">
 
-        <!-- ═══ LOG PERSISTENCE ═══ -->
-        <TextBlock Text="LOG PERSISTENCE"
-                   Foreground="{DynamicResource AmberBrush}"
-                   FontWeight="Bold" FontSize="11"
-                   Margin="0 0 0 14"/>
-
-        <RadioButton x:Name="LogSessionOnly"
-                     Content="Session Only  (nothing written to disk)"
-                     GroupName="LogMode"
-                     Margin="0 0 0 10"/>
-
-        <RadioButton x:Name="LogPermanent"
-                     Content="Permanent Encrypted"
-                     GroupName="LogMode"
-                     Margin="0 0 0 22"/>
-
-        <!-- Divider -->
-        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
-
         <!-- ═══ DEFAULT LISTEN PORT ═══ -->
         <StackPanel x:Name="DefaultPortLabelRow" Orientation="Horizontal" Margin="0 0 0 14">
             <TextBlock Text="DEFAULT LISTEN PORT"
