@@ -43,6 +43,7 @@ public partial class MainWindow : Window
     // Sequence number tracking for duplicate / out-of-order rejection
     private ushort _lastPeerSeq;
     private bool   _peerSeqInitialized;
+    private readonly Dictionary<ushort, SemaBuzzPacket> _pendingPeerPackets = [];
 
     // Chat row containers (tracked so they can be removed when cleared)
     private Grid?      _peerLiveRow;
@@ -194,6 +195,9 @@ public partial class MainWindow : Window
         => Application.Current.Shutdown();
 
     private void View_ClearChat_Click(object sender, RoutedEventArgs e)
+        => ClearChatPanels();
+
+    private void ClearChatPanels()
     {
         LocalPanel.Children.Clear();
         PeerPanel.Children.Clear();
@@ -254,6 +258,7 @@ public partial class MainWindow : Window
 
     private void StartListening(int port, CancellationToken ct)
     {
+        ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
@@ -267,6 +272,7 @@ public partial class MainWindow : Window
 
     private void StartListeningViaRelay(string token, CancellationToken ct)
     {
+        ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
@@ -282,6 +288,7 @@ public partial class MainWindow : Window
 
     private void StartConnecting(string host, int port, CancellationToken ct)
     {
+        ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _client = new SemaBuzzClient();
         _client.PacketReceived      += OnRemotePacketReceived;
@@ -294,6 +301,7 @@ public partial class MainWindow : Window
 
     private void StartConnectingViaRelay(string token, CancellationToken ct)
     {
+        ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _client = new SemaBuzzClient();
         _client.PacketReceived      += OnRemotePacketReceived;
@@ -472,21 +480,55 @@ public partial class MainWindow : Window
             // Sequence-number duplicate / reorder check for Char packets
             if (e.Packet.Type == SemaBuzzPacketType.Char)
             {
-                if (_peerSeqInitialized)
+                if (!_peerSeqInitialized)
                 {
-                    var d = (ushort)(e.Packet.SeqNum - _lastPeerSeq);
-                    if (d == 0 || d > 0x8000) return;
+                    _lastPeerSeq        = e.Packet.SeqNum;
+                    _peerSeqInitialized = true;
+                    RenderPeerPacket(e.Packet);
+                    FlushPendingPeerPackets();
+                    return;
                 }
-                _lastPeerSeq        = e.Packet.SeqNum;
-                _peerSeqInitialized = true;
+
+                var d = (ushort)(e.Packet.SeqNum - _lastPeerSeq);
+
+                if (d == 0) return;         // exact duplicate
+                if (d > 0x8000) return;     // older packet that arrived late
+
+                if (d == 1)
+                {
+                    _lastPeerSeq = e.Packet.SeqNum;
+                    RenderPeerPacket(e.Packet);
+                    FlushPendingPeerPackets();
+                    return;
+                }
+
+                // Packet arrived ahead of one or more earlier chars. Buffer it and
+                // wait for the missing sequence(s) so fast typing stays in order.
+                _pendingPeerPackets.TryAdd(e.Packet.SeqNum, e.Packet);
+                return;
             }
 
-            // Pulse the filament
-            BuzzIndicator.Pulse(e.Packet.Intensity);
-
-            // Append character to the peer's live line
-            AppendPeerCharacter(e.Packet.Character);
+            RenderPeerPacket(e.Packet);
         });
+    }
+
+    private void RenderPeerPacket(SemaBuzzPacket packet)
+    {
+        BuzzIndicator.Pulse(packet.Intensity);
+        AppendPeerCharacter(packet.Character);
+    }
+
+    private void FlushPendingPeerPackets()
+    {
+        while (true)
+        {
+            var nextSeq = (ushort)(_lastPeerSeq + 1);
+            if (!_pendingPeerPackets.Remove(nextSeq, out var packet))
+                return;
+
+            _lastPeerSeq = nextSeq;
+            RenderPeerPacket(packet);
+        }
     }
 
     // ---------------------------------------------
@@ -509,6 +551,7 @@ public partial class MainWindow : Window
         UpdateWireStateDot(SemaBuzzWireState.Cold);
         BuzzIndicator.Flatline();
         _peerSeqInitialized = false;
+        _pendingPeerPackets.Clear();
     }
 
     private void OnWireStateChanged(object? sender, SemaBuzzWireStateEventArgs e)
@@ -694,7 +737,7 @@ public partial class MainWindow : Window
     private static (Grid Row, TextBlock TextBlock) MakeChatLine(
         string handle, byte[]? avatarPng, Color nameColor, string? accentResourceKey = null)
     {
-        var grid = new Grid { Margin = new Thickness(0, 3, 0, 3) };
+        var grid = new Grid { Margin = new Thickness(0, 7, 0, 3) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
