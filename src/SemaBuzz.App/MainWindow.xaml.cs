@@ -186,7 +186,10 @@ public partial class MainWindow : Window
             _localAvatarPng = dialog.AvatarPng;
             LocalPaneLabel.Text = dialog.Handle.ToUpperInvariant();
 
-            StartConnecting(dialog.PeerHost, dialog.Port, _cts.Token);
+            if (!string.IsNullOrEmpty(dialog.RelayToken))
+                StartConnectingViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
+            else
+                StartConnecting(dialog.PeerHost, dialog.Port, _cts.Token);
         }
         finally
         {

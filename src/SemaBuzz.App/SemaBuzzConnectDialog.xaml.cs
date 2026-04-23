@@ -107,7 +107,7 @@ public partial class SemaBuzzConnectDialog : Window
     {
         var parsed = SemaBuzzUriHandler.TryParse(raw);
         if (parsed?.RelayToken is { } relayToken)
-            return SemaBuzzUriHandler.BuildRelay(relayToken);
+            return SemaBuzzUriHandler.BuildRelay(relayToken, parsed.RelayUri);
 
         return raw;
     }
