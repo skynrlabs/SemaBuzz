@@ -22,6 +22,7 @@ Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-G
 - **Three connection modes** — direct P2P, relay (WebSocket), or `buzz://` URI deep-links
 - **STUN NAT discovery** — auto-detects your external IP/port to simplify direct connections
 - **Identity profiles** — named handles with optional avatar images, saved locally
+- **Color emoji** — full color emoji rendering in chat and the emoji picker (Emoji.Wpf)
 - **12 themes** — Obsidian, Neon, Matrix, BloodMoon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel
 
 ### Pro (Microsoft Store license)
@@ -56,8 +57,9 @@ Packet integrity is further protected by per-packet sequence numbers to detect r
 |---|---|
 | `SemaBuzz.App` | WPF UI — windows, dialogs, theming, indicator |
 | `SemaBuzz.Protocol` | Core library — wire protocol, encryption, STUN, relay client |
-| `SemaBuzz.Relay` | Self-hostable WebSocket relay server |
+| `SemaBuzz.Relay` | Self-hostable ASP.NET Core WebSocket relay server |
 | `SemaBuzz.Styles` | Shared XAML styles and color resources |
+| `SemaBuzz.Tests` | Unit tests |
 
 ---
 
@@ -71,40 +73,114 @@ Packet integrity is further protected by per-packet sequence numbers to detect r
 | Networking | UDP (P2P), WebSocket (relay) |
 | Encryption | ECDH P-256 + AES-256-GCM |
 | NAT Traversal | STUN (RFC 5389) |
+| Emoji | [Emoji.Wpf](https://github.com/samhocevar/emoji.wpf) 0.3.4 |
 | Packaging | MSIX (Microsoft Store) |
-| Min OS | Windows 10 1809+ |
+| Min OS | Windows 10 1809 (build 17763)+ |
 
 ---
 
 ## Building
 
-Requirements: Visual Studio 2022 (17.8+) with the **.NET desktop development** workload.
+Requirements: Visual Studio 2022 (17.8+) or the .NET 9 SDK with the **.NET desktop development** workload.
 
 ```
-git clone https://github.com/SemaBuzz/SemaBuzz-Windows.git
+git clone https://github.com/skynrlabs/SemaBuzz.git
+cd SemaBuzz
+dotnet build SemaBuzz.sln -c Debug
 ```
 
-Open `SemaBuzz.sln`, set `SemaBuzz.App` as the startup project, and build.
+Output lands in `build/Debug/net9.0-windows10.0.17763.0/`. Set `SemaBuzz.App` as the startup project in Visual Studio to run with F5.
 
 ---
 
 ## Self-Hosting the Relay
 
-The `SemaBuzz.Relay` project is a standalone .NET 9 WebSocket server. Run it anywhere:
+### Pre-built binaries
+
+Download a self-contained single-file binary from the [latest release](https://github.com/skynrlabs/SemaBuzz/releases/latest):
+
+| Platform | File |
+|---|---|
+| Windows x64 | `SemaBuzz-Relay-Windows.exe` |
+| Linux x64 | `SemaBuzz-Relay-Linux` |
+
+No runtime required. Just run:
+
+```powershell
+# Windows
+.\SemaBuzz-Relay-Windows.exe [--port 7171]
+
+# Linux
+chmod +x SemaBuzz-Relay-Linux
+./SemaBuzz-Relay-Linux [--port 7171]
+```
+
+The default port is **7171** and can be overridden with `--port` or the `PORT` environment variable.
+
+### Build from source
 
 ```
 cd src/SemaBuzz.Relay
 dotnet run
 ```
 
-Then point clients to your relay URL in **Settings → Relay Server**.
+### Docker
+
+```dockerfile
+docker build -t semabuzz-relay .
+docker run -p 7171:7171 semabuzz-relay
+```
+
+Or deploy to Railway, Render, or Fly.io — set the `PORT` environment variable and TLS is terminated by the platform.
+
+### Endpoints
+
+| Path | Description |
+|---|---|
+| `GET /` | Health check — returns `SemaBuzz Relay OK` |
+| `WS /relay` | WebSocket endpoint for SemaBuzz clients |
+
+### Stopping
+
+```powershell
+# Ctrl+C in the terminal (clean shutdown)
+# Windows background:
+Stop-Process -Name "SemaBuzz-Relay-Windows"
+# Linux background:
+pkill SemaBuzz-Relay-Linux
+# Docker:
+docker stop <container-name>
+```
+
+### Publishing release binaries locally
+
+Use the included script to build both targets:
+
+```powershell
+.\Publish-Relay.ps1
+```
+
+Output: `dist/relay/SemaBuzz-Relay-Windows.exe` and `dist/relay/SemaBuzz-Relay-Linux`
 
 ---
 
-## Data & Privacy
+## Privacy — Relay Design
+
+The relay is a **blind pass-through**. It does not log, read, or store message content. All traffic is encrypted on-device before reaching the relay; the server sees only opaque binary frames. IP addresses are held in memory for the duration of a session only and are never written to disk.
+
+---
+
+## Data & Privacy (App)
 
 All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer (and optionally routed through the relay). The relay server sees only opaque encrypted binary frames.
 
 ---
 
-*[SemaBuzz.me](https://semabuzz.me)*
+## License
+
+MIT — see [LICENSE](LICENSE).  
+Copyright (c) 2026 Skynr Labs
+
+---
+
+[semabuzz.com](https://semabuzz.com) &nbsp;·&nbsp; [Skynr Labs](https://skynrlabs.com)
