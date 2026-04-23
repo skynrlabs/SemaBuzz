@@ -261,17 +261,58 @@
                                  Placement="Top"
                                  Foreground="{DynamicResource AmberBrush}"
                                  Background="{DynamicResource ObsidianSurfaceBrush}">
-                        <MenuItem Header=":)" Tag=":)" Click="EmoticonButton_Click"/>
-                        <MenuItem Header=";)" Tag=";)" Click="EmoticonButton_Click"/>
-                        <MenuItem Header=":(" Tag=":(" Click="EmoticonButton_Click"/>
-                        <MenuItem Header=":D" Tag=":D" Click="EmoticonButton_Click"/>
-                        <MenuItem Header=":P" Tag=":P" Click="EmoticonButton_Click"/>
-                        <MenuItem Header="XD" Tag="XD" Click="EmoticonButton_Click"/>
-                        <MenuItem Header="&lt;3" Tag="&lt;3" Click="EmoticonButton_Click"/>
-                        <MenuItem Header=":O" Tag=":O" Click="EmoticonButton_Click"/>
+                        <MenuItem Tag="🙂" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🙂" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Smile" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="😉" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="😉" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Wink" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="😂" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="😂" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Laugh" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="😢" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="😢" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Sad" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="😮" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="😮" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Surprised" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="😡" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="😡" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Angry" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="👍" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="👍" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Thumbs up" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
+                        <MenuItem Tag="❤️" Click="EmoticonButton_Click">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="❤️" FontFamily="Segoe UI Emoji" FontSize="16" Margin="0 0 8 0"/>
+                                <TextBlock Text="Heart" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </MenuItem>
                     </ContextMenu>
                 </Button.ContextMenu>
                 <TextBlock Text="☺"
+                           FontFamily="Segoe UI Emoji"
                            FontSize="16"
                            Foreground="{DynamicResource AmberBrush}"
                            HorizontalAlignment="Center"

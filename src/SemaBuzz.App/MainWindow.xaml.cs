@@ -46,9 +46,11 @@ public partial class MainWindow : Window
 
     // Sequence number tracking for duplicate / out-of-order rejection
     private const int MaxPendingPeerPackets = 8;
+    private static readonly TimeSpan PendingPeerResyncDelay = TimeSpan.FromMilliseconds(120);
     private ushort _lastPeerSeq;
     private bool   _peerSeqInitialized;
     private readonly Dictionary<ushort, SemaBuzzPacket> _pendingPeerPackets = [];
+    private readonly DispatcherTimer _pendingPeerResyncTimer;
 
     // Chat row containers (tracked so they can be removed when cleared)
     private Grid?      _peerLiveRow;
@@ -70,6 +72,8 @@ public partial class MainWindow : Window
         _streamer.PacketReady += OnLocalPacketReady;
         _batchTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(50) };
         _batchTimer.Tick += FlushPacketBatch;
+        _pendingPeerResyncTimer = new DispatcherTimer { Interval = PendingPeerResyncDelay };
+        _pendingPeerResyncTimer.Tick += PendingPeerResyncTimer_Tick;
         ApplyIndicatorSettings();
         InputBox.Focus();
         Loaded += (_, _) =>
@@ -603,6 +607,7 @@ public partial class MainWindow : Window
                 // Packet arrived ahead of one or more earlier chars. Buffer it and
                 // wait for the missing sequence(s) so fast typing stays in order.
                 _pendingPeerPackets.TryAdd(e.Packet.SeqNum, e.Packet);
+                RestartPendingPeerResyncTimer();
                 if (_pendingPeerPackets.Count >= MaxPendingPeerPackets)
                     ResyncPendingPeerPackets();
                 return;
@@ -624,7 +629,11 @@ public partial class MainWindow : Window
         {
             var nextSeq = (ushort)(_lastPeerSeq + 1);
             if (!_pendingPeerPackets.Remove(nextSeq, out var packet))
+            {
+                if (_pendingPeerPackets.Count == 0)
+                    _pendingPeerResyncTimer.Stop();
                 return;
+            }
 
             _lastPeerSeq = nextSeq;
             RenderPeerPacket(packet);
@@ -633,6 +642,8 @@ public partial class MainWindow : Window
 
     private void ResyncPendingPeerPackets()
     {
+        _pendingPeerResyncTimer.Stop();
+
         if (_pendingPeerPackets.Count == 0)
             return;
 
@@ -642,6 +653,21 @@ public partial class MainWindow : Window
         var nextAvailableSeq = _pendingPeerPackets.Keys.Min();
         _lastPeerSeq = (ushort)(nextAvailableSeq - 1);
         FlushPendingPeerPackets();
+
+        if (_pendingPeerPackets.Count > 0)
+            RestartPendingPeerResyncTimer();
+    }
+
+    private void RestartPendingPeerResyncTimer()
+    {
+        _pendingPeerResyncTimer.Stop();
+        _pendingPeerResyncTimer.Start();
+    }
+
+    private void PendingPeerResyncTimer_Tick(object? sender, EventArgs e)
+    {
+        _pendingPeerResyncTimer.Stop();
+        ResyncPendingPeerPackets();
     }
 
     // ---------------------------------------------
@@ -665,6 +691,7 @@ public partial class MainWindow : Window
         BuzzIndicator.Flatline();
         _peerSeqInitialized = false;
         _pendingPeerPackets.Clear();
+        _pendingPeerResyncTimer.Stop();
     }
 
     private void OnWireStateChanged(object? sender, SemaBuzzWireStateEventArgs e)
