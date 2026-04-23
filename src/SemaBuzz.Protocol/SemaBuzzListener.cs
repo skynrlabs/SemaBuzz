@@ -373,57 +373,60 @@ public sealed class SemaBuzzListener : IDisposable
         }
 
 
-        var packet = SemaBuzzPacket.FromWireBytes(data);
-        if (packet == null) return;
-
-        switch (packet.Value.Type)
+        for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length; offset += SemaBuzzPacket.WireSize)
         {
-            case SemaBuzzPacketType.Handshake:
-                PeerEndPoint = result.RemoteEndPoint;
-                SetState(SemaBuzzWireState.Warming, "Handshake received  awaiting host approval...");
+            var packet = SemaBuzzPacket.FromWireBytes(data[offset..(offset + SemaBuzzPacket.WireSize)]);
+            if (packet == null) break;
 
-                if (ConnectionApprovalCallback != null)
-                {
-                    // Tell the dialer to hold on while the host decides
-                    await SendControlToAsync(SemaBuzzPacketType.HandshakeHold, result.RemoteEndPoint);
+            switch (packet.Value.Type)
+            {
+                case SemaBuzzPacketType.Handshake:
+                    PeerEndPoint = result.RemoteEndPoint;
+                    SetState(SemaBuzzWireState.Warming, "Handshake received  awaiting host approval...");
 
-                    bool approved = await ConnectionApprovalCallback(result.RemoteEndPoint);
-                    if (!approved)
+                    if (ConnectionApprovalCallback != null)
                     {
-                        await SendControlToAsync(SemaBuzzPacketType.ConnectRejected, result.RemoteEndPoint);
-                        PeerEndPoint = null;
-                        SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
-                        return;
+                        // Tell the dialer to hold on while the host decides
+                        await SendControlToAsync(SemaBuzzPacketType.HandshakeHold, result.RemoteEndPoint);
+
+                        bool approved = await ConnectionApprovalCallback(result.RemoteEndPoint);
+                        if (!approved)
+                        {
+                            await SendControlToAsync(SemaBuzzPacketType.ConnectRejected, result.RemoteEndPoint);
+                            PeerEndPoint = null;
+                            SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
+                            return;
+                        }
                     }
-                }
 
-                await SendAckAsync(result.RemoteEndPoint);
-                SetState(Shield != null ? SemaBuzzWireState.Secured : SemaBuzzWireState.Live);
-                break;
+                    await SendAckAsync(result.RemoteEndPoint);
+                    SetState(Shield != null ? SemaBuzzWireState.Secured : SemaBuzzWireState.Live);
+                    break;
 
-            case SemaBuzzPacketType.Disconnect:
-                // Peer walked away.
-                PeerEndPoint = null;
-                Shield = null;
-                _localPubKeyBytes = null;
-                if (_isRelayMode)
-                    _cts?.Cancel(); // relay session is one-to-one; close it out
-                else
-                    SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
-                break;
+                case SemaBuzzPacketType.Disconnect:
+                    // Peer walked away.
+                    PeerEndPoint = null;
+                    Shield = null;
+                    _localPubKeyBytes = null;
+                    if (_isRelayMode)
+                        _cts?.Cancel(); // relay session is one-to-one; close it out
+                    else
+                        SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
+                    return;
 
-            case SemaBuzzPacketType.Ping:
-                // Keepalive  no event needed
-                break;
+                case SemaBuzzPacketType.Ping:
+                    // Keepalive  no event needed
+                    break;
 
-            case SemaBuzzPacketType.Buzz:
-            case SemaBuzzPacketType.Char:
-                PacketReceived?.Invoke(this, new SemaBuzzPacketEventArgs(packet.Value));
-                break;
+                case SemaBuzzPacketType.Buzz:
+                case SemaBuzzPacketType.Char:
+                    PacketReceived?.Invoke(this, new SemaBuzzPacketEventArgs(packet.Value));
+                    break;
 
-            default:
-                // Unknown or unexpected type  drop silently
-                break;
+                default:
+                    // Unknown or unexpected type  drop silently
+                    break;
+            }
         }
     }
 

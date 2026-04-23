@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.2" />
   </ItemGroup>
 
@@ -43,7 +44,7 @@
     <Content Include="..\..\assets\buzz.mp3" Link="Assets\buzz.mp3">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Resource Include="Assets\icon.png"/>
+    <Resource Include="Assets\icon.png" />
   </ItemGroup>
 
 </Project>
