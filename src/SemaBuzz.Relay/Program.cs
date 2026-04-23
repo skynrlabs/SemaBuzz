@@ -7,8 +7,16 @@ using SemaBuzz.Relay;
 //   Self-hosted              run behind nginx/Caddy for HTTPS.
 //
 // Usage:
-//   dotnet run                        â† defaults to PORT env var or 7171
+//   dotnet run                        ← defaults to PORT env var or 7171
 //   dotnet run -- --port 8080
+//   SemaBuzz-Relay-Windows.exe --port 8080
+//   ./SemaBuzz-Relay-Linux --port 8080
+//
+// Stopping:
+//   Press Ctrl+C in this terminal window for a clean shutdown.
+//   Windows background: Stop-Process -Name "SemaBuzz-Relay-Windows"
+//   Linux background:   pkill SemaBuzz-Relay-Linux
+//   Docker:             docker stop <container-name>
 
 var portStr = Environment.GetEnvironmentVariable("PORT");
 var port    = int.TryParse(portStr, out var p) ? p : 7171;
@@ -51,5 +59,6 @@ Console.WriteLine($"SemaBuzz Relay | port {port}  |  /relay");
 Console.WriteLine("MIT License — Copyright (c) 2026 Skynr Labs");
 Console.WriteLine("This relay is a blind pass-through. It does not log, read, or store message content.");
 Console.WriteLine("IP addresses are held in memory only for the duration of a session.");
+Console.WriteLine("Press Ctrl+C to stop.");
 await app.RunAsync();
 
