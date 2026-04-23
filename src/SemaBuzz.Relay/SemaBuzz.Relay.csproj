@@ -8,6 +8,7 @@
     <AssemblyName>SemaBuzz.Relay</AssemblyName>
     <RootNamespace>SemaBuzz.Relay</RootNamespace>
     <Optimize>true</Optimize>
+    <PublishReadyToRun>true</PublishReadyToRun>
   </PropertyGroup>
 
   <ItemGroup>

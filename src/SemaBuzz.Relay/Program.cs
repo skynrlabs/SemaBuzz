@@ -48,5 +48,8 @@ app.Map("/relay", async ctx =>
 app.MapGet("/", () => Results.Ok("SemaBuzz Relay OK"));
 
 Console.WriteLine($"SemaBuzz Relay | port {port}  |  /relay");
+Console.WriteLine("MIT License — Copyright (c) 2026 Skynr Labs");
+Console.WriteLine("This relay is a blind pass-through. It does not log, read, or store message content.");
+Console.WriteLine("IP addresses are held in memory only for the duration of a session.");
 await app.RunAsync();
 

@@ -259,9 +259,7 @@
                     Click="EmoticonPickerButton_Click">
                 <Button.ContextMenu>
                     <ContextMenu x:Name="EmoticonMenu"
-                                 Placement="Top"
-                                 Foreground="{DynamicResource AmberBrush}"
-                                 Background="{DynamicResource ObsidianSurfaceBrush}">
+                                 Placement="Top">
                         <MenuItem Tag="🙂" Click="EmoticonButton_Click">
                             <StackPanel Orientation="Horizontal">
                                 <emoji:TextBlock Text="🙂" FontSize="16" Margin="0 0 8 0"/>

@@ -15,6 +15,57 @@
          Base Control Styles
          ═══════════════════════════════════════════════ -->
 
+    <!-- ContextMenu — dark themed popup -->
+    <Style TargetType="ContextMenu">
+        <Setter Property="Background"   Value="{StaticResource ObsidianSurfaceBrush}"/>
+        <Setter Property="Foreground"   Value="{StaticResource AmberBrush}"/>
+        <Setter Property="BorderBrush"  Value="{StaticResource ObsidianBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding"      Value="2"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContextMenu">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <ItemsPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- MenuItem — dark themed rows -->
+    <Style TargetType="MenuItem">
+        <Setter Property="Background"        Value="Transparent"/>
+        <Setter Property="Foreground"        Value="{StaticResource AmberBrush}"/>
+        <Setter Property="FontFamily"        Value="{StaticResource MonoFont}"/>
+        <Setter Property="FontSize"          Value="13"/>
+        <Setter Property="Padding"           Value="12 6"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="MenuItem">
+                    <Border x:Name="Bd"
+                            Background="{TemplateBinding Background}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter ContentSource="Header"
+                                          RecognizesAccessKey="True"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsHighlighted" Value="True">
+                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource AmberGlowBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter Property="Opacity" Value="0.35"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
     <!-- Window -->
     <Style x:Key="SemaBuzzWindow" TargetType="Window">
         <Setter Property="Background"         Value="{StaticResource ObsidianBrush}"/>

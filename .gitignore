@@ -6,6 +6,7 @@ PLAN.md
 bin/
 obj/
 build/
+dist/
 
 # WPF temp project files
 *_wpftmp.csproj

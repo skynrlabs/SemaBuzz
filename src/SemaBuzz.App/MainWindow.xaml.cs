@@ -17,6 +17,7 @@ using Forms = System.Windows.Forms;
 using KeyEventArgs = System.Windows.Input.KeyEventArgs;
 using SemaBuzz.App.Controls;
 using SemaBuzz.Protocol;
+using EmojiWpf = Emoji.Wpf;
 
 namespace SemaBuzz.App;
 
@@ -53,8 +54,8 @@ public partial class MainWindow : Window
     private readonly DispatcherTimer _pendingPeerResyncTimer;
 
     // Chat row containers (tracked so they can be removed when cleared)
-    private Grid?      _peerLiveRow;
-    private TextBlock? _livePeerBlock;
+    private Grid?               _peerLiveRow;
+    private EmojiWpf.TextBlock? _livePeerBlock;
 
     // Local identity (set from connect dialog)
     private string  _localHandle    = "anonymous";
@@ -874,7 +875,7 @@ public partial class MainWindow : Window
     /// Pass <paramref name="accentResourceKey"/> (e.g. "AmberBrush") to bind Foreground as a
     /// DynamicResource so the text recolors automatically when the theme changes.
     /// </summary>
-    private static (Grid Row, TextBlock TextBlock) MakeChatLine(
+    private static (Grid Row, EmojiWpf.TextBlock TextBlock) MakeChatLine(
         string handle, byte[]? avatarPng, Color nameColor, string? accentResourceKey = null)
     {
         var grid = new Grid { Margin = new Thickness(0, 7, 0, 3) };
@@ -921,7 +922,7 @@ public partial class MainWindow : Window
 
         // Text area
         var prefix = $"{handle} \u203a ";
-        var tb = new TextBlock
+        var tb = new EmojiWpf.TextBlock
         {
             Text         = prefix,
             Tag          = prefix,
@@ -971,7 +972,7 @@ public partial class MainWindow : Window
     /// replaces it with a mix of Runs and clickable Hyperlinks.
     /// Must be called before the TextBlock reference is released (committed).
     /// </summary>
-    private static void HyperlinkifyTextBlock(TextBlock tb)
+    private static void HyperlinkifyTextBlock(EmojiWpf.TextBlock tb)
     {
         var fullText = tb.Text;
         var matches  = UrlRegex.Matches(fullText);
