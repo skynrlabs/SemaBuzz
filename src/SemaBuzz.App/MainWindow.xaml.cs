@@ -217,14 +217,14 @@ public partial class MainWindow : Window
             if (dialog.IsHost)
             {
                 if (!string.IsNullOrEmpty(dialog.RelayToken))
-                    StartListeningViaRelay(dialog.RelayToken, _cts.Token);
+                    StartListeningViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
                 else
                     StartListening(dialog.Port, _cts.Token);
             }
             else
             {
                 if (!string.IsNullOrEmpty(dialog.RelayToken))
-                    StartConnectingViaRelay(dialog.RelayToken, _cts.Token);
+                    StartConnectingViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
                 else
                     StartConnecting(dialog.PeerHost, dialog.Port, _cts.Token);
             }
@@ -334,7 +334,7 @@ public partial class MainWindow : Window
         _ = _listener.ListenAsync(port, ct);
     }
 
-    private void StartListeningViaRelay(string token, CancellationToken ct)
+    private void StartListeningViaRelay(string token, string relayUri, CancellationToken ct)
     {
         ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
@@ -346,7 +346,7 @@ public partial class MainWindow : Window
 
         SetStatus($"› waiting via relay (token: {token})...");
         _ = _listener.ListenViaRelayAsync(
-            App.Settings.RelayUri,
+            relayUri,
             token, ct);
     }
 
@@ -363,7 +363,7 @@ public partial class MainWindow : Window
         _ = _client.ConnectAsync(host, port, ct);
     }
 
-    private void StartConnectingViaRelay(string token, CancellationToken ct)
+    private void StartConnectingViaRelay(string token, string relayUri, CancellationToken ct)
     {
         ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
@@ -374,7 +374,7 @@ public partial class MainWindow : Window
 
         SetStatus($"› joining relay room {token}...");
         _ = _client.ConnectViaRelayAsync(
-            App.Settings.RelayUri,
+            relayUri,
             token, ct);
     }
 
@@ -391,7 +391,7 @@ public partial class MainWindow : Window
         }
         else if (e.Key == Key.Escape)
         {
-            InputBox.Clear();
+            InputBox.Text = string.Empty;
             _previousInputText = string.Empty;
             e.Handled = true;
         }
@@ -440,9 +440,9 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(emoticon))
             return;
 
-        var caretIndex = InputBox.CaretIndex;
-        InputBox.Text = InputBox.Text.Insert(caretIndex, emoticon);
-        InputBox.CaretIndex = caretIndex + emoticon.Length;
+        var range = new TextRange(InputBox.CaretPosition, InputBox.CaretPosition);
+        range.Text = emoticon;
+        InputBox.CaretPosition = range.End;
         InputBox.Focus();
     }
 
@@ -485,7 +485,7 @@ public partial class MainWindow : Window
         // Set _previousInputText to "" BEFORE Clear() so TextChanged
         // sees no length change and doesn't send spurious backspaces.
         _previousInputText = string.Empty;
-        InputBox.Clear();
+        InputBox.Text = string.Empty;
         SendButton.IsEnabled = false;
 
         // Send a newline packet with the next outbound sequence number so the

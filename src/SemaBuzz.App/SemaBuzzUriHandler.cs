@@ -26,8 +26,9 @@ internal static class SemaBuzzUriHandler
     /// <summary>
     /// Parsed representation of a <c>buzz://</c> URI.
     /// When <see cref="RelayToken"/> is set, <see cref="Host"/> and <see cref="Port"/> are ignored.
+    /// <see cref="RelayUri"/> is non-null when the URI embeds a custom relay via <c>?r=</c>.
     /// </summary>
-    internal sealed record BuzzUri(string Host, int Port, string? Handle, string? RelayToken = null);
+    internal sealed record BuzzUri(string Host, int Port, string? Handle, string? RelayToken = null, string? RelayUri = null);
 
     /// <summary>
     /// Tries to parse a <c>buzz://</c> URI string.
@@ -47,9 +48,18 @@ internal static class SemaBuzzUriHandler
 
         if (string.IsNullOrWhiteSpace(host)) return null;
 
-        // Detect relay token: buzz://X7K2QP  host looks like a token (â‰¤8 chars, no dots, no colons)
+        // Detect relay token: buzz://X7K2QP  host looks like a token (≤8 chars, no dots, no colons)
         if (uri.Port < 0 && !host.Contains('.') && host.Length is >= 4 and <= 8)
-            return new BuzzUri(string.Empty, 0, handle, host.ToUpperInvariant());
+        {
+            // Extract optional embedded relay: buzz://TOKEN?r=ws%3A%2F%2Fhost%3Aport
+            string? embeddedRelay = null;
+            var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            var r = query["r"];
+            if (!string.IsNullOrWhiteSpace(r) && (r.StartsWith("ws://", StringComparison.OrdinalIgnoreCase)
+                                                || r.StartsWith("wss://", StringComparison.OrdinalIgnoreCase)))
+                embeddedRelay = r;
+            return new BuzzUri(string.Empty, 0, handle, host.ToUpperInvariant(), embeddedRelay);
+        }
 
         return new BuzzUri(host, port, handle);
     }
@@ -64,8 +74,17 @@ internal static class SemaBuzzUriHandler
 
     /// <summary>
     /// Builds a relay <c>buzz://</c> URI string from a room token.
+    /// When <paramref name="relayUri"/> is non-null and differs from the default relay,
+    /// it is embedded as a <c>?r=</c> query parameter so the recipient's app can use it automatically.
     /// </summary>
-    public static string BuildRelay(string token) => $"buzz://{token.ToUpperInvariant()}";
+    public static string BuildRelay(string token, string? relayUri = null)
+    {
+        var t = token.ToUpperInvariant();
+        if (!string.IsNullOrWhiteSpace(relayUri)
+            && !string.Equals(relayUri, SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri, StringComparison.OrdinalIgnoreCase))
+            return $"buzz://{t}?r={Uri.EscapeDataString(relayUri)}";
+        return $"buzz://{t}";
+    }
 
     //  Registry
 

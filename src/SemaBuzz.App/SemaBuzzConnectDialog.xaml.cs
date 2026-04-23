@@ -25,6 +25,8 @@ public partial class SemaBuzzConnectDialog : Window
     public byte[]? AvatarPng   { get; private set; }
     /// <summary>Set when the user chose relay mode (host or dial). Empty otherwise.</summary>
     public string  RelayToken  { get; private set; } = string.Empty;
+    /// <summary>Relay URI to use — either from embedded ?r= param or the app default.</summary>
+    public string  RelayUri    { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
 
     // Profile management
@@ -99,7 +101,7 @@ public partial class SemaBuzzConnectDialog : Window
         => SetNewHostBuzzAddress();
 
     private void SetNewHostBuzzAddress()
-        => HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken());
+        => HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken(), App.Settings.RelayUri);
 
     private static string NormalizeBuzzAddressForDisplay(string raw)
     {
@@ -302,6 +304,7 @@ public partial class SemaBuzzConnectDialog : Window
                 return;
             }
             RelayToken = tok;
+            RelayUri   = App.Settings.RelayUri;
             PeerHost   = string.Empty;
             Port       = 0;
         }
@@ -330,6 +333,7 @@ public partial class SemaBuzzConnectDialog : Window
             if (parsed.RelayToken is { } relayTok)
             {
                 RelayToken = relayTok;
+                RelayUri   = parsed.RelayUri ?? App.Settings.RelayUri;
                 BuzzUrlBox.Text = SemaBuzzUriHandler.BuildRelay(relayTok);
                 PeerHost   = string.Empty;
                 Port       = 0;

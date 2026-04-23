@@ -25,6 +25,33 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <Style x:Key="SemaBuzzInputRTB" TargetType="emoji:RichTextBox">
+            <Setter Property="Background"         Value="{StaticResource ObsidianSurfaceBrush}"/>
+            <Setter Property="Foreground"         Value="{StaticResource AmberBrush}"/>
+            <Setter Property="CaretBrush"         Value="{StaticResource AmberBrush}"/>
+            <Setter Property="BorderBrush"        Value="{StaticResource AmberDimBrush}"/>
+            <Setter Property="BorderThickness"    Value="0 0 0 1"/>
+            <Setter Property="FontFamily"         Value="{StaticResource MonoFont}"/>
+            <Setter Property="FontSize"           Value="14"/>
+            <Setter Property="Padding"            Value="6 4"/>
+            <Setter Property="SelectionBrush"     Value="{StaticResource AmberDimBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RichTextBox">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
         <!-- Dim disabled menu items to grey -->
         <Style TargetType="MenuItem" BasedOn="{StaticResource {x:Type MenuItem}}">
             <Style.Triggers>
@@ -237,10 +264,9 @@
 
         <!-- Input Row -->
         <Grid Grid.Row="6" Background="{DynamicResource ObsidianSurfaceBrush}">
-            <TextBox x:Name="InputBox"
-                     Style="{StaticResource SemaBuzzInput}"
+            <emoji:RichTextBox x:Name="InputBox"
+                     Style="{StaticResource SemaBuzzInputRTB}"
                      AcceptsReturn="False"
-                     MaxLength="512"
                      Padding="16 12 132 12"
                      VerticalAlignment="Center"
                      Background="{DynamicResource ObsidianSurfaceBrush}"
