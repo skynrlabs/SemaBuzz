@@ -23,7 +23,7 @@ Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-G
 - **STUN NAT discovery** — auto-detects your external IP/port to simplify direct connections
 - **Identity profiles** — named handles with optional avatar images, saved locally
 - **Color emoji** — full color emoji rendering in chat and the emoji picker (Emoji.Wpf)
-- **12 themes** — Obsidian, Neon, Matrix, BloodMoon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel
+- **13 themes** — Obsidian, Neon, Matrix, BloodMoon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Powwow
 
 ### Pro (Microsoft Store license)
 - **Permanent encrypted chat logs** — sessions persisted to disk, AES-encrypted at rest
@@ -140,6 +140,16 @@ Or deploy to Railway, Render, or Fly.io — set the `PORT` environment variable 
 | `GET /` | Health check — returns `SemaBuzz Relay OK` |
 | `WS /relay` | WebSocket endpoint for SemaBuzz clients |
 
+### Rate limits & defaults
+
+| Setting | Value |
+|---|---|
+| Default port | 7171 |
+| WebSocket keep-alive | 30 s |
+| Room TTL (idle) | 10 min |
+| Max rooms (global) | 500 |
+| Max connections per IP | 5 |
+
 ### Stopping
 
 ```powershell
@@ -151,16 +161,6 @@ pkill SemaBuzz-Relay-Linux
 # Docker:
 docker stop <container-name>
 ```
-
-### Publishing release binaries locally
-
-Use the included script to build both targets:
-
-```powershell
-.\Publish-Relay.ps1
-```
-
-Output: `dist/relay/SemaBuzz-Relay-Windows.exe` and `dist/relay/SemaBuzz-Relay-Linux`
 
 ---
 
@@ -176,9 +176,25 @@ All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`. Nothing i
 
 ---
 
+## Contributing
+
+The repo uses a two-branch model:
+
+| Branch | Purpose |
+|---|---|
+| `main` | Stable, release-ready. Tagged on every release. |
+| `dev` | Integration target — all PRs merge here first. |
+
+For features and fixes, branch off `dev` (`feature/my-thing` or `fix/my-thing`), open a PR back to `dev`. Releases are cut by merging `dev` → `main` and tagging:
+
+- App releases: `vX.Y.Z`
+- Relay releases: `relay/vX.Y.Z`
+
+---
+
 ## License
 
-Proprietary — Copyright (c) 2026 Skynr Labs. All rights reserved.
+AGPL-3.0 — Copyright (c) 2026 Skynr Labs. See [LICENSE](LICENSE) for details.
 
 ---
 
