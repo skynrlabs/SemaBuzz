@@ -287,52 +287,68 @@
                     <ContextMenu x:Name="EmoticonMenu"
                                  Placement="Top">
                         <MenuItem Tag="🙂" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="🙂" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Smile" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="🙂" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Smile" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="😉" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="😉" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Wink" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="😉" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Wink" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="😂" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="😂" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Laugh" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="😂" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Laugh" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="😢" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="😢" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Sad" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="😢" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Sad" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="😮" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="😮" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Surprised" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="😮" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Surprised" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="😡" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="😡" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Angry" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="😡" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Angry" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="👍" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="👍" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Thumbs up" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="👍" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Thumbs up" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                         <MenuItem Tag="❤️" Click="EmoticonButton_Click">
-                            <StackPanel Orientation="Horizontal">
-                                <emoji:TextBlock Text="❤️" FontSize="16" Margin="0 0 8 0"/>
-                                <TextBlock Text="Heart" VerticalAlignment="Center"/>
-                            </StackPanel>
+                            <MenuItem.Header>
+                                <StackPanel Orientation="Horizontal">
+                                    <emoji:TextBlock Text="❤️" FontSize="16" Margin="0 0 8 0"/>
+                                    <TextBlock Text="Heart" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </MenuItem.Header>
                         </MenuItem>
                     </ContextMenu>
                 </Button.ContextMenu>

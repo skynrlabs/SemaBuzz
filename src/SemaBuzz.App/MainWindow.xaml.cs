@@ -57,6 +57,11 @@ public partial class MainWindow : Window
     private Grid?               _peerLiveRow;
     private EmojiWpf.TextBlock? _livePeerBlock;
 
+    // Hosting session params — set when we start listening so we can resume after a peer disconnects
+    private string? _hostingToken;
+    private string? _hostingRelayUri;
+    private int     _hostingPort;
+
     // Local identity (set from connect dialog)
     private string  _localHandle    = "anonymous";
     private byte[]? _localAvatarPng;
@@ -244,6 +249,10 @@ public partial class MainWindow : Window
 
     private async void Wire_Disconnect_Click(object sender, RoutedEventArgs e)
     {
+        // Clear hosting params first so the Dead handler doesn't auto-resume
+        _hostingToken    = null;
+        _hostingRelayUri = null;
+        _hostingPort     = 0;
         if (_client   != null) await _client.DisconnectAsync();
         if (_listener != null) await _listener.DisconnectAsync();
         _cts?.Cancel();
@@ -325,6 +334,9 @@ public partial class MainWindow : Window
 
     private void StartListening(int port, CancellationToken ct)
     {
+        _hostingToken    = null;
+        _hostingRelayUri = null;
+        _hostingPort     = port;
         ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
@@ -339,6 +351,9 @@ public partial class MainWindow : Window
 
     private void StartListeningViaRelay(string token, string relayUri, CancellationToken ct)
     {
+        _hostingToken    = token;
+        _hostingRelayUri = relayUri;
+        _hostingPort     = 0;
         ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
@@ -766,6 +781,18 @@ public partial class MainWindow : Window
                     };
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
+
+                // If the peer disconnected and we were the host, resume listening
+                // automatically so the host doesn't have to reconnect manually.
+                if (e.Message == "peer-disconnect" && (_hostingToken != null || _hostingPort > 0))
+                {
+                    _listener = null;
+                    _cts = new CancellationTokenSource();
+                    if (_hostingToken != null)
+                        StartListeningViaRelay(_hostingToken, _hostingRelayUri!, _cts.Token);
+                    else
+                        StartListening(_hostingPort, _cts.Token);
+                }
             }
         });
     }
@@ -781,8 +808,11 @@ public partial class MainWindow : Window
 
         // Timeout fired  cancel the main CTS so the relay loop closes,
         // which raises WireStateChanged(Dead). Set the flag so the Dead
-        // handler shows the right divider.
+        // handler shows the right divider. Clear hosting params so we don't auto-resume.
         _warmingTimedOut = true;
+        _hostingToken    = null;
+        _hostingRelayUri = null;
+        _hostingPort     = 0;
         _cts?.Cancel();
         _cts = null;
     }
