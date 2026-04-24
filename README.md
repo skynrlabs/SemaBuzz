@@ -84,7 +84,7 @@ Packet integrity is further protected by per-packet sequence numbers to detect r
 Requirements: Visual Studio 2022 (17.8+) or the .NET 9 SDK with the **.NET desktop development** workload.
 
 ```
-git clone https://github.com/skynrlabs/SemaBuzz.git
+git clone https://github.com/semabuzz/SemaBuzz.git
 cd SemaBuzz
 dotnet build SemaBuzz.sln -c Debug
 ```
@@ -97,7 +97,7 @@ Output lands in `build/Debug/net9.0-windows10.0.17763.0/`. Set `SemaBuzz.App` as
 
 ### Pre-built binaries
 
-Download a self-contained single-file binary from the [latest release](https://github.com/skynrlabs/SemaBuzz/releases/latest):
+Download a self-contained single-file binary from the [latest release](https://github.com/semabuzz/SemaBuzz/releases/latest):
 
 | Platform | File |
 |---|---|
@@ -178,8 +178,7 @@ All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`. Nothing i
 
 ## License
 
-MIT — see [LICENSE](LICENSE).  
-Copyright (c) 2026 Skynr Labs
+Proprietary — Copyright (c) 2026 Skynr Labs. All rights reserved.
 
 ---
 
