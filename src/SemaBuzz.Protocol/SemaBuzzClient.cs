@@ -55,7 +55,10 @@ public sealed class SemaBuzzClient : IDisposable
         {
             var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
             var ipv4 = Array.Find(addresses, a => a.AddressFamily == AddressFamily.InterNetwork);
-            address  = ipv4 ?? addresses[0];
+            if (ipv4 != null)
+                address = ipv4;
+            else
+                address = addresses[0];
         }
 
         _peer = new IPEndPoint(address, port);
@@ -201,7 +204,11 @@ public sealed class SemaBuzzClient : IDisposable
         }
         catch (OperationCanceledException) { throw; }
         catch { /* STUN/punch failed — proceed with relay */ }
-        finally { directUdp?.Dispose(); }
+        finally
+        {
+            if (directUdp != null)
+                directUdp.Dispose();
+        }
         // ── end punch-through attempt ─────────────────────────────────────────────
 
         // Wire up the WebSocket send delegate used by all public send methods.
@@ -274,7 +281,11 @@ public sealed class SemaBuzzClient : IDisposable
                 {
                     var meta = SemaBuzzMetadata.Deserialize(data);
                     if (meta.HasValue)
-                        MetadataReceived?.Invoke(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                    {
+                        var metaHandler = MetadataReceived;
+                        if (metaHandler != null)
+                            metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                    }
                     continue;
                 }
 
@@ -292,19 +303,28 @@ public sealed class SemaBuzzClient : IDisposable
                             break;
                         case SemaBuzzPacketType.ConnectRejected:
                             SetState(SemaBuzzWireState.Dead, "not-available");
-                            _cts?.Cancel(); return;
+                            if (_cts != null)
+                                _cts.Cancel();
+                            return;
                         case SemaBuzzPacketType.HandshakeAck:
                             SetState(SemaBuzzWireState.Secured, "Wire is live.");
                             break;
                         case SemaBuzzPacketType.Disconnect:
                             SetState(SemaBuzzWireState.Dead, "peer-disconnect");
-                            _cts?.Cancel(); return;
+                            if (_cts != null)
+                                _cts.Cancel();
+                            return;
                         case SemaBuzzPacketType.Ping:
                             break;
+
                         case SemaBuzzPacketType.Buzz:
                         case SemaBuzzPacketType.Char:
-                            PacketReceived?.Invoke(this, new SemaBuzzPacketEventArgs(packet.Value));
+                        {
+                            var packetHandler = PacketReceived;
+                            if (packetHandler != null)
+                                packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
                             break;
+                        }
                     }
                 }
             }
@@ -327,7 +347,8 @@ public sealed class SemaBuzzClient : IDisposable
                 if (State == SemaBuzzWireState.Warming)
                 {
                     SetState(SemaBuzzWireState.Dead, "host did not respond to connection request");
-                    _cts?.Cancel();
+                    if (_cts != null)
+                        _cts.Cancel();
                 }
                 return;
             }
@@ -335,7 +356,8 @@ public sealed class SemaBuzzClient : IDisposable
             if (State == SemaBuzzWireState.Warming)
             {
                 SetState(SemaBuzzWireState.Dead, "no response — host may not be listening");
-                _cts?.Cancel();
+                if (_cts != null)
+                    _cts.Cancel();
             }
         }
         catch (OperationCanceledException) { }
@@ -385,7 +407,11 @@ public sealed class SemaBuzzClient : IDisposable
                 {
                     var meta = SemaBuzzMetadata.Deserialize(data);
                     if (meta.HasValue)
-                        MetadataReceived?.Invoke(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                    {
+                        var metaHandler = MetadataReceived;
+                        if (metaHandler != null)
+                            metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                    }
                     continue;
                 }
 
@@ -406,7 +432,8 @@ public sealed class SemaBuzzClient : IDisposable
 
                         case SemaBuzzPacketType.ConnectRejected:
                             SetState(SemaBuzzWireState.Dead, "not-available");
-                            _cts?.Cancel();
+                            if (_cts != null)
+                                _cts.Cancel();
                             return;
 
                         case SemaBuzzPacketType.HandshakeAck:
@@ -416,7 +443,8 @@ public sealed class SemaBuzzClient : IDisposable
 
                         case SemaBuzzPacketType.Disconnect:
                             SetState(SemaBuzzWireState.Dead, "peer-disconnect");
-                            _cts?.Cancel();
+                            if (_cts != null)
+                                _cts.Cancel();
                             return;
 
                         case SemaBuzzPacketType.Ping:
@@ -424,8 +452,12 @@ public sealed class SemaBuzzClient : IDisposable
 
                         case SemaBuzzPacketType.Buzz:
                         case SemaBuzzPacketType.Char:
-                            PacketReceived?.Invoke(this, new SemaBuzzPacketEventArgs(packet.Value));
+                        {
+                            var packetHandler = PacketReceived;
+                            if (packetHandler != null)
+                                packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
                             break;
+                        }
                     }
                 }
             }
@@ -506,7 +538,11 @@ public sealed class SemaBuzzClient : IDisposable
             for (var i = 0; i < chunkCount; i++)
                 packets[offset + i].ToWireBytes().CopyTo(plaintext, i * SemaBuzzPacket.WireSize);
 
-            var bytes = Shield != null ? Shield.Encrypt(plaintext) : plaintext;
+            byte[] bytes;
+            if (Shield != null)
+                bytes = Shield.Encrypt(plaintext);
+            else
+                bytes = plaintext;
             if (_wsSend != null) await _wsSend(bytes);
             else await _udp!.SendAsync(bytes);
         }
@@ -532,9 +568,10 @@ public sealed class SemaBuzzClient : IDisposable
             try { await SendControlAsync(SemaBuzzPacketType.Disconnect); }
             catch { /* best-effort */ }
         }
-        if (_wsClient?.State == WebSocketState.Open)
+        if (_wsClient != null && _wsClient.State == WebSocketState.Open)
             try { await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnect", default); } catch { }
-        _cts?.Cancel();
+        if (_cts != null)
+            _cts.Cancel();
         SetState(SemaBuzzWireState.Dead, "Wire closed by local peer.");
     }
 
@@ -544,7 +581,9 @@ public sealed class SemaBuzzClient : IDisposable
             return;
         State = state;
         _lastStateMessage = message;
-        WireStateChanged?.Invoke(this, new SemaBuzzWireStateEventArgs(state, message));
+        var wireHandler = WireStateChanged;
+        if (wireHandler != null)
+            wireHandler(this, new SemaBuzzWireStateEventArgs(state, message));
     }
 
     private static async Task<byte[]?> ReceiveWsMessageAsync(WebSocket ws, byte[] buffer, CancellationToken ct)
@@ -567,10 +606,14 @@ public sealed class SemaBuzzClient : IDisposable
     {
         if (!_disposed)
         {
-            _cts?.Cancel();
-            _udp?.Dispose();
-            _wsClient?.Dispose();
-            _cts?.Dispose();
+            if (_cts != null)
+                _cts.Cancel();
+            if (_udp != null)
+                _udp.Dispose();
+            if (_wsClient != null)
+                _wsClient.Dispose();
+            if (_cts != null)
+                _cts.Dispose();
             _disposed = true;
         }
     }

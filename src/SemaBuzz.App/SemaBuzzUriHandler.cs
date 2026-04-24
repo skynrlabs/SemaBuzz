@@ -43,8 +43,16 @@ internal static class SemaBuzzUriHandler
             return null;
 
         var host   = uri.Host;
-        var port   = uri.Port > 0 ? uri.Port : DefaultPort;
-        var handle = string.IsNullOrEmpty(uri.UserInfo) ? null : uri.UserInfo;
+        int port;
+        if (uri.Port > 0)
+            port = uri.Port;
+        else
+            port = DefaultPort;
+        string? handle;
+        if (string.IsNullOrEmpty(uri.UserInfo))
+            handle = null;
+        else
+            handle = uri.UserInfo;
 
         if (string.IsNullOrWhiteSpace(host)) return null;
 
@@ -68,9 +76,12 @@ internal static class SemaBuzzUriHandler
     /// Builds a direct <c>buzz://</c> URI string from host, port, and optional handle.
     /// </summary>
     public static string Build(string host, int port, string? handle = null)
-        => string.IsNullOrWhiteSpace(handle)
-            ? $"buzz://{host}:{port}"
-            : $"buzz://{handle}@{host}:{port}";
+    {
+        if (string.IsNullOrWhiteSpace(handle))
+            return $"buzz://{host}:{port}";
+        else
+            return $"buzz://{handle}@{host}:{port}";
+    }
 
     /// <summary>
     /// Builds a relay <c>buzz://</c> URI string from a room token.
@@ -99,7 +110,11 @@ internal static class SemaBuzzUriHandler
     {
         try
         {
-            var exePath  = Environment.ProcessPath ?? string.Empty;
+            string exePath;
+            if (Environment.ProcessPath != null)
+                exePath = Environment.ProcessPath;
+            else
+                exePath = string.Empty;
             var command  = $"\"{exePath}\" \"%1\"";
 
             using var key = Registry.CurrentUser.CreateSubKey(
@@ -107,7 +122,7 @@ internal static class SemaBuzzUriHandler
 
             // Check if already registered with the same exe  avoid unnecessary writes
             using var cmdKey = key.OpenSubKey(@"shell\open\command");
-            if (cmdKey?.GetValue(null) is string existing && existing == command) return;
+            if (cmdKey != null && cmdKey.GetValue(null) is string existing && existing == command) return;
 
             key.SetValue(null,                       $"URL:{Scheme} Protocol");
             key.SetValue("URL Protocol",             string.Empty);

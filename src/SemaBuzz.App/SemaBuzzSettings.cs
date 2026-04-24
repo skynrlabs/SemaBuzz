@@ -33,13 +33,13 @@ public sealed class SemaBuzzSettings
     /// <summary>Default port pre-filled in the connect dialog's listen port field. Null means use the built-in default (7070).</summary>
     public int?               DefaultListenPort { get; set; } = null;
 
-    /// <summary>Multiplier (0.5â€“2.0) applied to packet intensity before driving the filament.</summary>
+    /// <summary>Multiplier (0.5–2.0) applied to packet intensity before driving the filament.</summary>
     public double             IndicatorSensitivity { get; set; } = 1.0;
 
     /// <summary>Filament animation style.</summary>
     public IndicatorStyleId   IndicatorStyle       { get; set; } = IndicatorStyleId.Flicker;
 
-    /// <summary>Font size used for chat message text (11â€“20).</summary>
+    /// <summary>Font size used for chat message text (11–20).</summary>
     public double             ChatFontSize         { get; set; } = 13.0;
 
     /// <summary>When true, keystrokes are streamed live to the peer as the user types.</summary>
@@ -75,7 +75,9 @@ public sealed class SemaBuzzSettings
             if (File.Exists(SettingsFile))
             {
                 var json = File.ReadAllText(SettingsFile);
-                return JsonSerializer.Deserialize<SemaBuzzSettings>(json) ?? new SemaBuzzSettings();
+                var deserialized = JsonSerializer.Deserialize<SemaBuzzSettings>(json);
+                if (deserialized != null)
+                    return deserialized;
             }
         }
         catch { /* return defaults on any error */ }

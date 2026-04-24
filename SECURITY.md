@@ -46,7 +46,7 @@ SemaBuzz is designed with the following guarantees:
 - **End-to-end encryption.** All messages are encrypted on-device with ephemeral ECDH P-256 key exchange and AES-256-GCM before transmission. The relay and Skynr Labs cannot read message content.
 - **Blind relay.** The relay server is a pass-through. It never reads, logs, or stores message content. IP addresses are held in memory only for the duration of an active session.
 - **No accounts.** No credentials are stored on any server.
-- **Local storage.** All settings, profiles, and (Pro) chat logs are stored locally in `%APPDATA%\SemaBuzz\`. Pro logs are AES-encrypted at rest.
+- **Local storage.** All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`.
 
 If you believe any of the above guarantees are violated by a vulnerability, that is a high-priority report.
 

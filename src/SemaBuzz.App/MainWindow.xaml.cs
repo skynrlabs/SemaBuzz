@@ -22,7 +22,7 @@ using EmojiWpf = Emoji.Wpf;
 namespace SemaBuzz.App;
 
 /// <summary>
-/// MainWindow ï¿½ the SemaBuzz command center.
+/// MainWindow — the SemaBuzz command center.
 /// Coordinates the wire (SemaBuzzClient/Listener), the streamer,
 /// and all visual feedback.
 /// </summary>
@@ -99,9 +99,15 @@ public partial class MainWindow : Window
     protected override void OnStateChanged(EventArgs e)
     {
         base.OnStateChanged(e);
-        // Toggle the glyph between ? (maximize) and ? (restore)
-        MaximizeGlyph.Text = WindowState == WindowState.Maximized ? "\u2750" : "\u25A1";
-        MaximizeButton.ToolTip = WindowState == WindowState.Maximized ? "Restore" : "Maximize";
+        // Toggle the glyph between maximize and restore glyphs
+        if (WindowState == WindowState.Maximized)
+            MaximizeGlyph.Text = "\u2750";
+        else
+            MaximizeGlyph.Text = "\u25A1";
+        if (WindowState == WindowState.Maximized)
+            MaximizeButton.ToolTip = "Restore";
+        else
+            MaximizeButton.ToolTip = "Maximize";
 
         if (WindowState == WindowState.Minimized && App.Settings.MinimizeToTray)
             HideToTray();
@@ -111,9 +117,12 @@ public partial class MainWindow : Window
         => WindowState = WindowState.Minimized;
 
     private void WinBtn_Maximize_Click(object sender, RoutedEventArgs e)
-        => WindowState = WindowState == WindowState.Maximized
-            ? WindowState.Normal
-            : WindowState.Maximized;
+    {
+        if (WindowState == WindowState.Maximized)
+            WindowState = WindowState.Normal;
+        else
+            WindowState = WindowState.Maximized;
+    }
 
     private void WinBtn_Close_Click(object sender, RoutedEventArgs e)
         => Close();
@@ -184,7 +193,8 @@ public partial class MainWindow : Window
             };
             if (dialog.ShowDialog() != true) return;
 
-            _cts?.Cancel();
+            if (_cts != null)
+                _cts.Cancel();
             _cts = new CancellationTokenSource();
 
             _localHandle    = dialog.Handle;
@@ -215,7 +225,8 @@ public partial class MainWindow : Window
             var dialog = new SemaBuzzConnectDialog { Owner = this };
             if (dialog.ShowDialog() != true) return;
 
-            _cts?.Cancel();
+            if (_cts != null)
+                _cts.Cancel();
             _cts = new CancellationTokenSource();
 
             _localHandle    = dialog.Handle;
@@ -255,7 +266,8 @@ public partial class MainWindow : Window
         _hostingPort     = 0;
         if (_client   != null) await _client.DisconnectAsync();
         if (_listener != null) await _listener.DisconnectAsync();
-        _cts?.Cancel();
+        if (_cts != null)
+            _cts.Cancel();
         _cts      = null;
         _client   = null;
         _listener = null;
@@ -723,7 +735,12 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            SetStatus($"› {e.Message ?? e.State.ToString().ToLower()}");
+            string statusText;
+            if (e.Message != null)
+                statusText = e.Message;
+            else
+                statusText = e.State.ToString().ToLower();
+            SetStatus($"› {statusText}");
             UpdateWireStateDot(e.State);
 
             if (e.State == SemaBuzzWireState.Warming)
@@ -748,24 +765,33 @@ public partial class MainWindow : Window
                     AddChatDivider($"× {savedHandle2} disconnected · resuming...");
                 }
                 DisconnectMenuItem.IsEnabled = true;
-                _warmingCts?.Cancel();
+                if (_cts != null)
+                    _cts.Cancel();
                 _warmingCts = new CancellationTokenSource();
                 _ = StartWarmingTimeoutAsync(_warmingCts.Token);
             }
             else if (e.State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
             {
-                _warmingCts?.Cancel();
+                if (_warmingCts != null)
+                    _warmingCts.Cancel();
                 _warmingCts = null;
-                var stateTag = e.State == SemaBuzzWireState.Secured ? "[ENC] " : "";
+                string stateTag;
+                if (e.State == SemaBuzzWireState.Secured)
+                    stateTag = "[ENC] ";
+                else
+                    stateTag = "";
                 TitleSessionLabel.Text = $"{stateTag}WIRE LIVE";
                 InputBox.IsEnabled   = true;
                 SendButton.IsEnabled = false; // no text yet
                 BuzzButton.IsEnabled = true;
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
-                AddChatDivider(e.State == SemaBuzzWireState.Secured
-                    ? "› sema secured · wire is live"
-                    : "› wire is live");
+                string wireDivider;
+                if (e.State == SemaBuzzWireState.Secured)
+                    wireDivider = "› sema secured · wire is live";
+                else
+                    wireDivider = "› wire is live";
+                AddChatDivider(wireDivider);
 
                 // Exchange identity with the peer
                 if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng);
@@ -774,7 +800,8 @@ public partial class MainWindow : Window
             else if (e.State == SemaBuzzWireState.Dead)
             {
                 PlayErrorSound();
-                _warmingCts?.Cancel();
+                if (_warmingCts != null)
+                    _warmingCts.Cancel();
                 _warmingCts = null;
                 TitleSessionLabel.Text       = "NO WIRE";
                 InputBox.IsEnabled           = false;
@@ -790,14 +817,20 @@ public partial class MainWindow : Window
                 ConnectMenuItem.IsEnabled  = true;
                 DisconnectMenuItem.IsEnabled = false;
 
-                var divider = _warmingTimedOut
-                    ? "› no dialer arrived · session closed after 5 minutes"
-                    : e.Message switch
+                string divider;
+                if (_warmingTimedOut)
+                {
+                    divider = "› no dialer arrived · session closed after 5 minutes";
+                }
+                else
+                {
+                    divider = e.Message switch
                     {
                         "peer-disconnect" => $"× {savedHandle} disconnected · wire has been closed",
                         "not-available"  => $"× {savedHandle} is not available at this time",
                         _                => "× wire is dead",
                     };
+                }
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
 
@@ -829,7 +862,8 @@ public partial class MainWindow : Window
         _hostingToken    = null;
         _hostingRelayUri = null;
         _hostingPort     = 0;
-        _cts?.Cancel();
+        if (_cts != null)
+            _cts.Cancel();
         _cts = null;
     }
 
@@ -862,7 +896,12 @@ public partial class MainWindow : Window
         var anim = new DoubleAnimationUsingKeyFrames { Duration = new Duration(TimeSpan.FromMilliseconds(steps * 40)) };
         for (var i = 0; i < steps; i++)
         {
-            var offset = (i % 2 == 0 ? magnitude : -magnitude) * (1.0 - i / (double)steps);
+            double sign;
+            if (i % 2 == 0)
+                sign = magnitude;
+            else
+                sign = -magnitude;
+            var offset = sign * (1.0 - i / (double)steps);
             anim.KeyFrames.Add(new LinearDoubleKeyFrame(origin + offset, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(i * 40))));
         }
         anim.KeyFrames.Add(new LinearDoubleKeyFrame(origin, KeyTime.FromTimeSpan(TimeSpan.FromMilliseconds(steps * 40))));
@@ -906,9 +945,11 @@ public partial class MainWindow : Window
                 // Capture the message text before HyperlinkifyTextBlock switches
                 // the TextBlock from .Text to .Inlines mode
                 var prefix  = (string)_livePeerBlock.Tag;
-                var msgText = _livePeerBlock.Text.Length > prefix.Length
-                                  ? _livePeerBlock.Text[prefix.Length..]
-                                  : string.Empty;
+                string msgText;
+                if (_livePeerBlock.Text.Length > prefix.Length)
+                    msgText = _livePeerBlock.Text[prefix.Length..];
+                else
+                    msgText = string.Empty;
                 HyperlinkifyTextBlock(_livePeerBlock);
                 ShowToastIfUnfocused(_peerHandle, msgText);
 
@@ -1059,7 +1100,15 @@ public partial class MainWindow : Window
                 };
                 link.RequestNavigate += (_, e) =>
                 {
-                    Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+                    // H-3: confirm before opening a peer-supplied URL to prevent phishing.
+                    var url = e.Uri.AbsoluteUri;
+                    var answer = MessageBox.Show(
+                        $"Open this link in your browser?\n\n{url}",
+                        "Open Link",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+                    if (answer == MessageBoxResult.Yes)
+                        Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
                     e.Handled = true;
                 };
                 tb.Inlines.Add(link);
@@ -1081,7 +1130,11 @@ public partial class MainWindow : Window
     }
 
     private static Brush InitialsBrush(string handle, Color nameColor)    {
-        var initials = handle.Length > 0 ? handle[0].ToString().ToUpper() : "?";
+        string initials;
+        if (handle.Length > 0)
+            initials = handle[0].ToString().ToUpper();
+        else
+            initials = "?";
         var visual = new DrawingVisual();
         using (var dc = visual.RenderOpen())
         {
@@ -1191,9 +1244,12 @@ public partial class MainWindow : Window
     {
         _trayIcon.Visible = false;
         _trayIcon.Dispose();
-        _cts?.Cancel();
-        _client?.Dispose();
-        _listener?.Dispose();
+        if (_cts != null)
+            _cts.Cancel();
+        if (_client != null)
+            _client.Dispose();
+        if (_listener != null)
+            _listener.Dispose();
         base.OnClosed(e);
     }
 }

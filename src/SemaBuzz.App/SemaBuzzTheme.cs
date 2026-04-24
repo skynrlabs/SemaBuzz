@@ -83,7 +83,7 @@ internal static class SemaBuzzTheme
     }
 
     /// <summary>
-    /// Removes the close (âœ•) button from a dialog window's title bar.
+    /// Removes the close (✕) button from a dialog window's title bar.
     /// Call from <c>OnSourceInitialized</c> so the HWND is available.
     /// </summary>
     public static void HideCloseButton(Window window)

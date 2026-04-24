@@ -9,7 +9,7 @@ namespace SemaBuzz.Protocol;
 /// Wire format (binary):
 ///   [0x53][0x42]   2-byte magic header ("SB")
 ///   [char_hi][char_lo]  UTF-16 character (2 bytes)
-///   [intensity]    1-byte signal intensity (0â€“255)
+///   [intensity]    1-byte signal intensity (0–255)
 ///   [type]         1-byte packet type
 /// Total: 6 bytes per packet.
 /// </summary>

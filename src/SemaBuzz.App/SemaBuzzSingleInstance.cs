@@ -93,7 +93,12 @@ internal static class SemaBuzzSingleInstance
                 PipeDirection.Out, PipeOptions.WriteThrough);
             pipe.Connect(timeout: 500);
             using var writer = new StreamWriter(pipe, leaveOpen: true) { AutoFlush = true };
-            writer.WriteLine(argument ?? FocusSignal);
+            string messageToSend;
+            if (argument != null)
+                messageToSend = argument;
+            else
+                messageToSend = FocusSignal;
+            writer.WriteLine(messageToSend);
             writer.Flush();
             pipe.WaitForPipeDrain();
         }
@@ -129,11 +134,22 @@ internal static class SemaBuzzSingleInstance
                 pipe.WaitForConnection();
 
                 using var reader = new StreamReader(pipe);
-                var line = reader.ReadLine()?.Trim();
+                var rawLine = reader.ReadLine();
+                string? line = null;
+                if (rawLine != null)
+                    line = rawLine.Trim();
                 if (line == FocusSignal || string.IsNullOrWhiteSpace(line))
-                    FocusRequested?.Invoke();
+                {
+                    var focusHandler = FocusRequested;
+                    if (focusHandler != null)
+                        focusHandler();
+                }
                 else
-                    UriReceived?.Invoke(line);
+                {
+                    var uriHandler = UriReceived;
+                    if (uriHandler != null)
+                        uriHandler(line);
+                }
             }
             catch (OperationCanceledException) { break; }
             catch { /* pipe error  restart listener */ }
