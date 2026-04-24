@@ -101,7 +101,21 @@ public partial class SemaBuzzConnectDialog : Window
         => SetNewHostBuzzAddress();
 
     private void SetNewHostBuzzAddress()
-        => HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken(), App.Settings.RelayUri);
+    {
+        var relayUri = App.Settings.RelayUri;
+        HostBuzzAddressBox.Text = SemaBuzzUriHandler.BuildRelay(SemaBuzzRelayPacket.GenerateToken(), relayUri);
+
+        // Warn if the relay URI is localhost — the peer won't be able to reach it
+        if (Uri.TryCreate(relayUri, UriKind.Absolute, out var u)
+            && (u.Host == "localhost" || u.Host == "127.0.0.1" || u.Host == "::1"))
+        {
+            MessageBox.Show(
+                $"Your relay is set to {relayUri}, which is your local machine.\n\nThe peer will receive this address in the share link and will try to connect to their own localhost — it won't work.\n\nIn Settings → Relay, enter the public IP or hostname of your relay server.",
+                "Relay address is localhost",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+        }
+    }
 
     private static string NormalizeBuzzAddressForDisplay(string raw)
     {

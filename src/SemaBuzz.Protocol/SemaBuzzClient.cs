@@ -22,7 +22,7 @@ public sealed class SemaBuzzClient : IDisposable
     private bool _disposed;
     private string? _lastStateMessage;
 
-    private static readonly TimeSpan HandshakeTimeout   = TimeSpan.FromSeconds(12);
+    private static readonly TimeSpan HandshakeTimeout   = TimeSpan.FromSeconds(20);
     private const int MaxBatchPacketsPerSend = 8;
     private static readonly TimeSpan ApprovalWaitTimeout = TimeSpan.FromSeconds(60);
 

@@ -347,7 +347,7 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
-        SetStatus($"› waiting via relay (token: {token})...");
+        SetStatus($"› waiting via relay (token: {token}) via {relayUri}...");
         _ = _listener.ListenViaRelayAsync(
             relayUri,
             token, ct);
@@ -375,7 +375,7 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
 
-        SetStatus($"› joining relay room {token}...");
+        SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
             relayUri,
             token, ct);
@@ -499,6 +499,12 @@ public partial class MainWindow : Window
     }
 
     private void InputBox_TextChanged(object sender, TextChangedEventArgs e)
+        // Emoji.Wpf.RichTextBox updates its Text DP *after* firing base.OnTextChanged,
+        // so InputBox.Text is still the previous value when TextChanged fires.
+        // Defer to the next dispatcher frame so we read the correct updated Text.
+        => Dispatcher.InvokeAsync(ProcessInputBoxTextChange);
+
+    private void ProcessInputBoxTextChange()
     {
         var text = InputBox.Text;
         var prev = _previousInputText;
@@ -512,14 +518,14 @@ public partial class MainWindow : Window
 
         if (text.Length < prev.Length)
         {
-            // Characters were deleted ï¿½ send a backspace for each one removed
+            // Characters were deleted — send a backspace for each one removed
             var deleted = prev.Length - text.Length;
             for (var i = 0; i < deleted; i++)
                 _streamer.Feed('\b');
         }
         else if (text.Length > prev.Length)
         {
-            // Characters were added ï¿½ feed each new character
+            // Characters were added — feed each new character
             for (var i = prev.Length; i < text.Length; i++)
                 _streamer.Feed(text[i]);
         }
