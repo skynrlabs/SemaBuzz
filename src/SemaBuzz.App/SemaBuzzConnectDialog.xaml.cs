@@ -347,7 +347,11 @@ public partial class SemaBuzzConnectDialog : Window
             if (parsed.RelayToken is { } relayTok)
             {
                 RelayToken = relayTok;
-                RelayUri   = parsed.RelayUri ?? App.Settings.RelayUri;
+                // Use the relay embedded in the link, or fall back to the default relay.
+                // The dialer's own custom relay setting is NOT used here — if the link
+                // has no ?r= it means the host is on the default relay, and the dialer
+                // must match it regardless of their local settings.
+                RelayUri   = parsed.RelayUri ?? SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
                 BuzzUrlBox.Text = SemaBuzzUriHandler.BuildRelay(relayTok);
                 PeerHost   = string.Empty;
                 Port       = 0;

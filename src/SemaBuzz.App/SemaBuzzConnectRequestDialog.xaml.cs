@@ -69,12 +69,9 @@ public partial class SemaBuzzConnectRequestDialog : Window
         var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "request.mp3");
         if (!System.IO.File.Exists(path)) return;
         var ring = new MediaPlayer();
-        ring.MediaEnded += (_, _) =>
-        {
-            ring.Close();
-        };
+        ring.MediaOpened += (_, _) => ring.Play();
+        ring.MediaEnded  += (_, _) => ring.Close();
         ring.Open(new Uri(path));
-        ring.Play();
     }
 
     private void StopRing()
