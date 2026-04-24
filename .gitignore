@@ -1,6 +1,7 @@
 Development.code-workspace
 docker-compose.yml
 PLAN.md
+Publish-Relay.ps1
 tools/
 
 # Build outputs
