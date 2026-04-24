@@ -1,5 +1,15 @@
 # ⚡ SemaBuzz for Windows
 
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=flat-square)
+![.NET](https://img.shields.io/badge/.NET-9-512BD4?style=flat-square&logo=dotnet&logoColor=white)
+![C#](https://img.shields.io/badge/C%23-12-239120?style=flat-square&logo=csharp&logoColor=white)
+![WPF](https://img.shields.io/badge/WPF-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)
+![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078D6?style=flat-square&logo=windows&logoColor=white)
+![Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-available-0078D6?style=flat-square&logo=microsoftedge&logoColor=white)
+![Encryption](https://img.shields.io/badge/encryption-AES--256--GCM%20%2B%20ECDH--P256-22c55e?style=flat-square&logo=letsencrypt&logoColor=white)
+![WebSocket](https://img.shields.io/badge/relay-WebSocket-f97316?style=flat-square)
+![Docker](https://img.shields.io/badge/relay-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
+
 > **Built for the desktop. Made for the wire.**
 > A live-typing chat for Windows — encrypted in transit, no accounts, relay-assisted connection.
 
