@@ -173,7 +173,11 @@ public sealed class SemaBuzzListener : IDisposable
         }
         catch (OperationCanceledException) { throw; }
         catch { /* STUN/punch failed — continue with relay */ }
-        finally { directUdp?.Dispose(); }
+        finally
+        {
+            if (directUdp != null)
+                directUdp.Dispose();
+        }
         // ── end punch-through attempt ─────────────────────────────────────────────
 
         // Wire up the WebSocket send delegate used by all internal send helpers.
@@ -282,7 +286,7 @@ public sealed class SemaBuzzListener : IDisposable
 
                 // Client is retransmitting  our KE response or HandshakeAck was lost.
                 // Resend whatever is appropriate for the current state.
-                if (PeerEndPoint?.Equals(result.RemoteEndPoint) == true && _localPubKeyBytes != null)
+                if (PeerEndPoint != null && PeerEndPoint.Equals(result.RemoteEndPoint) && _localPubKeyBytes != null)
                 {
                     await SendRawAsync(SemaBuzzKeyExchange.Serialize(_localPubKeyBytes), result.RemoteEndPoint);
                     if (State == SemaBuzzWireState.Secured)
@@ -298,13 +302,21 @@ public sealed class SemaBuzzListener : IDisposable
 
             // If we already sent our KE (relay host-initiates flow), reuse that key pair.
             // Otherwise generate a fresh ephemeral pair now (classic dialer-initiates flow).
-            ECDiffieHellman? newLocalEcdh = _pendingEcdh == null
-                ? ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256)
-                : null;
-            var localEcdh        = _pendingEcdh ?? newLocalEcdh!;
-            var localPubKeyBytes = _pendingEcdh != null
-                ? _localPubKeyBytes!
-                : localEcdh.PublicKey.ExportSubjectPublicKeyInfo();
+            ECDiffieHellman? newLocalEcdh;
+            if (_pendingEcdh == null)
+                newLocalEcdh = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
+            else
+                newLocalEcdh = null;
+            ECDiffieHellman localEcdh;
+            if (_pendingEcdh != null)
+                localEcdh = _pendingEcdh;
+            else
+                localEcdh = newLocalEcdh!;
+            byte[] localPubKeyBytes;
+            if (_pendingEcdh != null)
+                localPubKeyBytes = _localPubKeyBytes!;
+            else
+                localPubKeyBytes = localEcdh.PublicKey.ExportSubjectPublicKeyInfo();
             if (_pendingEcdh == null) _localPubKeyBytes = localPubKeyBytes;
 
             using var peerEcdh = ECDiffieHellman.Create();
@@ -358,7 +370,8 @@ public sealed class SemaBuzzListener : IDisposable
                 if (State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
                 {
                     SetState(SemaBuzzWireState.Dead, "received unreadable packet  session key mismatch");
-                    _cts?.Cancel();
+                    if (_cts != null)
+                        _cts.Cancel();
                 }
                 return;
             }
@@ -370,7 +383,11 @@ public sealed class SemaBuzzListener : IDisposable
         {
             var meta = SemaBuzzMetadata.Deserialize(data);
             if (meta.HasValue)
-                MetadataReceived?.Invoke(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+            {
+                var metaHandler = MetadataReceived;
+                if (metaHandler != null)
+                    metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+            }
             return;
         }
 
@@ -402,7 +419,10 @@ public sealed class SemaBuzzListener : IDisposable
                     }
 
                     await SendAckAsync(result.RemoteEndPoint);
-                    SetState(Shield != null ? SemaBuzzWireState.Secured : SemaBuzzWireState.Live);
+                    if (Shield != null)
+                        SetState(SemaBuzzWireState.Secured);
+                    else
+                        SetState(SemaBuzzWireState.Live);
                     break;
 
                 case SemaBuzzPacketType.Disconnect:
@@ -413,7 +433,8 @@ public sealed class SemaBuzzListener : IDisposable
                     if (_isRelayMode)
                     {
                         _pendingDeadMessage = "peer-disconnect";
-                        _cts?.Cancel(); // relay session is one-to-one; close it out
+                        if (_cts != null)
+                            _cts.Cancel(); // relay session is one-to-one; close it out
                     }
                     else
                         SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
@@ -425,8 +446,12 @@ public sealed class SemaBuzzListener : IDisposable
 
                 case SemaBuzzPacketType.Buzz:
                 case SemaBuzzPacketType.Char:
-                    PacketReceived?.Invoke(this, new SemaBuzzPacketEventArgs(packet.Value));
+                {
+                    var packetHandler = PacketReceived;
+                    if (packetHandler != null)
+                        packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
                     break;
+                }
 
                 default:
                     // Unknown or unexpected type  drop silently
@@ -471,7 +496,7 @@ public sealed class SemaBuzzListener : IDisposable
             await SendRawAsync(bytes, PeerEndPoint);
         }
         catch { /* socket may already be closed */ }
-        if (_wsClient?.State == WebSocketState.Open)
+        if (_wsClient != null && _wsClient.State == WebSocketState.Open)
             try { await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "Disconnect", default); } catch { }
         PeerEndPoint = null;
         Shield = null;
@@ -520,7 +545,11 @@ public sealed class SemaBuzzListener : IDisposable
             for (var i = 0; i < chunkCount; i++)
                 packets[offset + i].ToWireBytes().CopyTo(plaintext, i * SemaBuzzPacket.WireSize);
 
-            var bytes = Shield != null ? Shield.Encrypt(plaintext) : plaintext;
+            byte[] bytes;
+            if (Shield != null)
+                bytes = Shield.Encrypt(plaintext);
+            else
+                bytes = plaintext;
             await SendRawAsync(bytes, PeerEndPoint);
         }
     }
@@ -552,19 +581,28 @@ public sealed class SemaBuzzListener : IDisposable
             return;
         State = state;
         _lastStateMessage = message;
-        WireStateChanged?.Invoke(this, new SemaBuzzWireStateEventArgs(state, message));
+        var wireHandler = WireStateChanged;
+        if (wireHandler != null)
+            wireHandler(this, new SemaBuzzWireStateEventArgs(state, message));
     }
 
     public void Dispose()
     {
         if (!_disposed)
         {
-            _cts?.Cancel();
-            _udp?.Dispose();
-            _wsClient?.Dispose();
-            _cts?.Dispose();
-            _pendingEcdh?.Dispose();
-            _pendingEcdh = null;
+            if (_cts != null)
+                _cts.Cancel();
+            if (_udp != null)
+                _udp.Dispose();
+            if (_wsClient != null)
+                _wsClient.Dispose();
+            if (_cts != null)
+                _cts.Dispose();
+            if (_pendingEcdh != null)
+            {
+                _pendingEcdh.Dispose();
+                _pendingEcdh = null;
+            }
             _disposed = true;
         }
     }

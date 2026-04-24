@@ -80,15 +80,25 @@ public partial class SemaBuzzConnectDialog : Window
     {
         if (HostBuzzPanel == null) return;
         var hosting = HostMode.IsChecked == true;
-        HostBuzzPanel.Visibility = hosting ? Visibility.Visible   : Visibility.Collapsed;
-        BuzzUrlPanel.Visibility  = hosting ? Visibility.Collapsed : Visibility.Visible;
+        if (hosting)
+        {
+            HostBuzzPanel.Visibility = Visibility.Visible;
+            BuzzUrlPanel.Visibility  = Visibility.Collapsed;
+        }
+        else
+        {
+            HostBuzzPanel.Visibility = Visibility.Collapsed;
+            BuzzUrlPanel.Visibility  = Visibility.Visible;
+        }
     }
 
     // Buzz address handlers
 
     private void CopyHostBuzz_Click(object sender, RoutedEventArgs e)
     {
-        var buzzAddress = HostBuzzAddressBox.Text?.Trim();
+        string? buzzAddress = null;
+        if (HostBuzzAddressBox.Text != null)
+            buzzAddress = HostBuzzAddressBox.Text.Trim();
         if (string.IsNullOrEmpty(buzzAddress)) return;
         Clipboard.SetText(buzzAddress);
         CopyHostBuzzBtn.Content = "COPIED!";
@@ -120,8 +130,11 @@ public partial class SemaBuzzConnectDialog : Window
     private static string NormalizeBuzzAddressForDisplay(string raw)
     {
         var parsed = SemaBuzzUriHandler.TryParse(raw);
-        if (parsed?.RelayToken is { } relayToken)
+        if (parsed != null && parsed.RelayToken != null)
+        {
+            var relayToken = parsed.RelayToken;
             return SemaBuzzUriHandler.BuildRelay(relayToken, parsed.RelayUri);
+        }
 
         return raw;
     }
@@ -200,10 +213,29 @@ public partial class SemaBuzzConnectDialog : Window
         ProfilePicker.ItemsSource = items;
 
         // Re-select the previously active profile; fall back to first real profile or "new"
-        int idx = _selectedProfile is null
-            ? (_profiles.Count > 0 ? 1 : 0)
-            : items.FindIndex(i => i.Profile?.Id == _selectedProfile.Id);
-        ProfilePicker.SelectedIndex = idx < 0 ? 0 : idx;
+        int idx;
+        if (_selectedProfile is null)
+        {
+            int defaultIdx;
+            if (_profiles.Count > 0)
+                defaultIdx = 1;
+            else
+                defaultIdx = 0;
+            idx = defaultIdx;
+        }
+        else
+        {
+            idx = items.FindIndex(i =>
+            {
+                if (i.Profile == null)
+                    return false;
+                return i.Profile.Id == _selectedProfile.Id;
+            });
+        }
+        if (idx < 0)
+            ProfilePicker.SelectedIndex = 0;
+        else
+            ProfilePicker.SelectedIndex = idx;
     }
 
     private void ProfilePicker_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -229,9 +261,10 @@ public partial class SemaBuzzConnectDialog : Window
     private void ShowProfileCard(SemaBuzzProfile profile)
     {
         CardHandleLabel.Text   = profile.Handle;
-        CardAvatarEllipse.Fill = profile.AvatarPng is { } png
-            ? new ImageBrush(BitmapFromBytes(png)) { Stretch = Stretch.UniformToFill }
-            : (Brush)new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
+        if (profile.AvatarPng is { } png1)
+            CardAvatarEllipse.Fill = new ImageBrush(BitmapFromBytes(png1)) { Stretch = Stretch.UniformToFill };
+        else
+            CardAvatarEllipse.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
 
         ProfileCard.Visibility    = Visibility.Visible;
         IdentityFields.Visibility = Visibility.Collapsed;
@@ -243,9 +276,10 @@ public partial class SemaBuzzConnectDialog : Window
         {
             HandleBox.Text           = p.Handle;
             AvatarPng                = p.AvatarPng;
-            AvatarPreview.Fill       = p.AvatarPng is { } png
-                ? new ImageBrush(BitmapFromBytes(png)) { Stretch = Stretch.UniformToFill }
-                : (Brush)new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
+            if (p.AvatarPng is { } png)
+                AvatarPreview.Fill = new ImageBrush(BitmapFromBytes(png)) { Stretch = Stretch.UniformToFill };
+            else
+                AvatarPreview.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
             ClearAvatarBtn.IsEnabled = p.AvatarPng is not null;
         }
 
@@ -261,19 +295,31 @@ public partial class SemaBuzzConnectDialog : Window
 
     private void SaveProfile_Click(object sender, RoutedEventArgs e)
     {
-        var handle = string.IsNullOrWhiteSpace(HandleBox.Text) ? "anonymous" : HandleBox.Text.Trim();
+        string handle;
+        if (string.IsNullOrWhiteSpace(HandleBox.Text))
+            handle = "anonymous";
+        else
+            handle = HandleBox.Text.Trim();
 
         if (_isEditingProfile && _selectedProfile is not null)
         {
             _selectedProfile.Handle       = handle;
-            _selectedProfile.AvatarBase64 = AvatarPng is null ? null : Convert.ToBase64String(AvatarPng);
+            if (AvatarPng is null)
+                _selectedProfile.AvatarBase64 = null;
+            else
+                _selectedProfile.AvatarBase64 = Convert.ToBase64String(AvatarPng);
         }
         else
         {
+            string? newAvatarBase64;
+            if (AvatarPng is null)
+                newAvatarBase64 = null;
+            else
+                newAvatarBase64 = Convert.ToBase64String(AvatarPng);
             var p = new SemaBuzzProfile
             {
                 Handle       = handle,
-                AvatarBase64 = AvatarPng is null ? null : Convert.ToBase64String(AvatarPng),
+                AvatarBase64 = newAvatarBase64,
             };
             _profiles.Add(p);
             _selectedProfile = p;
@@ -310,8 +356,14 @@ public partial class SemaBuzzConnectDialog : Window
 
         if (IsHost)
         {
-            var parsed = SemaBuzzUriHandler.TryParse(HostBuzzAddressBox.Text?.Trim());
-            if (parsed?.RelayToken is not { } tok)
+            string? trimmedText = null;
+            if (HostBuzzAddressBox.Text != null)
+                trimmedText = HostBuzzAddressBox.Text.Trim();
+            var parsedHost = SemaBuzzUriHandler.TryParse(trimmedText);
+            string? tok = null;
+            if (parsedHost != null)
+                tok = parsedHost.RelayToken;
+            if (tok == null)
             {
                 MessageBox.Show("No session token — click NEW to generate one.", "SemaBuzz",
                     MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -346,12 +398,34 @@ public partial class SemaBuzzConnectDialog : Window
 
             if (parsed.RelayToken is { } relayTok)
             {
-                RelayToken = relayTok;
                 // Use the relay embedded in the link, or fall back to the default relay.
                 // The dialer's own custom relay setting is NOT used here — if the link
                 // has no ?r= it means the host is on the default relay, and the dialer
                 // must match it regardless of their local settings.
-                RelayUri   = parsed.RelayUri ?? SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+                var resolvedRelay = parsed.RelayUri;
+                if (resolvedRelay == null)
+                    resolvedRelay = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+
+                // H-2: warn when the link requests a non-default relay server.
+                // The relay sees IP addresses and connection timing even though message
+                // content is end-to-end encrypted. User must explicitly accept before connecting.
+                if (!string.IsNullOrWhiteSpace(parsed.RelayUri)
+                    && !string.Equals(parsed.RelayUri, SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri,
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    var answer = MessageBox.Show(
+                        $"This link requests a custom relay server:\n\n{parsed.RelayUri}\n\n" +
+                        "Your IP address and connection timing will pass through this server. " +
+                        "Message content remains end-to-end encrypted.\n\nProceed?",
+                        "Custom Relay \u2014 Security Warning",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+                    if (answer != MessageBoxResult.Yes)
+                        return;
+                }
+
+                RelayToken = relayTok;
+                RelayUri   = resolvedRelay;
                 BuzzUrlBox.Text = SemaBuzzUriHandler.BuildRelay(relayTok);
                 PeerHost   = string.Empty;
                 Port       = 0;
@@ -372,7 +446,11 @@ public partial class SemaBuzzConnectDialog : Window
         }
         else
         {
-            Handle = string.IsNullOrWhiteSpace(HandleBox.Text.Trim()) ? "anonymous" : HandleBox.Text.Trim();
+            string trimmedHandle = HandleBox.Text.Trim();
+            if (string.IsNullOrWhiteSpace(trimmedHandle))
+                Handle = "anonymous";
+            else
+                Handle = trimmedHandle;
             // AvatarPng already set by ChooseAvatar_Click / ClearAvatar_Click
         }
 

@@ -24,8 +24,17 @@ public static class SemaBuzzMetadata
 
     public static byte[] Serialize(string handle, byte[]? avatarPng)
     {
-        var handleBytes = Encoding.UTF8.GetBytes(handle.Length > 32 ? handle[..32] : handle);
-        var imgBytes    = avatarPng ?? Array.Empty<byte>();
+        string trimmedHandle;
+        if (handle.Length > 32)
+            trimmedHandle = handle[..32];
+        else
+            trimmedHandle = handle;
+        var handleBytes = Encoding.UTF8.GetBytes(trimmedHandle);
+        byte[] imgBytes;
+        if (avatarPng != null)
+            imgBytes = avatarPng;
+        else
+            imgBytes = Array.Empty<byte>();
 
         var buf = new byte[3 + 1 + handleBytes.Length + 4 + imgBytes.Length];
         buf[0] = SemaBuzzPacket.MagicByte1;
@@ -48,8 +57,10 @@ public static class SemaBuzzMetadata
         if (!IsMetadataPacket(data)) return null;
 
         var handleLen = data[3];
-        // Reject unreasonably long handles  sender caps at 32 bytes, allow some headroom
-        if (handleLen > 64) return null;
+        // M-3: reject handles that exceed the sender's own cap (32 bytes).
+        // A crafted peer sending up to 64 bytes was previously accepted, creating
+        // an inconsistency that could surprise future validation code.
+        if (handleLen > 32) return null;
         if (data.Length < 4 + handleLen + 4) return null;
 
         var handle = Encoding.UTF8.GetString(data, 4, handleLen);
@@ -61,7 +72,11 @@ public static class SemaBuzzMetadata
         var imgLen = (uint)(data[lo] | (data[lo + 1] << 8) | (data[lo + 2] << 16) | (data[lo + 3] << 24));
         if (imgLen > (uint)(data.Length - lo - 4)) return null;
 
-        byte[]? img = imgLen > 0 ? data[(lo + 4)..(lo + 4 + (int)imgLen)] : null;
+        byte[]? img;
+        if (imgLen > 0)
+            img = data[(lo + 4)..(lo + 4 + (int)imgLen)];
+        else
+            img = null;
         return (handle, img);
     }
 }

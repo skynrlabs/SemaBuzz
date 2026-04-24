@@ -1,0 +1,70 @@
+name: PR Target Guard
+
+on:
+  pull_request:
+    types: [opened, reopened]
+    branches: [main, dev]
+
+jobs:
+  guard:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Reject direct-to-main PRs (not from dev)
+        if: github.base_ref == 'main' && github.head_ref != 'dev'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: context.issue.number,
+              body: [
+                '## ❌ PRs to `main` must come from `dev`',
+                '',
+                'Direct feature/fix branches cannot merge into `main`.',
+                'Please retarget this PR to `dev` and merge it there first.',
+                '',
+                '**Workflow:**',
+                '`feature/* / fix/*` → `dev` → `main`',
+              ].join('\n'),
+            });
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              pull_number: context.issue.number,
+              state: 'closed',
+            });
+
+      - name: Reject PRs from non-feature branches to dev
+        if: |
+          github.base_ref == 'dev' &&
+          !startsWith(github.head_ref, 'feature/') &&
+          !startsWith(github.head_ref, 'fix/') &&
+          !startsWith(github.head_ref, 'release/')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              issue_number: context.issue.number,
+              body: [
+                '## ⚠️ Unexpected branch name',
+                '',
+                'Branches targeting `dev` should follow the naming convention:',
+                '',
+                '- `feature/your-feature`',
+                '- `fix/your-fix`',
+                '- `release/vX.Y`',
+                '',
+                'Please rename your branch and reopen the PR.',
+              ].join('\n'),
+            });
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo:  context.repo.repo,
+              pull_number: context.issue.number,
+              state: 'closed',
+            });

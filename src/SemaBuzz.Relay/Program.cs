@@ -21,7 +21,11 @@ using SemaBuzz.Relay;
 //   Docker:             docker stop <container-name>
 
 var portStr = Environment.GetEnvironmentVariable("PORT");
-var port    = int.TryParse(portStr, out var p) ? p : 7171;
+int port;
+if (int.TryParse(portStr, out var p))
+    port = p;
+else
+    port = 7171;
 
 for (var i = 0; i < args.Length - 1; i++)
     if ((args[i] == "--port" || args[i] == "-p") && int.TryParse(args[i + 1], out var ap))
@@ -108,6 +112,12 @@ var app = builder.Build();
 
 app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(30) });
 
+// C-1: Only trust X-Forwarded-For when TRUST_PROXY=true is explicitly set by the operator.
+// Without this, any client can spoof an arbitrary IP and bypass the per-IP connection cap.
+var trustProxy = string.Equals(
+    Environment.GetEnvironmentVariable("TRUST_PROXY"), "true",
+    StringComparison.OrdinalIgnoreCase);
+
 var relay = new RelayServer();
 
 // WebSocket endpoint: clients connect here to join a relay room.
@@ -120,10 +130,21 @@ app.Map("/relay", async ctx =>
         return;
     }
     var ws = await ctx.WebSockets.AcceptWebSocketAsync();
-    // Prefer X-Forwarded-For set by Railway's reverse proxy; fall back to direct IP.
-    var remoteIp = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault()?.Split(',')[0].Trim()
-                   ?? ctx.Connection.RemoteIpAddress?.ToString()
-                   ?? "unknown";
+    // Only honour X-Forwarded-For when TRUST_PROXY=true is set — prevents IP spoofing.
+    string? remoteIp = null;
+    if (trustProxy)
+    {
+        var forwarded = ctx.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+        if (forwarded != null)
+            remoteIp = forwarded.Split(',')[0].Trim();
+    }
+    if (remoteIp == null)
+    {
+        if (ctx.Connection.RemoteIpAddress != null)
+            remoteIp = ctx.Connection.RemoteIpAddress.ToString();
+    }
+    if (remoteIp == null)
+        remoteIp = "unknown";
     await relay.HandleClientAsync(ws, remoteIp, ctx.RequestAborted);
 });
 

@@ -16,18 +16,23 @@ internal sealed class RelayServer
     private static readonly TimeSpan JoinTimeout   = TimeSpan.FromSeconds(10);
     private const            int     MaxRooms       = 500;   // global cap
     private const            int     MaxPerIp       = 5;     // concurrent sockets per IP
+    private const            int     MaxRoomsPerIp  = 2;     // rooms a single IP may host at once (C-2)
+    private const            long    BwCapBytesPerSec = 512 * 1024; // 512 KB/s per session (H-1)
 
     private readonly ConcurrentDictionary<string, RelayRoom> _rooms =
         new(StringComparer.OrdinalIgnoreCase);
 
     // IP → number of currently-open WebSocket connections from that IP.
     private readonly ConcurrentDictionary<string, int> _connByIp = new();
+    // IP → number of rooms currently hosted by that IP.
+    private readonly ConcurrentDictionary<string, int> _roomsByIp = new();
 
     private readonly System.Timers.Timer _sweepTimer;
 
     public RelayServer()
     {
-        _sweepTimer = new System.Timers.Timer(TimeSpan.FromMinutes(2)) { AutoReset = true };
+        // M-4: sweep every 30 s so stale rooms are reaped within one TTL period, not two.
+        _sweepTimer = new System.Timers.Timer(TimeSpan.FromSeconds(30)) { AutoReset = true };
         _sweepTimer.Elapsed += (_, _) => Sweep();
         _sweepTimer.Start();
     }
@@ -89,6 +94,15 @@ internal sealed class RelayServer
                 return;
             }
 
+            // --- C-2: Per-IP room creation cap ---
+            var ipRoomCount = _roomsByIp.AddOrUpdate(remoteIp, 1, (_, c) => c + 1);
+            if (ipRoomCount > MaxRoomsPerIp)
+            {
+                _roomsByIp.AddOrUpdate(remoteIp, 0, (_, c) => Math.Max(0, c - 1));
+                await CloseAsync(ws, WebSocketCloseStatus.PolicyViolation, "Too many rooms from this IP", ct);
+                return;
+            }
+
             var room = new RelayRoom(token, ws);
             _rooms[token] = room;
             try
@@ -99,6 +113,7 @@ internal sealed class RelayServer
             finally
             {
                 _rooms.TryRemove(token, out _);
+                _roomsByIp.AddOrUpdate(remoteIp, 0, (_, c) => Math.Max(0, c - 1));
             }
         }
         else if (type == SemaBuzzRelayPacketType.JoinDial)
@@ -132,6 +147,9 @@ internal sealed class RelayServer
     private static async Task ForwardLoopAsync(WebSocket ws, RelayRoom room, CancellationToken ct)
     {
         var buf = new byte[65_536];
+        // H-1: sliding 1-second window to cap sustained bandwidth per session.
+        long windowBytes = 0;
+        var  windowStart = DateTime.UtcNow;
         try
         {
             while (!ct.IsCancellationRequested && ws.State == WebSocketState.Open)
@@ -142,6 +160,16 @@ internal sealed class RelayServer
                 catch { break; }
 
                 if (recv.MessageType == WebSocketMessageType.Close) break;
+
+                // H-1: reset window each second; terminate session if sustained rate exceeds cap.
+                var now = DateTime.UtcNow;
+                if ((now - windowStart).TotalSeconds >= 1.0) { windowBytes = 0; windowStart = now; }
+                windowBytes += recv.Count;
+                if (windowBytes > BwCapBytesPerSec)
+                {
+                    await CloseAsync(ws, WebSocketCloseStatus.PolicyViolation, "Bandwidth limit exceeded", ct);
+                    return;
+                }
 
                 room.Touch();
                 var frame = buf.AsMemory(0, recv.Count);

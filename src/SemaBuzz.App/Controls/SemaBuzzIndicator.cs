@@ -77,7 +77,7 @@ public sealed class SemaBuzzIndicator : UserControl
     }
 
     /// <summary>
-    /// Energize the filament with an incoming packet intensity (0â€“255).
+    /// Energize the filament with an incoming packet intensity (0–255).
     /// Sensitivity scales how aggressively the amplitude responds.
     /// Must be called on the UI thread.
     /// </summary>
@@ -119,8 +119,16 @@ public sealed class SemaBuzzIndicator : UserControl
         else
             _currentAmplitude *= DecayRate;
 
-        var width  = ActualWidth  > 4 ? ActualWidth  : 300;
-        var height = ActualHeight > 4 ? ActualHeight : 40;
+        double width;
+        if (ActualWidth > 4)
+            width = ActualWidth;
+        else
+            width = 300;
+        double height;
+        if (ActualHeight > 4)
+            height = ActualHeight;
+        else
+            height = 40;
         var midY   = height / 2.0;
 
         var points = new PointCollection(WavePoints);

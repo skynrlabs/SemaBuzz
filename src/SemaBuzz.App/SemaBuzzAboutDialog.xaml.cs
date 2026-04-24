@@ -12,7 +12,10 @@ public partial class SemaBuzzAboutDialog : Window
         InitializeComponent();
 
         var ver = Assembly.GetExecutingAssembly().GetName().Version;
-        VersionLabel.Text = ver is null ? "Version 1.0" : $"Version {ver.Major}.{ver.Minor}.{ver.Build}";
+        if (ver is null)
+            VersionLabel.Text = "Version 1.0";
+        else
+            VersionLabel.Text = $"Version {ver.Major}.{ver.Minor}.{ver.Build}";
     }
 
     protected override void OnSourceInitialized(EventArgs e)

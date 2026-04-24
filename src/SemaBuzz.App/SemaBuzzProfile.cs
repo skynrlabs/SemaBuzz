@@ -12,8 +12,15 @@ public sealed class SemaBuzzProfile
     public string? AvatarBase64 { get; set; }
 
     [JsonIgnore]
-    public byte[]? AvatarPng =>
-        AvatarBase64 is null ? null : Convert.FromBase64String(AvatarBase64);
+    public byte[]? AvatarPng
+    {
+        get
+        {
+            if (AvatarBase64 is null)
+                return null;
+            return Convert.FromBase64String(AvatarBase64);
+        }
+    }
 }
 
 /// <summary>Loads and saves profiles to %APPDATA%\SemaBuzz\profiles.json.</summary>
@@ -30,8 +37,11 @@ public static class SemaBuzzProfileStore
         try
         {
             if (!File.Exists(_path)) return [];
-            return JsonSerializer.Deserialize<List<SemaBuzzProfile>>(
-                File.ReadAllText(_path), _opts) ?? [];
+            var loaded = JsonSerializer.Deserialize<List<SemaBuzzProfile>>(
+                File.ReadAllText(_path), _opts);
+            if (loaded != null)
+                return loaded;
+            return [];
         }
         catch { return []; }
     }

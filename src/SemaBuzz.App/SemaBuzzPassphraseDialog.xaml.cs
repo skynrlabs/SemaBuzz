@@ -11,7 +11,7 @@ public partial class SemaBuzzPassphraseDialog : Window
     /// <summary>Optional hint shown as subtitle (e.g. "wrong passphrase  try again").</summary>
     public string? Hint
     {
-        set { if (value != null) HintLabel.Text = $"Â» {value}"; }
+        set { if (value != null) HintLabel.Text = $"» {value}"; }
     }
 
     public SemaBuzzPassphraseDialog()

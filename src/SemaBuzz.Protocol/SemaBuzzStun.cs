@@ -68,8 +68,12 @@ public static class SemaBuzzStun
             try
             {
                 var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
-                var addr      = Array.Find(addresses, a => a.AddressFamily == AddressFamily.InterNetwork)
-                             ?? addresses[0];
+                var ipv4Result = Array.Find(addresses, a => a.AddressFamily == AddressFamily.InterNetwork);
+                IPAddress addr;
+                if (ipv4Result != null)
+                    addr = ipv4Result;
+                else
+                    addr = addresses[0];
                 var serverEp  = new IPEndPoint(addr, port);
 
                 var txId    = new byte[12];
@@ -108,8 +112,12 @@ public static class SemaBuzzStun
     {
         var addresses = await Dns.GetHostAddressesAsync(host, ct);
         // Prefer IPv4 so the mapped address is always IPv4
-        var addr      = Array.Find(addresses, a => a.AddressFamily == AddressFamily.InterNetwork)
-                     ?? addresses[0];
+        var ipv4Result = Array.Find(addresses, a => a.AddressFamily == AddressFamily.InterNetwork);
+        IPAddress addr;
+        if (ipv4Result != null)
+            addr = ipv4Result;
+        else
+            addr = addresses[0];
         var serverEp  = new IPEndPoint(addr, stunPort);
 
         using var udp = new UdpClient(localPort);
@@ -145,7 +153,7 @@ public static class SemaBuzzStun
         return null;
     }
 
-    // Message construction (RFC 5389 Â§6)
+    // Message construction (RFC 5389 §6)
 
     private static byte[] BuildBindingRequest(byte[] txId)
     {
@@ -166,7 +174,7 @@ public static class SemaBuzzStun
         return msg;
     }
 
-    // Response parsing (RFC 5389 Â§7 + Â§15.2)
+    // Response parsing (RFC 5389 §7 + §15.2)
 
     private static IPEndPoint? ParseBindingResponse(byte[] data, byte[] txId)
     {
@@ -177,11 +185,11 @@ public static class SemaBuzzStun
         var type = (ushort)((data[0] << 8) | data[1]);
         if (type != BindingResponse) return null;
 
-        // Magic cookie (bytes 4â€“7)
+        // Magic cookie (bytes 4–7)
         if (data[4] != 0x21 || data[5] != 0x12 || data[6] != 0xA4 || data[7] != 0x42)
             return null;
 
-        // Transaction ID must match what we sent (bytes 8â€“19)
+        // Transaction ID must match what we sent (bytes 8–19)
         for (var i = 0; i < 12; i++)
             if (data[8 + i] != txId[i]) return null;
 
@@ -211,11 +219,13 @@ public static class SemaBuzzStun
         }
 
         // XOR-MAPPED-ADDRESS takes priority over legacy MAPPED-ADDRESS
-        return xorMapped ?? mapped;
+        if (xorMapped != null)
+            return xorMapped;
+        return mapped;
     }
 
     /// <summary>
-    /// RFC 5389 Â§15.2  XOR-MAPPED-ADDRESS
+    /// RFC 5389 §15.2  XOR-MAPPED-ADDRESS
     /// Layout at value offset:
     ///   [0]    reserved
     ///   [1]    family (0x01 = IPv4)
@@ -246,7 +256,7 @@ public static class SemaBuzzStun
     }
 
     /// <summary>
-    /// RFC 3489 Â§11.2.1  MAPPED-ADDRESS (legacy, no XOR)
+    /// RFC 3489 §11.2.1  MAPPED-ADDRESS (legacy, no XOR)
     /// Layout at value offset:
     ///   [0]    reserved
     ///   [1]    family (0x01 = IPv4)

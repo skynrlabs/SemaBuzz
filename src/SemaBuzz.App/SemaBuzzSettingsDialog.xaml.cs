@@ -25,7 +25,10 @@ public partial class SemaBuzzSettingsDialog : Window
 
         // Pre-select current settings
         var s = App.Settings;
-        DefaultPortBox.Text        = s.DefaultListenPort?.ToString() ?? "7070";
+        if (s.DefaultListenPort != null)
+            DefaultPortBox.Text = s.DefaultListenPort.ToString();
+        else
+            DefaultPortBox.Text = "7070";
         SensitivitySlider.Value    = s.IndicatorSensitivity;
         StyleFlicker.IsChecked     = s.IndicatorStyle == IndicatorStyleId.Flicker;
         StylePulse.IsChecked       = s.IndicatorStyle == IndicatorStyleId.Pulse;
@@ -101,9 +104,12 @@ public partial class SemaBuzzSettingsDialog : Window
 
         SelectedIndicatorSensitivity = SensitivitySlider.Value;
 
-        SelectedIndicatorStyle = StylePulse.IsChecked == true ? IndicatorStyleId.Pulse
-                               : StyleWave.IsChecked  == true ? IndicatorStyleId.Wave
-                               :                                IndicatorStyleId.Flicker;
+        if (StylePulse.IsChecked == true)
+            SelectedIndicatorStyle = IndicatorStyleId.Pulse;
+        else if (StyleWave.IsChecked == true)
+            SelectedIndicatorStyle = IndicatorStyleId.Wave;
+        else
+            SelectedIndicatorStyle = IndicatorStyleId.Flicker;
 
         SelectedChatFontSize = FontSizeSlider.Value;
 
@@ -115,9 +121,10 @@ public partial class SemaBuzzSettingsDialog : Window
         SelectedBuzzSoundVolume  = BuzzVolumeSlider.Value;
 
         var relayUri = RelayUriBox.Text.Trim();
-        SelectedRelayUri = SemaBuzzLicense.IsProUnlocked && !string.IsNullOrWhiteSpace(relayUri)
-            ? relayUri
-            : SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+        if (SemaBuzzLicense.IsProUnlocked && !string.IsNullOrWhiteSpace(relayUri))
+            SelectedRelayUri = relayUri;
+        else
+            SelectedRelayUri = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
         DialogResult = true;
     }

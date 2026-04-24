@@ -34,11 +34,13 @@ public sealed class SemaBuzzStreamer
         var intensity = ComputeIntensity(intervalMs);
         var seq    = NextSequence();
         var packet = new SemaBuzzPacket(character, intensity, SemaBuzzPacketType.Char, seq);
-        PacketReady?.Invoke(this, new SemaBuzzPacketEventArgs(packet));
+        var packetHandler = PacketReady;
+        if (packetHandler != null)
+            packetHandler(this, new SemaBuzzPacketEventArgs(packet));
     }
 
     /// <summary>
-    /// Map a keystroke interval to a 0â€“255 intensity byte.
+    /// Map a keystroke interval to a 0–255 intensity byte.
     /// Short interval (fast typing)  high intensity.
     /// Long interval (slow typing)   low intensity.
     /// </summary>
