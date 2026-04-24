@@ -15,15 +15,15 @@ public static class SemaBuzzKeyExchange
 {
     private const byte MagicByte1 = 0x4B; // 'K'
     private const byte MagicByte2 = 0x45; // 'E'
-    private const byte Version    = 0x01;
+    private const byte Version = 0x01;
 
-    private const int HeaderSize  = 5;   // 2 magic + 1 version + 2 length
+    private const int HeaderSize = 5;   // 2 magic + 1 version + 2 length
     private const int MaxKeyBytes = 512; // plenty for any SubjectPublicKeyInfo blob
 
     public static bool IsKeyExchangePacket(byte[] data) =>
         data.Length >= HeaderSize &&
-        data[0] == MagicByte1    &&
-        data[1] == MagicByte2    &&
+        data[0] == MagicByte1 &&
+        data[1] == MagicByte2 &&
         data[2] == Version;
 
     /// <summary>Serialize a public key blob into a KE wire packet.</summary>
@@ -35,7 +35,7 @@ public static class SemaBuzzKeyExchange
         buf[1] = MagicByte2;
         buf[2] = Version;
         buf[3] = (byte)((len >> 8) & 0xFF);
-        buf[4] = (byte)(len        & 0xFF);
+        buf[4] = (byte)(len & 0xFF);
         publicKeyBytes.CopyTo(buf, HeaderSize);
         return buf;
     }

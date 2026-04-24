@@ -37,7 +37,7 @@ public sealed class SemaBuzzWireStateEventArgs(SemaBuzzWireState state, string? 
 /// </summary>
 public sealed class SemaBuzzMetadataEventArgs(string handle, byte[]? avatarPng) : EventArgs
 {
-    public string  Handle    { get; } = handle;
+    public string Handle { get; } = handle;
     public byte[]? AvatarPng { get; } = avatarPng;
 }
 
@@ -47,8 +47,8 @@ public sealed class SemaBuzzMetadataEventArgs(string handle, byte[]? avatarPng) 
 public sealed class SemaBuzzImageChunkEventArgs(
     byte transferId, ushort chunkIdx, ushort total, byte[] data) : EventArgs
 {
-    public byte   TransferId { get; } = transferId;
-    public ushort ChunkIdx   { get; } = chunkIdx;
-    public ushort Total      { get; } = total;
-    public byte[] Data       { get; } = data;
+    public byte TransferId { get; } = transferId;
+    public ushort ChunkIdx { get; } = chunkIdx;
+    public ushort Total { get; } = total;
+    public byte[] Data { get; } = data;
 }

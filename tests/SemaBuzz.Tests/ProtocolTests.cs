@@ -14,20 +14,20 @@ public class SemaBuzzPacketTests
     public void RoundTrip_PreservesAllFields()
     {
         var original = new SemaBuzzPacket('Z', 200, SemaBuzzPacketType.Char, seqNum: 42);
-        var bytes    = original.ToWireBytes();
-        var decoded  = SemaBuzzPacket.FromWireBytes(bytes);
+        var bytes = original.ToWireBytes();
+        var decoded = SemaBuzzPacket.FromWireBytes(bytes);
 
         Assert.NotNull(decoded);
-        Assert.Equal('Z',                   decoded!.Value.Character);
-        Assert.Equal(200,                   decoded!.Value.Intensity);
+        Assert.Equal('Z', decoded!.Value.Character);
+        Assert.Equal(200, decoded!.Value.Intensity);
         Assert.Equal(SemaBuzzPacketType.Char, decoded!.Value.Type);
-        Assert.Equal((ushort)42,            decoded!.Value.SeqNum);
+        Assert.Equal((ushort)42, decoded!.Value.SeqNum);
     }
 
     [Fact]
     public void WireSize_Is8Bytes()
     {
-        var pkt   = new SemaBuzzPacket('A', 128);
+        var pkt = new SemaBuzzPacket('A', 128);
         var bytes = pkt.ToWireBytes();
         Assert.Equal(SemaBuzzPacket.WireSize, bytes.Length);
     }
@@ -52,7 +52,7 @@ public class SemaBuzzPacketTests
     [InlineData(' ')]
     public void RoundTrip_UnicodeCharacters(char ch)
     {
-        var pkt     = new SemaBuzzPacket(ch, 0);
+        var pkt = new SemaBuzzPacket(ch, 0);
         var decoded = SemaBuzzPacket.FromWireBytes(pkt.ToWireBytes());
         Assert.Equal(ch, decoded!.Value.Character);
     }
@@ -67,10 +67,10 @@ public class SemaBuzzKeyExchangeTests
     [Fact]
     public void RoundTrip_RealEcdhPublicKey()
     {
-        using var ecdh   = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
-        var keyBytes     = ecdh.PublicKey.ExportSubjectPublicKeyInfo();
-        var wire         = SemaBuzzKeyExchange.Serialize(keyBytes);
-        var decoded      = SemaBuzzKeyExchange.Deserialize(wire);
+        using var ecdh = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
+        var keyBytes = ecdh.PublicKey.ExportSubjectPublicKeyInfo();
+        var wire = SemaBuzzKeyExchange.Serialize(keyBytes);
+        var decoded = SemaBuzzKeyExchange.Deserialize(wire);
 
         Assert.NotNull(decoded);
         Assert.Equal(keyBytes, decoded);
@@ -100,10 +100,10 @@ public class SemaBuzzShieldTests
     [Fact]
     public void EncryptDecrypt_RoundTrip()
     {
-        using var shield  = new SemaBuzzShield(RandomKey());
-        var plaintext     = new SemaBuzzPacket('H', 99).ToWireBytes();
-        var ciphertext    = shield.Encrypt(plaintext);
-        var recovered     = shield.Decrypt(ciphertext);
+        using var shield = new SemaBuzzShield(RandomKey());
+        var plaintext = new SemaBuzzPacket('H', 99).ToWireBytes();
+        var ciphertext = shield.Encrypt(plaintext);
+        var recovered = shield.Decrypt(ciphertext);
 
         Assert.NotNull(recovered);
         Assert.Equal(plaintext, recovered);
@@ -121,10 +121,10 @@ public class SemaBuzzShieldTests
     [Fact]
     public void TwoShields_SameKey_CrossDecrypt()
     {
-        var key    = RandomKey();
+        var key = RandomKey();
         using var a = new SemaBuzzShield((byte[])key.Clone());
         using var b = new SemaBuzzShield(key);
-        var plain  = new byte[] { 42, 43, 44 };
+        var plain = new byte[] { 42, 43, 44 };
         Assert.Equal(plain, b.Decrypt(a.Encrypt(plain)));
     }
 
@@ -132,17 +132,17 @@ public class SemaBuzzShieldTests
     public void FromEcdhSecret_ProducesWorkingShield()
     {
         using var alice = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
-        using var bob   = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
+        using var bob = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
 
         var aliceSecret = alice.DeriveRawSecretAgreement(bob.PublicKey);
-        var bobSecret   = bob.DeriveRawSecretAgreement(alice.PublicKey);
+        var bobSecret = bob.DeriveRawSecretAgreement(alice.PublicKey);
 
         // HKDF must produce the same key from the same raw secret
         using var shieldA = SemaBuzzShield.FromEcdhSecret(aliceSecret);
         using var shieldB = SemaBuzzShield.FromEcdhSecret(bobSecret);
 
         var plain = new SemaBuzzPacket('X', 0).ToWireBytes();
-        var ct    = shieldA.Encrypt(plain);
+        var ct = shieldA.Encrypt(plain);
         Assert.Equal(plain, shieldB.Decrypt(ct));
     }
 }
@@ -157,7 +157,7 @@ public class SemaBuzzRelayPacketTests
     public void BuildAndParse_RoundTrip()
     {
         var token = SemaBuzzRelayPacket.GenerateToken();
-        var wire  = SemaBuzzRelayPacket.Build(SemaBuzzRelayPacketType.JoinHost, token);
+        var wire = SemaBuzzRelayPacket.Build(SemaBuzzRelayPacketType.JoinHost, token);
         var parsed = SemaBuzzRelayPacket.Parse(wire);
 
         Assert.NotNull(parsed);

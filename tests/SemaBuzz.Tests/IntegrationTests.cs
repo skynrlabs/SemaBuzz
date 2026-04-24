@@ -22,15 +22,15 @@ public class FullSessionTests
     {
         // ── Key exchange ──────────────────────────────────────────────────────
         using var alice = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
-        using var bob   = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
+        using var bob = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
 
         var aliceWire = SemaBuzzKeyExchange.Serialize(
             alice.PublicKey.ExportSubjectPublicKeyInfo());
-        var bobWire   = SemaBuzzKeyExchange.Serialize(
+        var bobWire = SemaBuzzKeyExchange.Serialize(
             bob.PublicKey.ExportSubjectPublicKeyInfo());
 
         var alicePubBytes = SemaBuzzKeyExchange.Deserialize(aliceWire)!;
-        var bobPubBytes   = SemaBuzzKeyExchange.Deserialize(bobWire)!;
+        var bobPubBytes = SemaBuzzKeyExchange.Deserialize(bobWire)!;
 
         using var alicePub = ECDiffieHellman.Create();
         alicePub.ImportSubjectPublicKeyInfo(alicePubBytes, out _);
@@ -41,15 +41,15 @@ public class FullSessionTests
         // ── Derive session shields ────────────────────────────────────────────
         using var shieldAlice = SemaBuzzShield.FromEcdhSecret(
             alice.DeriveRawSecretAgreement(bobPub.PublicKey));
-        using var shieldBob   = SemaBuzzShield.FromEcdhSecret(
+        using var shieldBob = SemaBuzzShield.FromEcdhSecret(
             bob.DeriveRawSecretAgreement(alicePub.PublicKey));
 
         // ── Exchange 100 packets Alice → Bob ──────────────────────────────────
         for (int i = 0; i < 100; i++)
         {
-            var plain  = new SemaBuzzPacket((char)('A' + (i % 26)), (byte)(i % 256),
+            var plain = new SemaBuzzPacket((char)('A' + (i % 26)), (byte)(i % 256),
                                             SemaBuzzPacketType.Char, (ushort)i).ToWireBytes();
-            var ct        = shieldAlice.Encrypt(plain);
+            var ct = shieldAlice.Encrypt(plain);
             var recovered = shieldBob.Decrypt(ct);
 
             Assert.NotNull(recovered);
@@ -59,9 +59,9 @@ public class FullSessionTests
         // ── Exchange 100 packets Bob → Alice ──────────────────────────────────
         for (int i = 0; i < 100; i++)
         {
-            var plain  = new SemaBuzzPacket((char)('a' + (i % 26)), (byte)(i % 256),
+            var plain = new SemaBuzzPacket((char)('a' + (i % 26)), (byte)(i % 256),
                                             SemaBuzzPacketType.Char, (ushort)i).ToWireBytes();
-            var ct        = shieldBob.Encrypt(plain);
+            var ct = shieldBob.Encrypt(plain);
             var recovered = shieldAlice.Decrypt(ct);
 
             Assert.NotNull(recovered);
@@ -88,7 +88,7 @@ public class FullSessionTests
         RandomNumberGenerator.Fill(key);
         using var shield = new SemaBuzzShield(key);
 
-        var ciphertext    = shield.Encrypt(wire);
+        var ciphertext = shield.Encrypt(wire);
         var decryptedWire = shield.Decrypt(ciphertext);
 
         Assert.NotNull(decryptedWire);
@@ -116,8 +116,8 @@ public class FullSessionTests
 
         for (int i = 0; i < 50; i++)
         {
-            var plain     = new SemaBuzzPacket((char)('A' + (i % 26)), 128).ToWireBytes();
-            var ct        = shieldA.Encrypt(plain);
+            var plain = new SemaBuzzPacket((char)('A' + (i % 26)), 128).ToWireBytes();
+            var ct = shieldA.Encrypt(plain);
             var recovered = shieldB.Decrypt(ct);
 
             Assert.NotNull(recovered);
@@ -136,7 +136,7 @@ public class FullSessionTests
     public void Streamer_SimulatedKeystrokes_ProducesValidPacketSequence()
     {
         var streamer = new SemaBuzzStreamer();
-        var packets  = new List<SemaBuzzPacket>();
+        var packets = new List<SemaBuzzPacket>();
 
         streamer.PacketReady += (_, e) => packets.Add(e.Packet);
 

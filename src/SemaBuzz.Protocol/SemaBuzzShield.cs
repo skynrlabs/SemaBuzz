@@ -35,11 +35,11 @@ public sealed class SemaBuzzShield : IDisposable
     public static SemaBuzzShield FromPassphrase(string passphrase)
     {
         var rawKey = System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(
-            password:        System.Text.Encoding.UTF8.GetBytes(passphrase),
-            salt:            System.Text.Encoding.UTF8.GetBytes("SemaBuzz-wire-v1"),
-            iterations:      600_000,
-            hashAlgorithm:   System.Security.Cryptography.HashAlgorithmName.SHA256,
-            outputLength:    KeySize);
+            password: System.Text.Encoding.UTF8.GetBytes(passphrase),
+            salt: System.Text.Encoding.UTF8.GetBytes("SemaBuzz-wire-v1"),
+            iterations: 600_000,
+            hashAlgorithm: System.Security.Cryptography.HashAlgorithmName.SHA256,
+            outputLength: KeySize);
         return new SemaBuzzShield(rawKey);
     }
 
@@ -51,13 +51,13 @@ public sealed class SemaBuzzShield : IDisposable
     {
         var key = System.Security.Cryptography.HKDF.DeriveKey(
             hashAlgorithmName: System.Security.Cryptography.HashAlgorithmName.SHA256,
-            ikm:               rawSharedSecret,
-            outputLength:      KeySize,
-            salt:              "SemaBuzz-ecdh-v2"u8.ToArray(),
+            ikm: rawSharedSecret,
+            outputLength: KeySize,
+            salt: "SemaBuzz-ecdh-v2"u8.ToArray(),
             // M-1: non-empty info binds this key to its specific use-case (AES-256-GCM session
             // encryption). If a second key is ever derived from the same ECDH secret the
             // different info string guarantees domain separation and prevents key reuse.
-            info:              "SemaBuzz-aes256gcm-session-v1"u8.ToArray());
+            info: "SemaBuzz-aes256gcm-session-v1"u8.ToArray());
         System.Security.Cryptography.CryptographicOperations.ZeroMemory(rawSharedSecret);
         return new SemaBuzzShield(key);
     }

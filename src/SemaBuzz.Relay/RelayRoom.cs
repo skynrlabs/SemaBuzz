@@ -10,33 +10,33 @@ namespace SemaBuzz.Relay;
 /// </summary>
 internal sealed class RelayRoom
 {
-    private readonly SemaphoreSlim  _hostLock   = new(1, 1);
-    private          SemaphoreSlim? _dialerLock;
+    private readonly SemaphoreSlim _hostLock = new(1, 1);
+    private SemaphoreSlim? _dialerLock;
 
-    public string     Token      { get; }
-    public WebSocket  HostWs     { get; }
-    public WebSocket? DialerWs   { get; private set; }
-    public DateTime   LastActive { get; private set; } = DateTime.UtcNow;
-    public bool       IsPaired   => DialerWs != null;
+    public string Token { get; }
+    public WebSocket HostWs { get; }
+    public WebSocket? DialerWs { get; private set; }
+    public DateTime LastActive { get; private set; } = DateTime.UtcNow;
+    public bool IsPaired => DialerWs != null;
 
     // External UDP endpoints received via PunchReady frames.
-    public IPEndPoint? HostExternalEp   { get; private set; }
+    public IPEndPoint? HostExternalEp { get; private set; }
     public IPEndPoint? DialerExternalEp { get; private set; }
 
     public RelayRoom(string token, WebSocket hostWs)
     {
-        Token  = token;
+        Token = token;
         HostWs = hostWs;
     }
 
     public void SetDialer(WebSocket ws)
     {
-        DialerWs    = ws;
+        DialerWs = ws;
         _dialerLock = new SemaphoreSlim(1, 1);
         Touch();
     }
 
-    public void SetHostExternalEp(IPEndPoint ep)   => HostExternalEp   = ep;
+    public void SetHostExternalEp(IPEndPoint ep) => HostExternalEp = ep;
     public void SetDialerExternalEp(IPEndPoint ep) => DialerExternalEp = ep;
 
     public void Touch() => LastActive = DateTime.UtcNow;
@@ -71,7 +71,7 @@ internal sealed class RelayRoom
     /// <summary>Forward data from <paramref name="from"/> to the other peer.</summary>
     public Task ForwardToAsync(WebSocket from, ReadOnlyMemory<byte> data, CancellationToken ct)
     {
-        if (ReferenceEquals(from, HostWs))   return SendToDialerAsync(data, ct);
+        if (ReferenceEquals(from, HostWs)) return SendToDialerAsync(data, ct);
         if (ReferenceEquals(from, DialerWs)) return SendToHostAsync(data, ct);
         return Task.CompletedTask;
     }

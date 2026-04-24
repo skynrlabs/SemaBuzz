@@ -22,10 +22,10 @@ namespace SemaBuzz.Protocol;
 public static class SemaBuzzPunchThrough
 {
     private static readonly TimeSpan PunchProbeInterval = TimeSpan.FromMilliseconds(200);
-    private const int  PunchMagic     = 0x42_5A; // 'BZ' — used to distinguish probe from wire traffic
-    private const int  PunchProbeSize = 4;
+    private const int PunchMagic = 0x42_5A; // 'BZ' — used to distinguish probe from wire traffic
+    private const int PunchProbeSize = 4;
     private static readonly byte[] PunchProbe = [0x42, 0x5A, 0x01, 0x00]; // probe
-    private static readonly byte[] PunchAck   = [0x42, 0x5A, 0x01, 0x01]; // reply
+    private static readonly byte[] PunchAck = [0x42, 0x5A, 0x01, 0x01]; // reply
 
     public static bool IsPunchProbe(byte[] data) =>
         data.Length == PunchProbeSize && data[0] == 0x42 && data[1] == 0x5A && data[2] == 0x01 && data[3] == 0x00;
@@ -40,9 +40,9 @@ public static class SemaBuzzPunchThrough
     /// <paramref name="timeout"/>.
     /// </summary>
     public static async Task<IPEndPoint?> TryAsync(
-        UdpClient    udp,
-        IPEndPoint   peerEp,
-        TimeSpan     timeout,
+        UdpClient udp,
+        IPEndPoint peerEp,
+        TimeSpan timeout,
         CancellationToken ct = default)
     {
         using var innerCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -72,7 +72,7 @@ public static class SemaBuzzPunchThrough
     /// Returns the peer's endpoint on success, null on cancellation.
     /// </summary>
     private static async Task<IPEndPoint?> ReceivePunchReplyAsync(
-        UdpClient  udp,
+        UdpClient udp,
         IPEndPoint expectedPeer,
         CancellationToken ct)
     {
@@ -85,7 +85,7 @@ public static class SemaBuzzPunchThrough
                 try { result = await udp.ReceiveAsync(ct); }
                 catch { break; }
 
-                var data     = result.Buffer;
+                var data = result.Buffer;
                 var remoteEp = result.RemoteEndPoint;
 
                 // Only accept punch traffic from the expected peer address.

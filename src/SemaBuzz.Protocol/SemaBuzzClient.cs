@@ -13,7 +13,7 @@ namespace SemaBuzz.Protocol;
 /// </summary>
 public sealed class SemaBuzzClient : IDisposable
 {
-    private UdpClient?     _udp;
+    private UdpClient? _udp;
     private ClientWebSocket? _wsClient;          // non-null when in WebSocket relay mode
     private Func<byte[], Task>? _wsSend;          // send delegate set after relay pairing
     private readonly SemaphoreSlim _wsSendLock = new(1, 1); // serializes concurrent ws.SendAsync calls
@@ -22,16 +22,16 @@ public sealed class SemaBuzzClient : IDisposable
     private bool _disposed;
     private string? _lastStateMessage;
 
-    private static readonly TimeSpan HandshakeTimeout   = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan HandshakeTimeout = TimeSpan.FromSeconds(20);
     private const int MaxBatchPacketsPerSend = 8;
     private static readonly TimeSpan ApprovalWaitTimeout = TimeSpan.FromSeconds(60);
 
-    public event EventHandler<SemaBuzzPacketEventArgs>?    PacketReceived;
+    public event EventHandler<SemaBuzzPacketEventArgs>? PacketReceived;
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
-    public event EventHandler<SemaBuzzMetadataEventArgs>?   MetadataReceived;
+    public event EventHandler<SemaBuzzMetadataEventArgs>? MetadataReceived;
 
-    public SemaBuzzWireState State  { get; private set; } = SemaBuzzWireState.Cold;
-    public SemaBuzzShield?   Shield { get; private set; }
+    public SemaBuzzWireState State { get; private set; } = SemaBuzzWireState.Cold;
+    public SemaBuzzShield? Shield { get; private set; }
 
     private volatile bool _waitingForApproval;
 
@@ -69,9 +69,9 @@ public sealed class SemaBuzzClient : IDisposable
         SetState(SemaBuzzWireState.Warming, $"Dialing {host}:{port}...");
 
         // Start receive loop BEFORE sending so the ACK is never missed.
-        var receiveTask    = ReceiveLoopAsync(localEcdh, _cts.Token);
-        var keepaliveTask  = KeepaliveLoopAsync(_cts.Token);
-        var timeoutTask    = HandshakeTimeoutAsync(_cts.Token);
+        var receiveTask = ReceiveLoopAsync(localEcdh, _cts.Token);
+        var keepaliveTask = KeepaliveLoopAsync(_cts.Token);
+        var timeoutTask = HandshakeTimeoutAsync(_cts.Token);
         var retransmitTask = HandshakeRetransmitAsync(localPubKeyBytes, _cts.Token);
 
         // Send our public key to the host — this IS the handshake initiation.
@@ -93,7 +93,7 @@ public sealed class SemaBuzzClient : IDisposable
         using var localEcdh = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
         var localPubKeyBytes = localEcdh.PublicKey.ExportSubjectPublicKeyInfo();
 
-        _cts      = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _wsClient = new ClientWebSocket();
 
         try { await _wsClient.ConnectAsync(new Uri(relayUri), _cts.Token); }
@@ -139,7 +139,7 @@ public sealed class SemaBuzzClient : IDisposable
         }
 
         // ── STUN / UDP hole-punch attempt ─────────────────────────────────────────
-        UdpClient? directUdp     = null;
+        UdpClient? directUdp = null;
         IPEndPoint? peerDirectEp = null;
         try
         {
@@ -179,8 +179,8 @@ public sealed class SemaBuzzClient : IDisposable
                     if (directEp != null)
                     {
                         // Direct path confirmed — switch to UDP.
-                        _udp      = directUdp;
-                        _peer     = directEp;
+                        _udp = directUdp;
+                        _peer = directEp;
                         directUdp = null;
                         _udp.Connect(_peer);
 
@@ -190,10 +190,10 @@ public sealed class SemaBuzzClient : IDisposable
 
                         SetState(SemaBuzzWireState.Warming, "Direct UDP — completing handshake...");
 
-                        var rcvTask   = ReceiveLoopAsync(localEcdh, _cts.Token);
-                        var kaTask    = KeepaliveLoopAsync(_cts.Token);
-                        var toTask    = HandshakeTimeoutAsync(_cts.Token);
-                        var rtTask    = HandshakeRetransmitAsync(localPubKeyBytes, _cts.Token);
+                        var rcvTask = ReceiveLoopAsync(localEcdh, _cts.Token);
+                        var kaTask = KeepaliveLoopAsync(_cts.Token);
+                        var toTask = HandshakeTimeoutAsync(_cts.Token);
+                        var rtTask = HandshakeRetransmitAsync(localPubKeyBytes, _cts.Token);
 
                         await _udp.SendAsync(SemaBuzzKeyExchange.Serialize(localPubKeyBytes));
                         await Task.WhenAll(rcvTask, kaTask, toTask, rtTask);
@@ -228,9 +228,9 @@ public sealed class SemaBuzzClient : IDisposable
 
         SetState(SemaBuzzWireState.Warming, "Relay paired \u2014 completing handshake...");
 
-        var receiveTask    = WsReceiveLoopAsync(ws, localEcdh, _cts.Token);
-        var keepaliveTask  = KeepaliveLoopAsync(_cts.Token);
-        var timeoutTask    = HandshakeTimeoutAsync(_cts.Token);
+        var receiveTask = WsReceiveLoopAsync(ws, localEcdh, _cts.Token);
+        var keepaliveTask = KeepaliveLoopAsync(_cts.Token);
+        var timeoutTask = HandshakeTimeoutAsync(_cts.Token);
         var retransmitTask = HandshakeRetransmitAsync(localPubKeyBytes, _cts.Token);
 
         await _wsSend(SemaBuzzKeyExchange.Serialize(localPubKeyBytes));
@@ -319,12 +319,12 @@ public sealed class SemaBuzzClient : IDisposable
 
                         case SemaBuzzPacketType.Buzz:
                         case SemaBuzzPacketType.Char:
-                        {
-                            var packetHandler = PacketReceived;
-                            if (packetHandler != null)
-                                packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
-                            break;
-                        }
+                            {
+                                var packetHandler = PacketReceived;
+                                if (packetHandler != null)
+                                    packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
+                                break;
+                            }
                     }
                 }
             }
@@ -370,7 +370,7 @@ public sealed class SemaBuzzClient : IDisposable
             while (!ct.IsCancellationRequested)
             {
                 var result = await _udp!.ReceiveAsync(ct);
-                var data   = result.Buffer;
+                var data = result.Buffer;
 
                 // Reject implausible sizes immediately
                 const int MaxPayload = 16_384;
@@ -419,7 +419,7 @@ public sealed class SemaBuzzClient : IDisposable
                 for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length;
                          offset += SemaBuzzPacket.WireSize)
                 {
-                    var frame  = data[offset..(offset + SemaBuzzPacket.WireSize)];
+                    var frame = data[offset..(offset + SemaBuzzPacket.WireSize)];
                     var packet = SemaBuzzPacket.FromWireBytes(frame);
                     if (packet == null) break; // bad frame
 
@@ -452,12 +452,12 @@ public sealed class SemaBuzzClient : IDisposable
 
                         case SemaBuzzPacketType.Buzz:
                         case SemaBuzzPacketType.Char:
-                        {
-                            var packetHandler = PacketReceived;
-                            if (packetHandler != null)
-                                packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
-                            break;
-                        }
+                            {
+                                var packetHandler = PacketReceived;
+                                if (packetHandler != null)
+                                    packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
+                                break;
+                            }
                     }
                 }
             }

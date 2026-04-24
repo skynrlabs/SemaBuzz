@@ -23,11 +23,11 @@ public static class SemaBuzzStun
         ("stun.cloudflare.com",  3478),
     ];
 
-    private const uint   MagicCookie      = 0x2112_A442;
-    private const ushort BindingRequest   = 0x0001;
-    private const ushort BindingResponse  = 0x0101;
-    private const ushort AttrXorMapped    = 0x0020; // RFC 5389
-    private const ushort AttrMapped       = 0x0001; // RFC 3489 compat
+    private const uint MagicCookie = 0x2112_A442;
+    private const ushort BindingRequest = 0x0001;
+    private const ushort BindingResponse = 0x0101;
+    private const ushort AttrXorMapped = 0x0020; // RFC 5389
+    private const ushort AttrMapped = 0x0001; // RFC 3489 compat
 
     /// <summary>
     /// Query each configured STUN server in turn.
@@ -74,9 +74,9 @@ public static class SemaBuzzStun
                     addr = ipv4Result;
                 else
                     addr = addresses[0];
-                var serverEp  = new IPEndPoint(addr, port);
+                var serverEp = new IPEndPoint(addr, port);
 
-                var txId    = new byte[12];
+                var txId = new byte[12];
                 var request = new byte[20];
                 for (var attempt = 0; attempt < 3; attempt++)
                 {
@@ -90,7 +90,7 @@ public static class SemaBuzzStun
                     try
                     {
                         var result = await udp.ReceiveAsync(cts.Token);
-                        var ep     = ParseBindingResponse(result.Buffer, txId);
+                        var ep = ParseBindingResponse(result.Buffer, txId);
                         if (ep != null) return ep;
                     }
                     catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
@@ -118,13 +118,13 @@ public static class SemaBuzzStun
             addr = ipv4Result;
         else
             addr = addresses[0];
-        var serverEp  = new IPEndPoint(addr, stunPort);
+        var serverEp = new IPEndPoint(addr, stunPort);
 
         using var udp = new UdpClient(localPort);
         udp.Connect(serverEp);
 
         // Build a fresh transaction ID for each attempt
-        var txId    = new byte[12];
+        var txId = new byte[12];
         var request = BuildBindingRequest(txId);
 
         // Up to 3 attempts with a 2-second per-attempt timeout (RFC recommends Rc=7,
@@ -137,11 +137,11 @@ public static class SemaBuzzStun
             await udp.SendAsync(request, ct);
 
             using var attemptCts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-            using var linked     = CancellationTokenSource.CreateLinkedTokenSource(ct, attemptCts.Token);
+            using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct, attemptCts.Token);
             try
             {
                 var result = await udp.ReceiveAsync(linked.Token);
-                var ep     = ParseBindingResponse(result.Buffer, txId);
+                var ep = ParseBindingResponse(result.Buffer, txId);
                 if (ep != null) return ep;
             }
             catch (OperationCanceledException) when (attemptCts.IsCancellationRequested)
@@ -198,13 +198,13 @@ public static class SemaBuzzStun
 
         // Walk TLV attributes
         IPEndPoint? xorMapped = null;
-        IPEndPoint? mapped    = null;
-        var offset            = 20;
+        IPEndPoint? mapped = null;
+        var offset = 20;
 
         while (offset + 4 <= 20 + bodyLen)
         {
-            var attrType   = (ushort)((data[offset] << 8) | data[offset + 1]);
-            var attrLen    =          (data[offset + 2] << 8) | data[offset + 3];
+            var attrType = (ushort)((data[offset] << 8) | data[offset + 1]);
+            var attrLen = (data[offset + 2] << 8) | data[offset + 3];
             var valueStart = offset + 4;
 
             if (valueStart + attrLen > data.Length) break; // malformed  stop
@@ -237,12 +237,12 @@ public static class SemaBuzzStun
         if (data[offset + 1] != 0x01) return null; // IPv6  not handled
 
         var xorPort = (ushort)((data[offset + 2] << 8) | data[offset + 3]);
-        var port    = (int)(xorPort ^ (MagicCookie >> 16));
+        var port = (int)(xorPort ^ (MagicCookie >> 16));
 
         var xorIp = ((uint)data[offset + 4] << 24)
                   | ((uint)data[offset + 5] << 16)
-                  | ((uint)data[offset + 6] <<  8)
-                  |  (uint)data[offset + 7];
+                  | ((uint)data[offset + 6] << 8)
+                  | (uint)data[offset + 7];
         var rawIp = xorIp ^ MagicCookie;
 
         var ip = new IPAddress(new byte[]
@@ -268,7 +268,7 @@ public static class SemaBuzzStun
         if (data[offset + 1] != 0x01) return null; // IPv6  not handled
 
         var port = (data[offset + 2] << 8) | data[offset + 3];
-        var ip   = new IPAddress(new byte[]
+        var ip = new IPAddress(new byte[]
         {
             data[offset + 4],
             data[offset + 5],
