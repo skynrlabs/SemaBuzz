@@ -1,6 +1,7 @@
 Development.code-workspace
 docker-compose.yml
 PLAN.md
+tools/
 
 # Build outputs
 bin/

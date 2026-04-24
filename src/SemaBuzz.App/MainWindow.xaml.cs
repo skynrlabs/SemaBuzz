@@ -332,12 +332,12 @@ public partial class MainWindow : Window
         BuzzIndicator.IndicatorStyle = App.Settings.IndicatorStyle;
     }
 
-    private void StartListening(int port, CancellationToken ct)
+    private void StartListening(int port, CancellationToken ct, bool clearChat = true)
     {
         _hostingToken    = null;
         _hostingRelayUri = null;
         _hostingPort     = port;
-        ClearChatPanels();
+        if (clearChat) ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
@@ -349,12 +349,12 @@ public partial class MainWindow : Window
         _ = _listener.ListenAsync(port, ct);
     }
 
-    private void StartListeningViaRelay(string token, string relayUri, CancellationToken ct)
+    private void StartListeningViaRelay(string token, string relayUri, CancellationToken ct, bool clearChat = true)
     {
         _hostingToken    = token;
         _hostingRelayUri = relayUri;
         _hostingPort     = 0;
-        ClearChatPanels();
+        if (clearChat) ClearChatPanels();
         ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
@@ -728,6 +728,25 @@ public partial class MainWindow : Window
 
             if (e.State == SemaBuzzWireState.Warming)
             {
+                // If we were in a live session when Warming fired, the peer disconnected
+                // and the listener (TCP/UDP mode) has already resumed listening on the
+                // same port. Show a disconnect divider and reset the live-session chrome.
+                if (InputBox.IsEnabled)
+                {
+                    PlayErrorSound();
+                    TitleSessionLabel.Text       = "NO WIRE";
+                    InputBox.IsEnabled           = false;
+                    SendButton.IsEnabled         = false;
+                    BuzzButton.IsEnabled         = false;
+                    _peerLiveRow                 = null;
+                    _livePeerBlock               = null;
+                    var savedHandle2             = _peerHandle;
+                    _peerHandle                  = "peer";
+                    _peerAvatarPng               = null;
+                    PeerLabel.Text               = string.Empty;
+                    BuzzIndicator.Flatline();
+                    AddChatDivider($"× {savedHandle2} disconnected · resuming...");
+                }
                 DisconnectMenuItem.IsEnabled = true;
                 _warmingCts?.Cancel();
                 _warmingCts = new CancellationTokenSource();
@@ -782,16 +801,13 @@ public partial class MainWindow : Window
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
 
-                // If the peer disconnected and we were the host, resume listening
-                // automatically so the host doesn't have to reconnect manually.
-                if (e.Message == "peer-disconnect" && (_hostingToken != null || _hostingPort > 0))
+                // Relay mode: if the peer disconnected, auto-resume listening.
+                // (TCP/UDP mode re-listens automatically via the Warming transition above.)
+                if (e.Message == "peer-disconnect" && _hostingToken != null)
                 {
                     _listener = null;
                     _cts = new CancellationTokenSource();
-                    if (_hostingToken != null)
-                        StartListeningViaRelay(_hostingToken, _hostingRelayUri!, _cts.Token);
-                    else
-                        StartListening(_hostingPort, _cts.Token);
+                    StartListeningViaRelay(_hostingToken, _hostingRelayUri!, _cts.Token, clearChat: false);
                 }
             }
         });

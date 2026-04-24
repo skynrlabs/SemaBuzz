@@ -21,6 +21,7 @@ public sealed class SemaBuzzListener : IDisposable
     private int _port;
     private bool _disposed;
     private string? _lastStateMessage;
+    private string _pendingDeadMessage = "Wire closed."; // overridden to "peer-disconnect" when peer sends Disconnect
     private byte[]? _localPubKeyBytes; // saved so we can resend on client retransmit
     private ECDiffieHellman? _pendingEcdh;  // set in relay mode so we reuse the initiated key pair
 
@@ -54,6 +55,7 @@ public sealed class SemaBuzzListener : IDisposable
         _cts       = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _wsClient  = new ClientWebSocket();
         _isRelayMode = true;
+        _pendingDeadMessage = "Wire closed.";
 
         try { await _wsClient.ConnectAsync(new Uri(relayUri), _cts.Token); }
         catch (Exception ex)
@@ -163,7 +165,7 @@ public sealed class SemaBuzzListener : IDisposable
                         }
                         catch (OperationCanceledException) { }
                         catch (SocketException) { }
-                        finally { SetState(SemaBuzzWireState.Dead, "Wire closed."); }
+                        finally { SetState(SemaBuzzWireState.Dead, _pendingDeadMessage); }
                         return; // done — skip relay session below
                     }
                 }
@@ -218,7 +220,7 @@ public sealed class SemaBuzzListener : IDisposable
         {
             _wsSend = null;
             _isRelayMode = false;
-            SetState(SemaBuzzWireState.Dead, "Wire closed.");
+            SetState(SemaBuzzWireState.Dead, _pendingDeadMessage);
         }
     }
 
@@ -409,7 +411,10 @@ public sealed class SemaBuzzListener : IDisposable
                     Shield = null;
                     _localPubKeyBytes = null;
                     if (_isRelayMode)
+                    {
+                        _pendingDeadMessage = "peer-disconnect";
                         _cts?.Cancel(); // relay session is one-to-one; close it out
+                    }
                     else
                         SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
                     return;
