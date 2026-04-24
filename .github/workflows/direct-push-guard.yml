@@ -2,7 +2,7 @@ name: Direct Push Guard
 
 on:
   push:
-    branches: [main, dev]
+    branches: [main]
 
 jobs:
   guard:
