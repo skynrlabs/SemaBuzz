@@ -44,8 +44,8 @@ public static class SemaBuzzMetadata
         handleBytes.CopyTo(buf, 4);
 
         var lo = 4 + handleBytes.Length;
-        buf[lo]     = (byte)( imgBytes.Length        & 0xFF);
-        buf[lo + 1] = (byte)((imgBytes.Length >>  8) & 0xFF);
+        buf[lo] = (byte)(imgBytes.Length & 0xFF);
+        buf[lo + 1] = (byte)((imgBytes.Length >> 8) & 0xFF);
         buf[lo + 2] = (byte)((imgBytes.Length >> 16) & 0xFF);
         buf[lo + 3] = (byte)((imgBytes.Length >> 24) & 0xFF);
         imgBytes.CopyTo(buf, lo + 4);
@@ -64,7 +64,7 @@ public static class SemaBuzzMetadata
         if (data.Length < 4 + handleLen + 4) return null;
 
         var handle = Encoding.UTF8.GetString(data, 4, handleLen);
-        var lo     = 4 + handleLen;
+        var lo = 4 + handleLen;
 
         // Read imgLen as uint to avoid signed-integer overflow in the bounds check.
         // The MaxPayload cap in the listener guarantees data.Length <= 16 384, so

@@ -12,11 +12,11 @@ namespace SemaBuzz.Protocol;
 /// </summary>
 public sealed class SemaBuzzListener : IDisposable
 {
-    private UdpClient?       _udp;
-    private ClientWebSocket?  _wsClient;        // non-null when in WebSocket relay mode
+    private UdpClient? _udp;
+    private ClientWebSocket? _wsClient;        // non-null when in WebSocket relay mode
     private Func<byte[], Task>? _wsSend;         // send delegate set after relay pairing
     private readonly SemaphoreSlim _wsSendLock = new(1, 1); // serializes concurrent ws.SendAsync calls
-    private bool              _isRelayMode;      // true when connected via WebSocket relay
+    private bool _isRelayMode;      // true when connected via WebSocket relay
     private CancellationTokenSource? _cts;
     private int _port;
     private bool _disposed;
@@ -25,10 +25,10 @@ public sealed class SemaBuzzListener : IDisposable
     private byte[]? _localPubKeyBytes; // saved so we can resend on client retransmit
     private ECDiffieHellman? _pendingEcdh;  // set in relay mode so we reuse the initiated key pair
 
-    public event EventHandler<SemaBuzzPacketEventArgs>?    PacketReceived;
+    public event EventHandler<SemaBuzzPacketEventArgs>? PacketReceived;
     private const int MaxBatchPacketsPerSend = 8;
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
-    public event EventHandler<SemaBuzzMetadataEventArgs>?   MetadataReceived;
+    public event EventHandler<SemaBuzzMetadataEventArgs>? MetadataReceived;
 
     /// <summary>
     /// Optional async callback invoked when an incoming Handshake arrives.
@@ -52,8 +52,8 @@ public sealed class SemaBuzzListener : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        _cts       = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        _wsClient  = new ClientWebSocket();
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _wsClient = new ClientWebSocket();
         _isRelayMode = true;
         _pendingDeadMessage = "Wire closed.";
 
@@ -98,8 +98,8 @@ public sealed class SemaBuzzListener : IDisposable
         // Send it to the relay via PunchReady; wait up to 5 s for the peer's endpoint
         // (PeerAddress frame), then try direct UDP. If successful we drop the relay.
         // If anything fails we proceed with the relay session transparently.
-        UdpClient? directUdp      = null;
-        IPEndPoint? peerDirectEp  = null;
+        UdpClient? directUdp = null;
+        IPEndPoint? peerDirectEp = null;
         try
         {
             directUdp = new UdpClient(0); // ephemeral port
@@ -139,10 +139,10 @@ public sealed class SemaBuzzListener : IDisposable
                     if (directEp != null)
                     {
                         // Direct path confirmed — switch to UDP socket.
-                        _udp        = directUdp;
-                        directUdp   = null; // ownership transferred
+                        _udp = directUdp;
+                        directUdp = null; // ownership transferred
                         _isRelayMode = false;
-                        _port        = ((System.Net.IPEndPoint)_udp.Client.LocalEndPoint!).Port;
+                        _port = ((System.Net.IPEndPoint)_udp.Client.LocalEndPoint!).Port;
 
                         // Close the relay WebSocket (best effort).
                         try { await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "direct", default); } catch { }
@@ -198,7 +198,7 @@ public sealed class SemaBuzzListener : IDisposable
         _port = 0;
 
         // Host initiates ECDH so web-based dialers (which wait for the host to go first) work.
-        _pendingEcdh      = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
+        _pendingEcdh = ECDiffieHellman.Create(ECCurve.NamedCurves.nistP256);
         _localPubKeyBytes = _pendingEcdh.PublicKey.ExportSubjectPublicKeyInfo();
         await _wsSend(SemaBuzzKeyExchange.Serialize(_localPubKeyBytes));
 
@@ -206,7 +206,7 @@ public sealed class SemaBuzzListener : IDisposable
 
         // Relay dummy endpoint: used as the stand-in remote address in HandleIncomingAsync.
         var relayPeer = new IPEndPoint(IPAddress.Loopback, 0);
-        var dataBuf   = new byte[65_536];
+        var dataBuf = new byte[65_536];
         try
         {
             while (!_cts.Token.IsCancellationRequested && _wsClient!.State == WebSocketState.Open)
@@ -237,8 +237,8 @@ public sealed class SemaBuzzListener : IDisposable
         ObjectDisposedException.ThrowIf(_disposed, this);
 
         _port = port;
-        _udp  = new UdpClient(port);
-        _cts  = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        _udp = new UdpClient(port);
+        _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 
         SetState(SemaBuzzWireState.Warming, $"Listening on port {port}...");
 
@@ -446,12 +446,12 @@ public sealed class SemaBuzzListener : IDisposable
 
                 case SemaBuzzPacketType.Buzz:
                 case SemaBuzzPacketType.Char:
-                {
-                    var packetHandler = PacketReceived;
-                    if (packetHandler != null)
-                        packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
-                    break;
-                }
+                    {
+                        var packetHandler = PacketReceived;
+                        if (packetHandler != null)
+                            packetHandler(this, new SemaBuzzPacketEventArgs(packet.Value));
+                        break;
+                    }
 
                 default:
                     // Unknown or unexpected type  drop silently

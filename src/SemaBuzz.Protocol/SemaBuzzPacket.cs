@@ -23,19 +23,19 @@ public readonly struct SemaBuzzPacket
     /// </summary>
     public const int WireSize = 8;
 
-    public char   Character { get; init; }
-    public byte   Intensity { get; init; }
+    public char Character { get; init; }
+    public byte Intensity { get; init; }
     public SemaBuzzPacketType Type { get; init; }
     /// <summary>Per-sender sequence counter for out-of-order detection.</summary>
-    public ushort SeqNum    { get; init; }
+    public ushort SeqNum { get; init; }
 
     public SemaBuzzPacket(char character, byte intensity,
         SemaBuzzPacketType type = SemaBuzzPacketType.Char, ushort seqNum = 0)
     {
         Character = character;
         Intensity = intensity;
-        Type      = type;
-        SeqNum    = seqNum;
+        Type = type;
+        SeqNum = seqNum;
     }
 
     /// <summary>Serialize to the 8-byte wire format.</summary>
@@ -49,7 +49,7 @@ public readonly struct SemaBuzzPacket
         bytes[4] = Intensity;
         bytes[5] = (byte)Type;
         bytes[6] = (byte)(SeqNum >> 8);
-        bytes[7] = (byte)(SeqNum  & 0xFF);
+        bytes[7] = (byte)(SeqNum & 0xFF);
         return bytes;
     }
 
@@ -59,10 +59,10 @@ public readonly struct SemaBuzzPacket
         if (buffer.Length != WireSize) return null;                           // must be exactly 8 bytes
         if (buffer[0] != MagicByte1 || buffer[1] != MagicByte2) return null; // magic check
 
-        var ch        = (char)((buffer[2] << 8) | buffer[3]);
+        var ch = (char)((buffer[2] << 8) | buffer[3]);
         var intensity = buffer[4];
-        var type      = (SemaBuzzPacketType)buffer[5];
-        var seqNum    = (ushort)((buffer[6] << 8) | buffer[7]);
+        var type = (SemaBuzzPacketType)buffer[5];
+        var seqNum = (ushort)((buffer[6] << 8) | buffer[7]);
 
         if (!IsKnownType(type)) return null;                                  // reject unknown type bytes
 
@@ -71,14 +71,14 @@ public readonly struct SemaBuzzPacket
 
     /// <summary>Returns true only for type bytes that are defined in the protocol.</summary>
     public static bool IsKnownType(SemaBuzzPacketType type) => type is
-        SemaBuzzPacketType.Char                or
-        SemaBuzzPacketType.Handshake           or
-        SemaBuzzPacketType.HandshakeAck        or
-        SemaBuzzPacketType.Disconnect          or
-        SemaBuzzPacketType.Ping                or
+        SemaBuzzPacketType.Char or
+        SemaBuzzPacketType.Handshake or
+        SemaBuzzPacketType.HandshakeAck or
+        SemaBuzzPacketType.Disconnect or
+        SemaBuzzPacketType.Ping or
         SemaBuzzPacketType.HandshakeEncRequired or
-        SemaBuzzPacketType.HandshakeHold       or
-        SemaBuzzPacketType.ConnectRejected     or
+        SemaBuzzPacketType.HandshakeHold or
+        SemaBuzzPacketType.ConnectRejected or
         SemaBuzzPacketType.Buzz;
 
     /// <summary>Create a control packet (no character content).</summary>

@@ -68,22 +68,22 @@ static void Row(string label, string value, ConsoleColor valueColor = ConsoleCol
     Console.ResetColor();
 }
 
-Row("Version",   "1.0.0");
-Row("Port",      port.ToString());
-Row("Relay URI", $"ws://localhost:{port}/relay",    ConsoleColor.Green);
+Row("Version", "1.0.0");
+Row("Port", port.ToString());
+Row("Relay URI", $"ws://localhost:{port}/relay", ConsoleColor.Green);
 foreach (var ip in localIPs)
-    Row("",      $"ws://{ip}:{port}/relay",         ConsoleColor.Green);
-Row("Health",    $"http://localhost:{port}/");
-Row("Keep-alive","30 s");
-Row("Room TTL",  "10 min");
+    Row("", $"ws://{ip}:{port}/relay", ConsoleColor.Green);
+Row("Health", $"http://localhost:{port}/");
+Row("Keep-alive", "30 s");
+Row("Room TTL", "10 min");
 Row("Max rooms", "500  (global)");
-Row("Max per IP","5  concurrent connections");
+Row("Max per IP", "5  concurrent connections");
 
 Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.WriteLine("  ───────────────────────────────────────────────────────────────────────");
 Console.ResetColor();
 
-Row("License",  "AGPL-3.0  —  Copyright (c) 2026 Skynr Labs", ConsoleColor.Yellow);
+Row("License", "AGPL-3.0  —  Copyright (c) 2026 Skynr Labs", ConsoleColor.Yellow);
 
 Console.ForegroundColor = ConsoleColor.DarkGray;
 Console.Write($"  {"Privacy",-14}");

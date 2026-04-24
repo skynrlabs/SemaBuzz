@@ -12,12 +12,12 @@ namespace SemaBuzz.Relay;
 /// </summary>
 internal sealed class RelayServer
 {
-    private static readonly TimeSpan RoomTtl       = TimeSpan.FromMinutes(10);
-    private static readonly TimeSpan JoinTimeout   = TimeSpan.FromSeconds(10);
-    private const            int     MaxRooms       = 500;   // global cap
-    private const            int     MaxPerIp       = 5;     // concurrent sockets per IP
-    private const            int     MaxRoomsPerIp  = 2;     // rooms a single IP may host at once (C-2)
-    private const            long    BwCapBytesPerSec = 512 * 1024; // 512 KB/s per session (H-1)
+    private static readonly TimeSpan RoomTtl = TimeSpan.FromMinutes(10);
+    private static readonly TimeSpan JoinTimeout = TimeSpan.FromSeconds(10);
+    private const int MaxRooms = 500;   // global cap
+    private const int MaxPerIp = 5;     // concurrent sockets per IP
+    private const int MaxRoomsPerIp = 2;     // rooms a single IP may host at once (C-2)
+    private const long BwCapBytesPerSec = 512 * 1024; // 512 KB/s per session (H-1)
 
     private readonly ConcurrentDictionary<string, RelayRoom> _rooms =
         new(StringComparer.OrdinalIgnoreCase);
@@ -149,7 +149,7 @@ internal sealed class RelayServer
         var buf = new byte[65_536];
         // H-1: sliding 1-second window to cap sustained bandwidth per session.
         long windowBytes = 0;
-        var  windowStart = DateTime.UtcNow;
+        var windowStart = DateTime.UtcNow;
         try
         {
             while (!ct.IsCancellationRequested && ws.State == WebSocketState.Open)
@@ -184,12 +184,12 @@ internal sealed class RelayServer
                     {
                         bool isHost = ReferenceEquals(ws, room.HostWs);
                         if (isHost) room.SetHostExternalEp(ep);
-                        else        room.SetDialerExternalEp(ep);
+                        else room.SetDialerExternalEp(ep);
 
                         // Once both endpoints are known, tell each peer about the other.
                         if (room.HostExternalEp != null && room.DialerExternalEp != null)
                         {
-                            var toHost   = SemaBuzzRelayPacket.BuildPeerAddress(room.Token, room.DialerExternalEp);
+                            var toHost = SemaBuzzRelayPacket.BuildPeerAddress(room.Token, room.DialerExternalEp);
                             var toDialer = SemaBuzzRelayPacket.BuildPeerAddress(room.Token, room.HostExternalEp);
                             await room.SendToHostAsync(toHost, ct);
                             await room.SendToDialerAsync(toDialer, ct);

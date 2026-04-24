@@ -32,7 +32,7 @@ public sealed class SemaBuzzStreamer
         _lastKeyTime = now;
 
         var intensity = ComputeIntensity(intervalMs);
-        var seq    = NextSequence();
+        var seq = NextSequence();
         var packet = new SemaBuzzPacket(character, intensity, SemaBuzzPacketType.Char, seq);
         var packetHandler = PacketReady;
         if (packetHandler != null)
