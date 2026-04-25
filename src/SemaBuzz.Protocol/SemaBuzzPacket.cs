@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 
 namespace SemaBuzz.Protocol;
 
@@ -9,7 +9,7 @@ namespace SemaBuzz.Protocol;
 /// Wire format (binary):
 ///   [0x53][0x42]   2-byte magic header ("SB")
 ///   [char_hi][char_lo]  UTF-16 character (2 bytes)
-///   [intensity]    1-byte signal intensity (0–255)
+///   [intensity]    1-byte signal intensity (0-255)
 ///   [type]         1-byte packet type
 /// Total: 6 bytes per packet.
 /// </summary>
@@ -98,7 +98,7 @@ public enum SemaBuzzPacketType : byte
     Disconnect = 0x04,
     /// <summary>Keepalive ping to sustain the wire.</summary>
     Ping = 0x05,
-    /// <summary>Host requires encryption  dialer must provide a passphrase.</summary>
+    /// <summary>Host requires encryption; ECDH key exchange will be initiated.</summary>
     HandshakeEncRequired = 0x06,
     /// <summary>Buzz the remote peer  spikes their filament and shakes their window.</summary>
     Buzz = 0x07,

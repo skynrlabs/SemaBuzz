@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.WebSockets;
-using SemaBuzz.Protocol;
 
 namespace SemaBuzz.Relay;
 
@@ -23,12 +22,14 @@ internal sealed class RelayRoom
     public IPEndPoint? HostExternalEp { get; private set; }
     public IPEndPoint? DialerExternalEp { get; private set; }
 
+    /// <summary>Initialises a new room with its token and the host's WebSocket connection.</summary>
     public RelayRoom(string token, WebSocket hostWs)
     {
         Token = token;
         HostWs = hostWs;
     }
 
+    /// <summary>Pairs the dialer's WebSocket with this room and marks the room as active.</summary>
     public void SetDialer(WebSocket ws)
     {
         DialerWs = ws;
@@ -36,9 +37,12 @@ internal sealed class RelayRoom
         Touch();
     }
 
+    /// <summary>Records the host's external UDP endpoint received from a PunchReady frame.</summary>
     public void SetHostExternalEp(IPEndPoint ep) => HostExternalEp = ep;
+    /// <summary>Records the dialer's external UDP endpoint received from a PunchReady frame.</summary>
     public void SetDialerExternalEp(IPEndPoint ep) => DialerExternalEp = ep;
 
+    /// <summary>Updates the last-active timestamp to prevent the room being swept as stale.</summary>
     public void Touch() => LastActive = DateTime.UtcNow;
 
     /// <summary>Send data to the host, serialised.</summary>

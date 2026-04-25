@@ -1,4 +1,4 @@
-namespace SemaBuzz.Protocol;
+﻿namespace SemaBuzz.Protocol;
 
 /// <summary>
 /// Variable-length wire packet carrying an ECDH public key for in-handshake

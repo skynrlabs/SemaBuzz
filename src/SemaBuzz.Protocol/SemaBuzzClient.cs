@@ -9,7 +9,7 @@ namespace SemaBuzz.Protocol;
 /// <summary>
 /// Dials out to a peer's SemaBuzz endpoint and maintains the wire.
 /// ECDH P-256 is performed during every handshake so all sessions are
-/// encrypted with a fresh AES-256-GCM session key — no passphrase required.
+/// encrypted with a fresh AES-256-GCM session key -- no passphrase required.
 /// </summary>
 public sealed class SemaBuzzClient : IDisposable
 {
@@ -74,7 +74,7 @@ public sealed class SemaBuzzClient : IDisposable
         var timeoutTask = HandshakeTimeoutAsync(_cts.Token);
         var retransmitTask = HandshakeRetransmitAsync(localPubKeyBytes, _cts.Token);
 
-        // Send our public key to the host — this IS the handshake initiation.
+        // Send our public key to the host -- this IS the handshake initiation.
         await _udp.SendAsync(SemaBuzzKeyExchange.Serialize(localPubKeyBytes));
 
         await Task.WhenAll(receiveTask, keepaliveTask, timeoutTask, retransmitTask);
@@ -124,7 +124,7 @@ public sealed class SemaBuzzClient : IDisposable
                 if (p == null) continue;
                 if (p.Value.Type == SemaBuzzRelayPacketType.RelayError)
                 {
-                    SetState(SemaBuzzWireState.Dead, "token not found \u2014 host may not be waiting");
+                    SetState(SemaBuzzWireState.Dead, "token not found -- host may not be waiting");
                     _cts.Cancel(); return;
                 }
                 if (p.Value.Type == SemaBuzzRelayPacketType.Paired) { paired = true; break; }
@@ -138,7 +138,7 @@ public sealed class SemaBuzzClient : IDisposable
             _cts.Cancel(); return;
         }
 
-        // ── STUN / UDP hole-punch attempt ─────────────────────────────────────────
+        // -- STUN / UDP hole-punch attempt -----------------------------------------
         UdpClient? directUdp = null;
         IPEndPoint? peerDirectEp = null;
         try
@@ -178,7 +178,7 @@ public sealed class SemaBuzzClient : IDisposable
 
                     if (directEp != null)
                     {
-                        // Direct path confirmed — switch to UDP.
+                        // Direct path confirmed -- switch to UDP.
                         _udp = directUdp;
                         _peer = directEp;
                         directUdp = null;
@@ -188,7 +188,7 @@ public sealed class SemaBuzzClient : IDisposable
                         _wsClient.Dispose();
                         _wsClient = null;
 
-                        SetState(SemaBuzzWireState.Warming, "Direct UDP — completing handshake...");
+                        SetState(SemaBuzzWireState.Warming, "Direct UDP -- completing handshake...");
 
                         var rcvTask = ReceiveLoopAsync(localEcdh, _cts.Token);
                         var kaTask = KeepaliveLoopAsync(_cts.Token);
@@ -203,13 +203,13 @@ public sealed class SemaBuzzClient : IDisposable
             }
         }
         catch (OperationCanceledException) { throw; }
-        catch { /* STUN/punch failed — proceed with relay */ }
+        catch { /* STUN/punch failed -- proceed with relay */ }
         finally
         {
             if (directUdp != null)
                 directUdp.Dispose();
         }
-        // ── end punch-through attempt ─────────────────────────────────────────────
+        // -- end punch-through attempt ---------------------------------------------
 
         // Wire up the WebSocket send delegate used by all public send methods.
         var ws = _wsClient!;
@@ -226,7 +226,7 @@ public sealed class SemaBuzzClient : IDisposable
             finally { _wsSendLock.Release(); }
         };
 
-        SetState(SemaBuzzWireState.Warming, "Relay paired \u2014 completing handshake...");
+        SetState(SemaBuzzWireState.Warming, "Relay paired -- completing handshake...");
 
         var receiveTask = WsReceiveLoopAsync(ws, localEcdh, _cts.Token);
         var keepaliveTask = KeepaliveLoopAsync(_cts.Token);
@@ -239,7 +239,7 @@ public sealed class SemaBuzzClient : IDisposable
     }
 
     /// <summary>
-    /// Receive loop for WebSocket relay mode — mirrors ReceiveLoopAsync but reads
+    /// Receive loop for WebSocket relay mode -- mirrors ReceiveLoopAsync but reads
     /// from a WebSocket frame stream instead of UDP datagrams.
     /// </summary>
     private async Task WsReceiveLoopAsync(WebSocket ws, ECDiffieHellman localEcdh, CancellationToken ct)
@@ -255,7 +255,7 @@ public sealed class SemaBuzzClient : IDisposable
                 if (data.Length < SemaBuzzPacket.WireSize || data.Length > MaxPayload) continue;
                 if (SemaBuzzRelayPacket.IsRelayPacket(data)) continue; // stray control frame
 
-                // \u2500\u2500 ECDH key exchange \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+                // -- ECDH key exchange --------------------------------------------------
                 if (SemaBuzzKeyExchange.IsKeyExchangePacket(data))
                 {
                     if (Shield != null) continue;
@@ -268,7 +268,7 @@ public sealed class SemaBuzzClient : IDisposable
                     continue;
                 }
 
-                // \u2500\u2500 Decrypt \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+                // -- Decrypt --------------------------------------------------
                 if (Shield != null)
                 {
                     var dec = Shield.Decrypt(data);
@@ -276,7 +276,7 @@ public sealed class SemaBuzzClient : IDisposable
                     data = dec;
                 }
 
-                // \u2500\u2500 Metadata \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+                // -- Metadata --------------------------------------------------
                 if (SemaBuzzMetadata.IsMetadataPacket(data))
                 {
                     var meta = SemaBuzzMetadata.Deserialize(data);
@@ -290,7 +290,7 @@ public sealed class SemaBuzzClient : IDisposable
                 }
 
 
-                // \u2500\u2500 Fixed-size control/data frames \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500
+                // -- Fixed-size control/data frames --------------------------------------------------
                 for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length; offset += SemaBuzzPacket.WireSize)
                 {
                     var packet = SemaBuzzPacket.FromWireBytes(data[offset..(offset + SemaBuzzPacket.WireSize)]);
@@ -342,7 +342,7 @@ public sealed class SemaBuzzClient : IDisposable
 
             if (_waitingForApproval)
             {
-                // Host is reviewing the request — give them time to decide
+                // Host is reviewing the request -- give them time to decide
                 await Task.Delay(ApprovalWaitTimeout, ct);
                 if (State == SemaBuzzWireState.Warming)
                 {
@@ -355,7 +355,7 @@ public sealed class SemaBuzzClient : IDisposable
 
             if (State == SemaBuzzWireState.Warming)
             {
-                SetState(SemaBuzzWireState.Dead, "no response — host may not be listening");
+                SetState(SemaBuzzWireState.Dead, "no response -- host may not be listening");
                 if (_cts != null)
                     _cts.Cancel();
             }
@@ -382,7 +382,7 @@ public sealed class SemaBuzzClient : IDisposable
                 //  ECDH key exchange (plaintext, during handshake only)
                 if (SemaBuzzKeyExchange.IsKeyExchangePacket(data))
                 {
-                    if (Shield != null) continue; // already established — ignore
+                    if (Shield != null) continue; // already established -- ignore
                     var peerPubKeyBytes = SemaBuzzKeyExchange.Deserialize(data);
                     if (peerPubKeyBytes == null) continue;
 
@@ -398,7 +398,7 @@ public sealed class SemaBuzzClient : IDisposable
                 if (Shield != null)
                 {
                     var decrypted = Shield.Decrypt(data);
-                    if (decrypted == null) continue; // tampered or wrong key — drop
+                    if (decrypted == null) continue; // tampered or wrong key -- drop
                     data = decrypted;
                 }
 
@@ -415,7 +415,7 @@ public sealed class SemaBuzzClient : IDisposable
                     continue;
                 }
 
-                //  Fixed-size packet frame(s) — may be batched
+                //  Fixed-size packet frame(s) -- may be batched
                 for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length;
                          offset += SemaBuzzPacket.WireSize)
                 {
@@ -437,7 +437,7 @@ public sealed class SemaBuzzClient : IDisposable
                             return;
 
                         case SemaBuzzPacketType.HandshakeAck:
-                            // ECDH has already set up the shield — session is always Secured.
+                            // ECDH has already set up the shield -- session is always Secured.
                             SetState(SemaBuzzWireState.Secured, "Wire is live.");
                             break;
 
@@ -548,7 +548,7 @@ public sealed class SemaBuzzClient : IDisposable
         }
     }
 
-    /// <summary>Send a Buzz to the peer — spikes their filament and shakes their window.</summary>
+    /// <summary>Send a Buzz to the peer -- spikes their filament and shakes their window.</summary>
     public Task SendBuzzAsync() => SendAsync(SemaBuzzPacket.Control(SemaBuzzPacketType.Buzz));
 
     private async Task SendControlAsync(SemaBuzzPacketType type)

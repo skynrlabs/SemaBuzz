@@ -280,6 +280,36 @@ internal static class SemaBuzzThemeManager
             DwmText:          0x009C9078,   // #78909C  COLORREF
             DwmBorder:        0x00352A20),  // #202A35  COLORREF
 
+        //  Daylight (light · navy blue) — FREE
+        [SemaBuzzThemeId.Daylight] = new ThemeDef(
+            Background:       C(0xF2, 0xF2, 0xF2),
+            Surface:          C(0xFA, 0xFA, 0xFA),
+            Border:           C(0xD8, 0xD8, 0xD8),
+            Accent:           C(0x15, 0x65, 0xC0),      // navy blue
+            AccentDim:        A(0x80, 0x15, 0x65, 0xC0),
+            AccentGlow:       A(0x33, 0x15, 0x65, 0xC0),
+            Dead:             C(0x9E, 0x9E, 0x9E),
+            Header:           C(0xE2, 0xE2, 0xE2),
+            WindowBackground: () => new SolidColorBrush(C(0xF2, 0xF2, 0xF2)),
+            DwmCaption:       0x00E2E2E2,
+            DwmText:          0x00C06515,   // #1565C0  COLORREF
+            DwmBorder:        0x00D8D8D8),
+
+        //  Cloud (light · teal) — PRO
+        [SemaBuzzThemeId.Cloud] = new ThemeDef(
+            Background:       C(0xF8, 0xF9, 0xFA),
+            Surface:          C(0xFF, 0xFF, 0xFF),
+            Border:           C(0xE0, 0xE4, 0xEA),
+            Accent:           C(0x00, 0x89, 0x7B),      // teal
+            AccentDim:        A(0x80, 0x00, 0x89, 0x7B),
+            AccentGlow:       A(0x33, 0x00, 0x89, 0x7B),
+            Dead:             C(0xB0, 0xBE, 0xC5),
+            Header:           C(0xEE, 0xF0, 0xF3),
+            WindowBackground: () => new SolidColorBrush(C(0xF8, 0xF9, 0xFA)),
+            DwmCaption:       0x00F3F0EE,
+            DwmText:          0x007B8900,   // #00897B  COLORREF
+            DwmBorder:        0x00EAE4E0),
+
         //  Powwow (earth brown / turquoise)
         [SemaBuzzThemeId.Powwow] = new ThemeDef(
             Background:       C(0x13, 0x0D, 0x07),
@@ -309,6 +339,9 @@ internal static class SemaBuzzThemeManager
 
     /// <summary>The accent <see cref="Color"/> of the currently active theme.</summary>
     public static Color AccentColor => Palettes[Current].Accent;
+
+    /// <summary>Fired on the UI thread after every theme switch.</summary>
+    public static event Action? ThemeChanged;
 
     //  Apply
 
@@ -348,6 +381,8 @@ internal static class SemaBuzzThemeManager
         // DWM chrome  apply to every currently-open window
         foreach (Window w in Application.Current.Windows)
             SemaBuzzTheme.Apply(w, p.DwmCaption, p.DwmText, p.DwmBorder);
+
+        ThemeChanged?.Invoke();
     }
 
     /// <summary>

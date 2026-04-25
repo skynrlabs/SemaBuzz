@@ -8,13 +8,15 @@ namespace SemaBuzz.App;
 /// </summary>
 internal static class SemaBuzzLicense
 {
-    // Store add-on product ID for SemaBuzz Pro (set in Partner Center)
-    private const string ProAddonStoreId = "9N000000000PRO"; // TODO: replace with real Store ID
+    // Store add-on product ID for SemaBuzz Pro (set in Partner Center before Store submission)
+    private const string ProAddonStoreId = "9N000000000PRO"; // development placeholder
 
 #if DEBUG
     // Make all Pro features available during development without a Store purchase.
+    /// <summary>True when the SemaBuzz Pro add-on is active. Always true in DEBUG builds.</summary>
     public static bool IsProUnlocked { get; private set; } = true;
 #else
+    /// <summary>True when the SemaBuzz Pro add-on is active; checked asynchronously at startup.</summary>
     public static bool IsProUnlocked { get; private set; } = false;
 #endif
 

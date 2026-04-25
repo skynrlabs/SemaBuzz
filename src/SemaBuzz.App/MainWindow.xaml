@@ -100,7 +100,6 @@
             <Menu Grid.Column="2" VerticalAlignment="Center" Margin="4 0"
                   WindowChrome.IsHitTestVisibleInChrome="True">
                 <MenuItem Header="WIRE">
-                    <MenuItem Header="Connect" x:Name="ConnectMenuItem" Click="ConnectButton_Click"/>
                     <MenuItem Header="Disconnect" x:Name="DisconnectMenuItem" IsEnabled="False" Click="Wire_Disconnect_Click"/>
                     <Separator/>
                     <MenuItem Header="Always on Top" x:Name="AlwaysOnTopMenuItem" IsCheckable="True" Click="Wire_AlwaysOnTop_Click"/>
@@ -108,16 +107,19 @@
                     <MenuItem Header="Exit" Click="Wire_Exit_Click"/>
                 </MenuItem>
                 <MenuItem Header="VIEW">
-                    <MenuItem Header="Clear Chat" Click="View_ClearChat_Click"/>
+                    <MenuItem Header="Clear Chat" x:Name="ClearChatMenuItem" IsEnabled="False" Click="View_ClearChat_Click"/>
                 </MenuItem>
                 <MenuItem Header="SETTINGS">
                     <MenuItem Header="Themes" Click="Settings_Themes_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Profiles" Click="Settings_Profiles_Click"/>
                     <Separator/>
                     <MenuItem Header="Preferences" Click="Settings_Preferences_Click"/>
                 </MenuItem>
                 <MenuItem Header="HELP">
                     <MenuItem Header="About" Click="Help_About_Click"/>
-                    <MenuItem Header="FAQ" Click="Help_FAQ_Click"/>
+                    <Separator/>
+                    <MenuItem Header="Help / FAQ" Click="Help_FAQ_Click"/>
                     <Separator/>
                     <MenuItem Header="News &amp; Updates" Click="Help_NewsUpdates_Click"/>
                 </MenuItem>
@@ -191,7 +193,7 @@
         </Border>
 
         <!-- Two-pane chat area: local (left) | peer (right) -->
-        <Grid Grid.Row="3" Background="{DynamicResource WindowBackgroundBrush}">
+        <Grid x:Name="ChatPanesGrid" Grid.Row="3" Background="{DynamicResource WindowBackgroundBrush}" Visibility="Collapsed">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="1"/>
@@ -249,6 +251,236 @@
                     <StackPanel x:Name="PeerPanel" Orientation="Vertical"/>
                 </ScrollViewer>
             </Grid>
+        </Grid>
+
+        <!-- Buzz Code Banner — shown on startup, while hosting, and on incoming request -->
+        <Grid x:Name="BuzzCodeBanner"
+              Grid.Row="3"
+              Background="{DynamicResource WindowBackgroundBrush}"
+              Visibility="Visible">
+            <Border Margin="40 16"
+                    Background="{DynamicResource ObsidianSurfaceBrush}"
+                    BorderBrush="{DynamicResource ObsidianBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="40 28">
+                <Grid VerticalAlignment="Center">
+
+                    <!-- Idle state: join a buzz or start a new one -->
+                    <Viewbox x:Name="BuzzIdleState"
+                             Stretch="Uniform"
+                             StretchDirection="UpOnly"
+                             MaxWidth="560"
+                             HorizontalAlignment="Center">
+                        <StackPanel Width="280">
+
+                        <TextBlock Text="Join a Buzz"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource AmberBrush}"
+                                   Margin="0 0 0 14"/>
+
+                        <!-- Single rounded token input with spaced letters -->
+                        <TextBox x:Name="InlineTokenInput"
+                                 MaxLength="6"
+                                 FontSize="20"
+                                 FontWeight="Bold"
+                                 CharacterCasing="Upper"
+                                 FontFamily="Cascadia Code, Consolas"
+                                 Foreground="Transparent"
+                                 CaretBrush="{DynamicResource AmberBrush}"
+                                 SelectionBrush="{DynamicResource AmberDimBrush}"
+                                 FocusVisualStyle="{x:Null}"
+                                 PreviewTextInput="InlineTokenInput_PreviewTextInput"
+                                 PreviewKeyDown="InlineTokenInput_PreviewKeyDown"
+                                 TextChanged="InlineTokenInput_TextChanged">
+                            <TextBox.Template>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border x:Name="InputBorder"
+                                            CornerRadius="8"
+                                            BorderBrush="{DynamicResource AmberDimBrush}"
+                                            BorderThickness="1"
+                                            Background="#44000000"
+                                            Width="280"
+                                            Height="44">
+                                        <Grid Background="Transparent">
+                                            <!-- Centered row: spaced text + blinking caret -->
+                                            <StackPanel Orientation="Horizontal"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock x:Name="SpacedDisplay"
+                                                           VerticalAlignment="Center"
+                                                           FontFamily="Cascadia Code, Consolas"
+                                                           FontSize="20"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource AmberBrush}"/>
+                                                <!-- Fake blinking caret -->
+                                                <Rectangle x:Name="FakeCaret"
+                                                           Width="2" Height="22"
+                                                           Margin="3 0 0 0"
+                                                           VerticalAlignment="Center"
+                                                           Fill="{DynamicResource AmberBrush}"
+                                                           Visibility="Collapsed">
+                                                    <Rectangle.Effect>
+                                                        <DropShadowEffect x:Name="CaretGlow"
+                                                                          BlurRadius="8"
+                                                                          ShadowDepth="0"
+                                                                          Opacity="0.95"
+                                                                          Color="#FFB300"/>
+                                                    </Rectangle.Effect>
+                                                </Rectangle>
+                                            </StackPanel>
+                                            <ScrollViewer x:Name="PART_ContentHost"
+                                                          HorizontalAlignment="Stretch"
+                                                          VerticalAlignment="Stretch"
+                                                          HorizontalScrollBarVisibility="Hidden"
+                                                          VerticalScrollBarVisibility="Hidden"
+                                                          Opacity="0"/>
+                                        </Grid>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsFocused" Value="True">
+                                            <Trigger.EnterActions>
+                                                <BeginStoryboard x:Name="CaretBlink">
+                                                    <Storyboard RepeatBehavior="Forever">
+                                                        <DoubleAnimation
+                                                            Storyboard.TargetName="FakeCaret"
+                                                            Storyboard.TargetProperty="Opacity"
+                                                            From="1" To="0"
+                                                            Duration="0:0:0.55"
+                                                            AutoReverse="True"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </Trigger.EnterActions>
+                                            <Trigger.ExitActions>
+                                                <StopStoryboard BeginStoryboardName="CaretBlink"/>
+                                            </Trigger.ExitActions>
+                                            <Setter TargetName="InputBorder" Property="BorderBrush"
+                                                    Value="{DynamicResource AmberBrush}"/>
+                                            <Setter TargetName="FakeCaret" Property="Visibility"
+                                                    Value="Visible"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </TextBox.Template>
+                        </TextBox>
+
+                        <TextBlock Text="Press Enter to connect"
+                                   Foreground="#9E9E9E" FontSize="10"
+                                   HorizontalAlignment="Center"
+                                   Margin="0 7 0 0"/>
+
+                        <Button x:Name="InlineConnectBtn"
+                                Style="{StaticResource SemaBuzzButton}"
+                                Content="JOIN"
+                                IsEnabled="False"
+                                HorizontalAlignment="Center"
+                                Width="280"
+                                Padding="0 10"
+                                Margin="0 14 0 0"
+                                Click="InlineConnect_Click"/>
+
+                        <Grid Width="280" Margin="0 20 0 20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Rectangle Grid.Column="0" Height="1"
+                                       Fill="{DynamicResource ObsidianBorderBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="&#x2014; or &#x2014;"
+                                       Foreground="{DynamicResource ObsidianBorderBrush}" FontSize="10"
+                                       Margin="12 0"/>
+                            <Rectangle Grid.Column="2" Height="1"
+                                       Fill="{DynamicResource ObsidianBorderBrush}"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Button Style="{StaticResource SemaBuzzButton}"
+                                Content="CREATE A BUZZ"
+                                HorizontalAlignment="Center"
+                                Width="280"
+                                Padding="0 10"
+                                Click="InlineStartBuzz_Click"/>
+
+                        </StackPanel>
+                    </Viewbox>
+
+                    <!-- Waiting state -->
+                    <Viewbox x:Name="BuzzWaitingState" Visibility="Collapsed"
+                             Stretch="Uniform"
+                             StretchDirection="Both"
+                             MaxWidth="700"
+                             HorizontalAlignment="Center">
+                        <StackPanel>
+                        <TextBlock Text="Your buzz is live"
+                                   HorizontalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="#9E9E9E"
+                                   Margin="0 0 0 20"/>
+                        <TextBlock x:Name="BuzzCodeBannerLabel"
+                                   HorizontalAlignment="Center"
+                                   FontFamily="Cascadia Code, Consolas"
+                                   FontSize="52"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource AmberBrush}"
+                                   Margin="0 0 0 20">
+                            <TextBlock.Effect>
+                                <DropShadowEffect Color="#FFB300" BlurRadius="22" ShadowDepth="0" Opacity="0.6"/>
+                            </TextBlock.Effect>
+                        </TextBlock>
+                        <TextBlock Text="Waiting for someone to join..."
+                                   HorizontalAlignment="Center"
+                                   FontSize="11"
+                                   FontStyle="Italic"
+                                   Foreground="#9E9E9E"
+                                   Margin="0 0 0 28"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="BuzzCodeCopyBtn"
+                                    Style="{StaticResource SemaBuzzButton}"
+                                    Content="COPY"
+                                    Padding="18 5"
+                                    Click="CopyBuzzCode_Click"/>
+                        </StackPanel>
+                        </StackPanel>
+                    </Viewbox>
+
+                    <!-- Incoming request state -->
+                    <StackPanel x:Name="BuzzRequestState" Visibility="Collapsed" HorizontalAlignment="Center">
+                        <TextBlock Text="Incoming wire request"
+                                   HorizontalAlignment="Center"
+                                   FontSize="12"
+                                   Foreground="#9E9E9E"
+                                   Margin="0 0 0 16"/>
+                        <TextBlock x:Name="BuzzRequestFromLabel"
+                                   HorizontalAlignment="Center"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource AmberBrush}"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   Margin="0 0 0 28"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0 0 0 16">
+                            <Button x:Name="ApproveBtn"
+                                    Style="{StaticResource SemaBuzzButton}"
+                                    Content="APPROVE"
+                                    Padding="18 5"
+                                    Margin="0 0 10 0"
+                                    Click="Approve_Click"/>
+                            <Button x:Name="DenyBtn"
+                                    Style="{StaticResource SemaBuzzButton}"
+                                    Content="DENY"
+                                    Padding="18 5"
+                                    Click="Deny_Click"/>
+                        </StackPanel>
+                        <TextBlock x:Name="BuzzRequestCountdown"
+                                   HorizontalAlignment="Center"
+                                   FontSize="11"
+                                   Foreground="#9E9E9E"/>
+                    </StackPanel>
+
+                </Grid>
+            </Border>
         </Grid>
 
         <!-- BuzzIndicator -->
@@ -491,10 +723,12 @@
                        Style="{StaticResource SemaBuzzStatusLabel}"
                        Text="› wire is cold"
                        VerticalAlignment="Center"/>
+            <!-- Peer handle — visible when connected as dialer -->
             <TextBlock x:Name="PeerLabel"
                        Grid.Column="1"
                        Style="{StaticResource SemaBuzzStatusLabel}"
                        VerticalAlignment="Center"/>
+
         </Grid>
     </Grid>
 </Window>

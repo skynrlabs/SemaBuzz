@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 
 namespace SemaBuzz.Protocol;
@@ -22,25 +22,6 @@ public sealed class SemaBuzzShield : IDisposable
         if (key.Length != KeySize)
             throw new ArgumentException($"SemaBuzz Shield requires a {KeySize}-byte key.", nameof(key));
         _key = (byte[])key.Clone();
-    }
-
-    /// <summary>
-    /// Derive a key from a shared passphrase using PBKDF2-SHA256 (600 000 iterations).
-    /// A fixed protocol salt is used because both peers must derive the same key
-    /// independently. The high iteration count makes dictionary/brute-force attacks
-    /// ~600 000× harder than raw SHA-256 and prevents precomputed rainbow tables.
-    /// NOTE: changing the iteration count is a wire-breaking change — both peers must
-    /// use the same value. Bump the salt version string when changing it.
-    /// </summary>
-    public static SemaBuzzShield FromPassphrase(string passphrase)
-    {
-        var rawKey = System.Security.Cryptography.Rfc2898DeriveBytes.Pbkdf2(
-            password: System.Text.Encoding.UTF8.GetBytes(passphrase),
-            salt: System.Text.Encoding.UTF8.GetBytes("SemaBuzz-wire-v1"),
-            iterations: 600_000,
-            hashAlgorithm: System.Security.Cryptography.HashAlgorithmName.SHA256,
-            outputLength: KeySize);
-        return new SemaBuzzShield(rawKey);
     }
 
     /// <summary>
