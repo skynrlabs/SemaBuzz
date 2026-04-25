@@ -365,7 +365,7 @@
                             </TextBox.Template>
                         </TextBox>
 
-                        <TextBlock Text="Press Enter to connect"
+                        <TextBlock Text="Enter the buzz code, then press Enter"
                                    Foreground="#9E9E9E" FontSize="10"
                                    HorizontalAlignment="Center"
                                    Margin="0 7 0 0"/>

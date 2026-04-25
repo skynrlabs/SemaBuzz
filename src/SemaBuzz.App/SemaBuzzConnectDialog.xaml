@@ -85,7 +85,7 @@
         <!-- Header -->
         <Grid Grid.Row="0" Background="{DynamicResource WindowHeaderBrush}"
               MouseLeftButtonDown="Header_MouseDown">
-            <TextBlock Text="BUZZ THE WIRE"
+            <TextBlock Text="JOIN A BUZZ"
                        VerticalAlignment="Center" Margin="20 0"
                        FontWeight="Bold" FontSize="13"/>
         </Grid>
@@ -132,7 +132,7 @@
             </StackPanel>
 
             <!-- Hint -->
-            <TextBlock Text="Press Enter to connect"
+            <TextBlock Text="Enter the buzz code, then press Enter"
                        Foreground="#9E9E9E" FontSize="11"
                        HorizontalAlignment="Center"
                        Margin="0 14 0 0"/>
@@ -140,7 +140,7 @@
             <!-- Connect button -->
             <Button x:Name="ConnectBtn"
                     Style="{StaticResource SemaBuzzButton}"
-                    Content="CONNECT"
+                    Content="JOIN"
                     IsEnabled="False"
                     HorizontalAlignment="Center"
                     MinWidth="200"
