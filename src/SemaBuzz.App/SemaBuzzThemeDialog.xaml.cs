@@ -29,6 +29,8 @@ public partial class SemaBuzzThemeDialog : Window
             case SemaBuzzThemeId.Emerald:   ThemeEmerald.IsChecked   = true; break;
             case SemaBuzzThemeId.Steel:    ThemeSteel.IsChecked    = true; break;
             case SemaBuzzThemeId.Powwow:   ThemePowwow.IsChecked   = true; break;
+            case SemaBuzzThemeId.Daylight: ThemeDaylight.IsChecked = true; break;
+            case SemaBuzzThemeId.Cloud:    ThemeCloud.IsChecked    = true; break;
             default:                       ThemeObsidian.IsChecked = true; break;
         }
 
@@ -48,13 +50,16 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
                 (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
                 (ThemePowwow,    "Powwow  (turquoise \u00b7 earth)"),
+                (ThemeCloud,     "Cloud  (teal \u00b7 white)"),
             ];
             foreach (var (rb, label) in proThemes)
             {
                 rb.IsEnabled = false;
                 rb.Content   = MakeProContent(label);
             }
-            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian)
+            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian
+                && SemaBuzzThemeManager.Current != SemaBuzzThemeId.Daylight
+                && SemaBuzzThemeManager.Current != SemaBuzzThemeId.Daylight)
             {
                 ThemeObsidian.IsChecked = true;
                 SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
@@ -119,6 +124,12 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemePowwow_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Powwow);
 
+    private void ThemeDaylight_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Daylight);
+
+    private void ThemeCloud_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Cloud);
+
     //  Footer
 
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
@@ -140,6 +151,7 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
                 (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
                 (ThemePowwow,    "Powwow  (turquoise \u00b7 earth)"),
+                (ThemeCloud,     "Cloud  (teal \u00b7 white)"),
             ];
             foreach (var (rb, label) in proThemes)
             {

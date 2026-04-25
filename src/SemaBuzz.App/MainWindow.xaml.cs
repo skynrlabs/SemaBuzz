@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -7,6 +8,7 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Windows.Threading;
@@ -38,6 +40,11 @@ public partial class MainWindow : Window
     // Prevents more than one connect dialog from being open simultaneously.
     private bool _connectDialogOpen;
 
+    // Spaced display overlay for the inline token input
+    private TextBlock? _spacedDisplay;
+    // Glow effects that need their Color updated when the theme changes
+    private DropShadowEffect? _caretGlow;
+
     // Track the previous input text so we can detect deletions
     private string _previousInputText = string.Empty;
 
@@ -62,6 +69,11 @@ public partial class MainWindow : Window
     private string? _hostingRelayUri;
     private int     _hostingPort;
 
+    // Inline connection-approval state
+    private TaskCompletionSource<bool>? _approvalTcs;
+    private DispatcherTimer?            _approvalTimer;
+    private int                         _approvalSecondsLeft;
+
     // Local identity (set from connect dialog)
     private string  _localHandle    = "anonymous";
     private byte[]? _localAvatarPng;
@@ -85,7 +97,15 @@ public partial class MainWindow : Window
         Loaded += (_, _) =>
         {
             ApplyLicenseBanner();
+            InlineTokenInput.Focus();
+            // Wire the spaced display TextBlock and caret glow from the template
+            _spacedDisplay = InlineTokenInput.Template.FindName("SpacedDisplay", InlineTokenInput) as TextBlock;
+            var fakeCaret  = InlineTokenInput.Template.FindName("FakeCaret", InlineTokenInput) as Rectangle;
+            _caretGlow     = fakeCaret?.Effect as DropShadowEffect;
+            UpdateGlowColors();
         };
+
+        SemaBuzzThemeManager.ThemeChanged += UpdateGlowColors;
 
         _trayIcon = CreateTrayIcon();
     }
@@ -201,6 +221,7 @@ public partial class MainWindow : Window
             _localAvatarPng = dialog.AvatarPng;
             LocalPaneLabel.Text = dialog.Handle.ToUpperInvariant();
 
+            HideBuzzCode();
             if (!string.IsNullOrEmpty(dialog.RelayToken))
                 StartConnectingViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
             else
@@ -216,42 +237,195 @@ public partial class MainWindow : Window
     // Connection dialog
     // ---------------------------------------------
 
-    private void ConnectButton_Click(object sender, RoutedEventArgs e)
+    // Show the Buzz Code center card so the host can share their code.
+    private void ShowBuzzCode(string token)
     {
-        if (_connectDialogOpen) return;
-        _connectDialogOpen = true;
-        try
+        BuzzCodeBannerLabel.Text        = string.Join("  ", token.ToUpperInvariant().ToCharArray());
+        BuzzIdleState.Visibility        = Visibility.Collapsed;
+        BuzzWaitingState.Visibility     = Visibility.Visible;
+        BuzzRequestState.Visibility     = Visibility.Collapsed;
+        BuzzCodeBanner.Visibility       = Visibility.Visible;
+        ChatPanesGrid.Visibility        = Visibility.Collapsed;
+        // Allow disconnect while waiting for a peer
+        DisconnectMenuItem.IsEnabled    = true;
+    }
+
+    private void HideBuzzCode()
+    {
+        // Cancel any pending approval before hiding
+        _approvalTimer?.Stop();
+        _approvalTimer = null;
+        _approvalTcs?.TrySetResult(false);
+        _approvalTcs = null;
+        BuzzCodeBanner.Visibility = Visibility.Collapsed;
+        ChatPanesGrid.Visibility  = Visibility.Visible;
+    }
+
+    private void CopyBuzzCode_Click(object sender, RoutedEventArgs e)
+    {
+        if (!string.IsNullOrEmpty(_hostingToken))
+            Clipboard.SetText(_hostingToken);
+        BuzzCodeCopyBtn.Content = "COPIED!";
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+        timer.Tick += (_, _) => { BuzzCodeCopyBtn.Content = "COPY"; timer.Stop(); };
+        timer.Start();
+    }
+
+    private void Approve_Click(object sender, RoutedEventArgs e)
+    {
+        _approvalTimer?.Stop();
+        _approvalTimer = null;
+        _approvalTcs?.TrySetResult(true);
+        _approvalTcs = null;
+        RestoreWaitingState();
+    }
+
+    private void Deny_Click(object sender, RoutedEventArgs e)
+    {
+        _approvalTimer?.Stop();
+        _approvalTimer = null;
+        _approvalTcs?.TrySetResult(false);
+        _approvalTcs = null;
+        RestoreWaitingState();
+    }
+
+    private void RestoreWaitingState()
+    {
+        BuzzRequestState.Visibility = Visibility.Collapsed;
+        BuzzWaitingState.Visibility = Visibility.Visible;
+    }
+
+    // ── Inline idle-state: join or create ────────────────────────────────────
+
+    private void LoadActiveProfile()
+    {
+        var profiles = SemaBuzzProfileStore.Load();
+        var activeId = App.Settings.ActiveProfileId;
+        var active   = profiles.FirstOrDefault(p => p.Id == activeId)
+                    ?? (profiles.Count > 0 ? profiles[0] : null);
+        if (active != null)
         {
-            var dialog = new SemaBuzzConnectDialog { Owner = this };
-            if (dialog.ShowDialog() != true) return;
-
-            if (_cts != null)
-                _cts.Cancel();
-            _cts = new CancellationTokenSource();
-
-            _localHandle    = dialog.Handle;
-            _localAvatarPng = dialog.AvatarPng;
-            LocalPaneLabel.Text = dialog.Handle.ToUpperInvariant();
-
-            if (dialog.IsHost)
-            {
-                if (!string.IsNullOrEmpty(dialog.RelayToken))
-                    StartListeningViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
-                else
-                    StartListening(dialog.Port, _cts.Token);
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(dialog.RelayToken))
-                    StartConnectingViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
-                else
-                    StartConnecting(dialog.PeerHost, dialog.Port, _cts.Token);
-            }
+            _localHandle    = active.Handle;
+            _localAvatarPng = active.AvatarPng;
         }
-        finally
+    }
+
+    /// <summary>
+    /// Sync all DropShadowEffect.Color values that can't use DynamicResource
+    /// (Freezable properties) with the current theme accent color.
+    /// </summary>
+    private void UpdateGlowColors()
+    {
+        var accent = SemaBuzzThemeManager.AccentColor;
+        if (_caretGlow != null)
+            _caretGlow.Color = accent;
+        if (BuzzCodeBannerLabel.Effect is DropShadowEffect bannerGlow)
+            bannerGlow.Color = accent;
+    }
+
+    /// <summary>
+    /// Fades out the chat panes (if visible) then snaps to the idle connect screen.
+    /// Call this from all wire-end paths instead of ShowIdleState() directly.
+    /// </summary>
+    private void FadeToIdle()
+    {
+        if (ChatPanesGrid.Visibility == Visibility.Visible)
         {
-            _connectDialogOpen = false;
+            var fade = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(300));
+            fade.Completed += (_, _) =>
+            {
+                ChatPanesGrid.BeginAnimation(UIElement.OpacityProperty, null);
+                ShowIdleState();
+            };
+            ChatPanesGrid.BeginAnimation(UIElement.OpacityProperty, fade);
         }
+        else
+        {
+            ShowIdleState();
+        }
+    }
+
+    private void ShowIdleState()
+    {
+        _approvalTimer?.Stop();
+        _approvalTimer = null;
+        _approvalTcs?.TrySetResult(false);
+        _approvalTcs = null;
+        InlineTokenInput.Text        = string.Empty;
+        if (_spacedDisplay != null) _spacedDisplay.Text = string.Empty;
+        InlineConnectBtn.IsEnabled   = false;
+        BuzzIdleState.Visibility     = Visibility.Visible;
+        BuzzWaitingState.Visibility  = Visibility.Collapsed;
+        BuzzRequestState.Visibility  = Visibility.Collapsed;
+        BuzzCodeBanner.Visibility    = Visibility.Visible;
+        ChatPanesGrid.Visibility     = Visibility.Collapsed;
+        ChatPanesGrid.Opacity        = 1;   // reset after any fade
+        DisconnectMenuItem.IsEnabled = false;
+        ClearChatPanels();                      // no wire → no chat
+        InlineTokenInput.Focus();
+    }
+
+    private void InlineStartBuzz_Click(object sender, RoutedEventArgs e)
+    {
+        LoadActiveProfile();
+        LocalPaneLabel.Text = _localHandle.ToUpperInvariant();
+        var token    = SemaBuzzRelayPacket.GenerateToken();
+        var relayUri = App.Settings.RelayUri;
+        if (_cts != null) _cts.Cancel();
+        _cts = new CancellationTokenSource();
+        ShowBuzzCode(token);
+        StartListeningViaRelay(token, relayUri, _cts.Token);
+    }
+
+    private void InlineConnect_Click(object sender, RoutedEventArgs e)
+    {
+        var token = InlineTokenInput.Text.Trim().ToUpperInvariant();
+        if (token.Length != 6) return;
+        LoadActiveProfile();
+        LocalPaneLabel.Text = _localHandle.ToUpperInvariant();
+        if (_cts != null) _cts.Cancel();
+        _cts = new CancellationTokenSource();
+        BuzzCodeBanner.Visibility = Visibility.Collapsed;
+        ChatPanesGrid.Visibility  = Visibility.Visible;
+        ClearChatPanels();
+        StartConnectingViaRelay(token, App.Settings.RelayUri, _cts.Token);
+    }
+
+    private void InlineTokenInput_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        // Only allow alphanumeric; block everything else
+        e.Handled = !e.Text.All(c => char.IsLetterOrDigit(c));
+    }
+
+    private void InlineTokenInput_PreviewKeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Key == Key.Enter && InlineConnectBtn.IsEnabled)
+        {
+            InlineConnect_Click(this, e);
+            e.Handled = true;
+        }
+        else if (e.Key == Key.V && (Keyboard.Modifiers & ModifierKeys.Control) != 0)
+        {
+            // Let default paste happen but we coerce it in TextChanged
+        }
+    }
+
+    private void InlineTokenInput_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        // Coerce: uppercase alphanumeric only, max 6
+        var raw = InlineTokenInput.Text;
+        var coerced = new string(raw.ToUpperInvariant().Where(char.IsLetterOrDigit).Take(6).ToArray());
+        if (coerced != raw)
+        {
+            InlineTokenInput.TextChanged -= InlineTokenInput_TextChanged;
+            InlineTokenInput.Text = coerced;
+            InlineTokenInput.CaretIndex = coerced.Length;
+            InlineTokenInput.TextChanged += InlineTokenInput_TextChanged;
+        }
+        // Sync the spaced display (thin-space \u2009 between each char for visual letter-spacing)
+        if (_spacedDisplay != null)
+            _spacedDisplay.Text = string.Join("\u2009\u2009", coerced.ToCharArray());
+        InlineConnectBtn.IsEnabled = coerced.Length == 6;
     }
 
     // ---------------------------------------------
@@ -271,6 +445,9 @@ public partial class MainWindow : Window
         _cts      = null;
         _client   = null;
         _listener = null;
+        // Update UI immediately — Dead event may not fire when cancelling while waiting
+        ResetToIdle();
+        FadeToIdle();
     }
 
     private void Wire_AlwaysOnTop_Click(object sender, RoutedEventArgs e)
@@ -307,6 +484,9 @@ public partial class MainWindow : Window
         App.Settings.Save();
     }
 
+    private void Settings_Profiles_Click(object sender, RoutedEventArgs e)
+        => new SemaBuzzProfilesDialog { Owner = this }.ShowDialog();
+
     private void Settings_Preferences_Click(object sender, RoutedEventArgs e)
     {
         var dlg = new SemaBuzzSettingsDialog { Owner = this };
@@ -335,7 +515,7 @@ public partial class MainWindow : Window
         => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://semabuzz.me/faq") { UseShellExecute = true });
 
     private void Help_NewsUpdates_Click(object sender, RoutedEventArgs e)
-        => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://x.com/semabuzzp2p") { UseShellExecute = true });
+        => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo("https://x.com/semabuzzlive") { UseShellExecute = true });
 
     /// <summary>Push sensitivity and style from saved settings to the live indicator control.</summary>
     private void ApplyIndicatorSettings()
@@ -350,7 +530,6 @@ public partial class MainWindow : Window
         _hostingRelayUri = null;
         _hostingPort     = port;
         if (clearChat) ClearChatPanels();
-        ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
         _listener.WireStateChanged           += OnWireStateChanged;
@@ -367,7 +546,6 @@ public partial class MainWindow : Window
         _hostingRelayUri = relayUri;
         _hostingPort     = 0;
         if (clearChat) ClearChatPanels();
-        ConnectMenuItem.IsEnabled = false;
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
         _listener.WireStateChanged           += OnWireStateChanged;
@@ -383,7 +561,6 @@ public partial class MainWindow : Window
     private void StartConnecting(string host, int port, CancellationToken ct)
     {
         ClearChatPanels();
-        ConnectMenuItem.IsEnabled = false;
         _client = new SemaBuzzClient();
         _client.PacketReceived      += OnRemotePacketReceived;
         _client.WireStateChanged    += OnWireStateChanged;
@@ -396,7 +573,6 @@ public partial class MainWindow : Window
     private void StartConnectingViaRelay(string token, string relayUri, CancellationToken ct)
     {
         ClearChatPanels();
-        ConnectMenuItem.IsEnabled = false;
         _client = new SemaBuzzClient();
         _client.PacketReceived      += OnRemotePacketReceived;
         _client.WireStateChanged    += OnWireStateChanged;
@@ -409,7 +585,7 @@ public partial class MainWindow : Window
     }
 
     // ---------------------------------------------
-    // Input handling ï¿½ Live-Wire typing
+    // Input handling -- Live-Wire typing
     // ---------------------------------------------
 
     private void InputBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -582,7 +758,7 @@ public partial class MainWindow : Window
 
     private async Task<bool> OnConnectionApprovalRequested(System.Net.IPEndPoint remote)
     {
-        bool approved = false;
+        _approvalTcs = new TaskCompletionSource<bool>();
         await Dispatcher.InvokeAsync(() =>
         {
             SemaBuzzConnectRequestDialog.PlayRequestSoundOnce();
@@ -590,13 +766,31 @@ public partial class MainWindow : Window
                 RestoreFromTray();
             else if (WindowState == WindowState.Minimized)
                 WindowState = WindowState.Normal;
-
             Activate();
-            var dlg = new SemaBuzzConnectRequestDialog(remote) { Owner = this };
-            dlg.ShowDialog();
-            approved = dlg.Accepted;
+
+            BuzzRequestFromLabel.Text = $"Peer at  {remote}  wants to open a wire.";
+            _approvalSecondsLeft      = 30;
+            BuzzRequestCountdown.Text = $"Auto-declining in {_approvalSecondsLeft}s...";
+            BuzzWaitingState.Visibility  = Visibility.Collapsed;
+            BuzzRequestState.Visibility  = Visibility.Visible;
+
+            _approvalTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
+            _approvalTimer.Tick += (_, _) =>
+            {
+                _approvalSecondsLeft--;
+                BuzzRequestCountdown.Text = $"Auto-declining in {_approvalSecondsLeft}s...";
+                if (_approvalSecondsLeft <= 0)
+                {
+                    _approvalTimer?.Stop();
+                    _approvalTimer = null;
+                    _approvalTcs?.TrySetResult(false);
+                    _approvalTcs = null;
+                    RestoreWaitingState();
+                }
+            };
+            _approvalTimer.Start();
         });
-        return approved;
+        return await _approvalTcs.Task;
     }
 
     // ---------------------------------------------
@@ -716,7 +910,6 @@ public partial class MainWindow : Window
     {
         SetStatus("› wire is cold");
         TitleSessionLabel.Text         = "NO WIRE";
-        ConnectMenuItem.IsEnabled      = true;
         DisconnectMenuItem.IsEnabled   = false;
         InputBox.IsEnabled             = false;
         SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        _peerLiveRow                   = null;
@@ -726,6 +919,7 @@ public partial class MainWindow : Window
         PeerLabel.Text                 = string.Empty;
         UpdateWireStateDot(SemaBuzzWireState.Cold);
         BuzzIndicator.Flatline();
+        ClearChatMenuItem.IsEnabled    = false;
         _peerSeqInitialized = false;
         _pendingPeerPackets.Clear();
         _pendingPeerResyncTimer.Stop();
@@ -745,11 +939,9 @@ public partial class MainWindow : Window
 
             if (e.State == SemaBuzzWireState.Warming)
             {
-                // If we were in a live session when Warming fired, the peer disconnected
-                // and the listener (TCP/UDP mode) has already resumed listening on the
-                // same port. Show a disconnect divider and reset the live-session chrome.
                 if (InputBox.IsEnabled)
                 {
+                    // We were in a live chat — peer disconnected. Tear down and go to idle.
                     PlayErrorSound();
                     TitleSessionLabel.Text       = "NO WIRE";
                     InputBox.IsEnabled           = false;
@@ -762,16 +954,24 @@ public partial class MainWindow : Window
                     _peerAvatarPng               = null;
                     PeerLabel.Text               = string.Empty;
                     BuzzIndicator.Flatline();
-                    AddChatDivider($"× {savedHandle2} disconnected · resuming...");
+                    AddChatDivider($"× {savedHandle2} disconnected");
+                    _hostingToken    = null;
+                    _hostingRelayUri = null;
+                    _hostingPort     = 0;
+                    if (_cts != null) _cts.Cancel();
+                    _cts = null;
+                    _warmingCts?.Cancel();
+                    _warmingCts = null;
+                    ResetToIdle();
+                    FadeToIdle();
                 }
-                DisconnectMenuItem.IsEnabled = true;
-                if (_cts != null)
-                    _cts.Cancel();
-                _warmingCts = new CancellationTokenSource();
-                _ = StartWarmingTimeoutAsync(_warmingCts.Token);
+                // else: Warming during relay handshake / waiting — status bar already
+                // updated above; leave the waiting screen as-is.
             }
             else if (e.State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
             {
+                // Hide the buzz code banner and reveal the chat panes
+                HideBuzzCode();
                 if (_warmingCts != null)
                     _warmingCts.Cancel();
                 _warmingCts = null;
@@ -786,6 +986,7 @@ public partial class MainWindow : Window
                 BuzzButton.IsEnabled = true;
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
+                ClearChatMenuItem.IsEnabled  = true;
                 string wireDivider;
                 if (e.State == SemaBuzzWireState.Secured)
                     wireDivider = "› sema secured · wire is live";
@@ -799,6 +1000,12 @@ public partial class MainWindow : Window
             }
             else if (e.State == SemaBuzzWireState.Dead)
             {
+                // Cancel any pending inline approval
+                _approvalTimer?.Stop();
+                _approvalTimer = null;
+                _approvalTcs?.TrySetResult(false);
+                _approvalTcs = null;
+
                 PlayErrorSound();
                 if (_warmingCts != null)
                     _warmingCts.Cancel();
@@ -814,8 +1021,8 @@ public partial class MainWindow : Window
                 _peerAvatarPng               = null;
                 PeerLabel.Text               = string.Empty;
                 BuzzIndicator.Flatline();
-                ConnectMenuItem.IsEnabled  = true;
                 DisconnectMenuItem.IsEnabled = false;
+                ClearChatMenuItem.IsEnabled  = false;
 
                 string divider;
                 if (_warmingTimedOut)
@@ -834,14 +1041,11 @@ public partial class MainWindow : Window
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
 
-                // Relay mode: if the peer disconnected, auto-resume listening.
-                // (TCP/UDP mode re-listens automatically via the Warming transition above.)
-                if (e.Message == "peer-disconnect" && _hostingToken != null)
-                {
-                    _listener = null;
-                    _cts = new CancellationTokenSource();
-                    StartListeningViaRelay(_hostingToken, _hostingRelayUri!, _cts.Token, clearChat: false);
-                }
+                // Always return to the connect screen
+                _hostingToken    = null;
+                _hostingRelayUri = null;
+                _hostingPort     = 0;
+                FadeToIdle();
             }
         });
     }
@@ -910,8 +1114,8 @@ public partial class MainWindow : Window
 
     private void AppendPeerCharacter(char ch)
     {
-        // '\n' commits a live line ï¿½ if there's no live line, nothing to freeze.
-        // '\b' removes a character ï¿½ if there's no live line, nothing to delete.
+        // '\n' commits a live line -- if there's no live line, nothing to freeze.
+        // '\b' removes a character -- if there's no live line, nothing to delete.
         // Creating a row just to immediately freeze/no-op it would leave an empty row.
         if (_livePeerBlock == null && ch is '\n' or '\b') return;
 
@@ -929,7 +1133,7 @@ public partial class MainWindow : Window
             if (_livePeerBlock.Text.Length > prefix.Length)
                 _livePeerBlock.Text = _livePeerBlock.Text[..^1];
 
-            // All text removed ï¿½ remove the row
+            // All text removed -- remove the row
             if (_livePeerBlock.Text == prefix)
             {
                 PeerPanel.Children.Remove(_peerLiveRow);
@@ -1072,7 +1276,7 @@ public partial class MainWindow : Window
     {
         var fullText = tb.Text;
         var matches  = UrlRegex.Matches(fullText);
-        if (matches.Count == 0) return; // no URLs ï¿½ leave as plain text
+        if (matches.Count == 0) return; // no URLs -- leave as plain text
 
         // Switching to Inlines mode clears .Text automatically
         tb.Inlines.Clear();
@@ -1236,6 +1440,7 @@ public partial class MainWindow : Window
     // ---------------------------------------------
     // ---------------------------------------------
 
+    /// <summary>Updates the Pro upgrade banner visibility based on the current license state.</summary>
     public void ApplyLicenseBanner() { }
 
     private void BuyNowButton_Click(object sender, RoutedEventArgs e) { }

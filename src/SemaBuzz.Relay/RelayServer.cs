@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
-using SemaBuzz.Protocol;
 
 namespace SemaBuzz.Relay;
 
@@ -39,6 +38,11 @@ internal sealed class RelayServer
 
     // Entry point  one call per accepted WebSocket connection
 
+    /// <summary>
+    /// Entry point for each accepted WebSocket connection. Enforces per-IP connection limits,
+    /// reads the JoinHost or JoinDial control frame, pairs the room, and relays all subsequent
+    /// binary frames transparently until the socket closes or the cancellation token fires.
+    /// </summary>
     public async Task HandleClientAsync(WebSocket ws, string remoteIp, CancellationToken ct)
     {
         // --- Per-IP connection cap ---

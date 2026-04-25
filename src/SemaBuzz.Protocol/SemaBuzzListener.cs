@@ -93,7 +93,7 @@ public sealed class SemaBuzzListener : IDisposable
 
         if (!paired) { SetState(SemaBuzzWireState.Dead, "Wire closed."); return; }
 
-        // ── STUN / UDP hole-punch attempt ─────────────────────────────────────────
+        // -- STUN / UDP hole-punch attempt -----------------------------------------
         // Bind a fresh UDP socket and use STUN to discover our external endpoint.
         // Send it to the relay via PunchReady; wait up to 5 s for the peer's endpoint
         // (PeerAddress frame), then try direct UDP. If successful we drop the relay.
@@ -128,7 +128,7 @@ public sealed class SemaBuzzListener : IDisposable
                         }
                     }
                 }
-                catch (OperationCanceledException) { /* punch exchange timed out — fall back */ }
+                catch (OperationCanceledException) { /* punch exchange timed out -- fall back */ }
 
                 if (peerDirectEp != null)
                 {
@@ -138,7 +138,7 @@ public sealed class SemaBuzzListener : IDisposable
 
                     if (directEp != null)
                     {
-                        // Direct path confirmed — switch to UDP socket.
+                        // Direct path confirmed -- switch to UDP socket.
                         _udp = directUdp;
                         directUdp = null; // ownership transferred
                         _isRelayMode = false;
@@ -149,7 +149,7 @@ public sealed class SemaBuzzListener : IDisposable
                         _wsClient.Dispose();
                         _wsClient = null;
 
-                        SetState(SemaBuzzWireState.Warming, "Direct UDP — completing handshake...");
+                        SetState(SemaBuzzWireState.Warming, "Direct UDP -- completing handshake...");
 
                         // Run the standard listener loop over the direct socket.
                         try
@@ -166,19 +166,19 @@ public sealed class SemaBuzzListener : IDisposable
                         catch (OperationCanceledException) { }
                         catch (SocketException) { }
                         finally { SetState(SemaBuzzWireState.Dead, _pendingDeadMessage); }
-                        return; // done — skip relay session below
+                        return; // done -- skip relay session below
                     }
                 }
             }
         }
         catch (OperationCanceledException) { throw; }
-        catch { /* STUN/punch failed — continue with relay */ }
+        catch { /* STUN/punch failed -- continue with relay */ }
         finally
         {
             if (directUdp != null)
                 directUdp.Dispose();
         }
-        // ── end punch-through attempt ─────────────────────────────────────────────
+        // -- end punch-through attempt ---------------------------------------------
 
         // Wire up the WebSocket send delegate used by all internal send helpers.
         var ws = _wsClient!;
@@ -202,7 +202,7 @@ public sealed class SemaBuzzListener : IDisposable
         _localPubKeyBytes = _pendingEcdh.PublicKey.ExportSubjectPublicKeyInfo();
         await _wsSend(SemaBuzzKeyExchange.Serialize(_localPubKeyBytes));
 
-        SetState(SemaBuzzWireState.Warming, "Peer connected via relay \u2014 completing handshake...");
+        SetState(SemaBuzzWireState.Warming, "Peer connected via relay -- completing handshake...");
 
         // Relay dummy endpoint: used as the stand-in remote address in HandleIncomingAsync.
         var relayPeer = new IPEndPoint(IPAddress.Loopback, 0);
@@ -326,7 +326,7 @@ public sealed class SemaBuzzListener : IDisposable
 
             if (_pendingEcdh != null)
             {
-                // Host-initiates flow: our key was already sent — don't send again.
+                // Host-initiates flow: our key was already sent -- don't send again.
                 _pendingEcdh.Dispose();
                 _pendingEcdh = null;
             }
@@ -338,7 +338,7 @@ public sealed class SemaBuzzListener : IDisposable
             }
 
             PeerEndPoint = result.RemoteEndPoint;
-            SetState(SemaBuzzWireState.Warming, "Handshake received \u2014 awaiting host approval...");
+            SetState(SemaBuzzWireState.Warming, "Handshake received -- awaiting host approval...");
 
             if (ConnectionApprovalCallback != null)
             {

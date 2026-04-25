@@ -5,8 +5,13 @@ using System.Windows.Threading;
 
 namespace SemaBuzz.App;
 
+/// <summary>
+/// Dialog shown to the host when a peer requests to open a wire.
+/// Displays the peer's remote endpoint and counts down 30 seconds before auto-declining.
+/// </summary>
 public partial class SemaBuzzConnectRequestDialog : Window
 {
+    /// <summary>True if the host clicked Accept; false if they declined or the countdown expired.</summary>
     public bool Accepted { get; private set; }
 
     private readonly DispatcherTimer _timer;

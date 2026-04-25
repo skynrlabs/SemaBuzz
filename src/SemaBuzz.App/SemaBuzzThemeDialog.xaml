@@ -57,6 +57,26 @@
             </Border>
         </Grid>
 
+        <!-- Daylight -->
+        <Grid Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeDaylight"
+                         Content="Daylight  (navy · white)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeDaylight_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#F2F2F2" BorderBrush="#D8D8D8" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#1565C0" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#FAFAFA" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
         <!-- Neon -->
         <Grid x:Name="ThemeNeonRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
@@ -299,6 +319,26 @@
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
                     <Rectangle Width="12" Height="12" Fill="#00C8A0" RadiusX="2" RadiusY="2"/>
                     <Rectangle Width="8"  Height="12" Fill="#1F1208" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Cloud (PRO) -->
+        <Grid x:Name="ThemeCloudRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeCloud"
+                         Content="Cloud  (teal · white)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeCloud_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#F8F9FA" BorderBrush="#E0E4EA" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#00897B" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#FFFFFF" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>

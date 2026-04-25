@@ -1,6 +1,10 @@
-﻿using System.Security.Cryptography;
+// Copied from SemaBuzz.Protocol — kept here so the relay is self-contained
+// and can be published as a standalone open-source repo without referencing
+// the private app protocol library.
 
-namespace SemaBuzz.Protocol;
+using System.Security.Cryptography;
+
+namespace SemaBuzz.Relay;
 
 /// <summary>
 /// Control packets exchanged between SemaBuzz clients and the relay server.
@@ -26,7 +30,7 @@ public static class SemaBuzzRelayPacket
     public const int PunchPacketSize = 16;   // standard 10-byte header + 4-byte IPv4 + 2-byte port
 
     // Relay server connection details.
-    // DefaultRelayUri is the WebSocket endpoint  used by both the listener and client.
+    // DefaultRelayUri is the WebSocket endpoint used by both the listener and client.
     // Change this to your deployed relay URL before shipping.
     public const string DefaultRelayUri = "wss://relay.semabuzz.me/relay";
     public const string DefaultRelayHost = "relay.semabuzz.me"; // kept for reference

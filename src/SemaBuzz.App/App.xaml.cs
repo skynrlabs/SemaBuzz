@@ -5,12 +5,21 @@ using Application = System.Windows.Application;
 
 namespace SemaBuzz.App;
 
+/// <summary>
+/// WPF Application entry point. Manages startup, single-instance enforcement,
+/// buzz:// URI registration and forwarding, license checking, and theme initialization.
+/// </summary>
 public partial class App : Application
 {
+    /// <summary>Persisted application settings, loaded at startup and saved on change.</summary>
     internal static SemaBuzzSettings Settings { get; private set; } = new();
 
     private CancellationTokenSource _appExiting = new();
 
+    /// <summary>
+    /// Enforces single-instance, registers buzz:// URI handling, loads settings,
+    /// applies the saved theme, and kicks off the async license check.
+    /// </summary>
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
@@ -63,7 +72,8 @@ public partial class App : Application
                 if (!SemaBuzzLicense.IsProUnlocked)
                 {
                     var changed = false;
-                    if (Settings.Theme != SemaBuzzThemeId.Obsidian)
+                    if (Settings.Theme != SemaBuzzThemeId.Obsidian
+                        && Settings.Theme != SemaBuzzThemeId.Daylight)
                     {
                         Settings.Theme = SemaBuzzThemeId.Obsidian;
                         SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
@@ -142,6 +152,7 @@ public partial class App : Application
         });
     }
 
+    /// <summary>Cancels background tasks and cleans up on application exit.</summary>
     protected override void OnExit(ExitEventArgs e)
     {
         _appExiting.Cancel();

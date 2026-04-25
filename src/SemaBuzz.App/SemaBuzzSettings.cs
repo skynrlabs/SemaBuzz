@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace SemaBuzz.App;
 
+/// <summary>Identifies the active visual theme for the SemaBuzz UI.</summary>
 public enum SemaBuzzThemeId
 {
     Obsidian  = 0,
@@ -18,8 +19,11 @@ public enum SemaBuzzThemeId
     Emerald   = 10,
     Steel     = 11,
     Powwow    = 12,
+    Daylight  = 13,
+    Cloud     = 14,
 }
 
+/// <summary>Identifies the filament animation style shown in the buzz indicator.</summary>
 public enum IndicatorStyleId
 {
     Flicker = 0, // Default (free)  chaotic multi-harmonic
@@ -27,8 +31,10 @@ public enum IndicatorStyleId
     Wave    = 2, // PRO  slow rolling sine
 }
 
+/// <summary>Persisted user preferences for SemaBuzz. Serialised to %APPDATA%\SemaBuzz\settings.json.</summary>
 public sealed class SemaBuzzSettings
 {
+    /// <summary>Active UI theme. Free users are limited to Obsidian and Daylight.</summary>
     public SemaBuzzThemeId    Theme             { get; set; } = SemaBuzzThemeId.Obsidian;
     /// <summary>Default port pre-filled in the connect dialog's listen port field. Null means use the built-in default (7070).</summary>
     public int?               DefaultListenPort { get; set; } = null;
@@ -60,6 +66,12 @@ public sealed class SemaBuzzSettings
     /// </summary>
     public string             RelayUri             { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
+    /// <summary>
+    /// ID of the profile that is currently selected as the active identity.
+    /// Null means use the first available profile, or "anonymous" if none exist.
+    /// </summary>
+    public string?            ActiveProfileId      { get; set; } = null;
+
     //  Persistence
 
     internal static readonly string DataDir =
@@ -68,6 +80,7 @@ public sealed class SemaBuzzSettings
     private static readonly string SettingsFile =
         Path.Combine(DataDir, "settings.json");
 
+    /// <summary>Reads settings from disk, returning defaults if the file is missing or corrupt.</summary>
     public static SemaBuzzSettings Load()
     {
         try
@@ -85,6 +98,7 @@ public sealed class SemaBuzzSettings
         return new SemaBuzzSettings();
     }
 
+    /// <summary>Writes the current settings to disk as indented JSON. Failures are silently ignored.</summary>
     public void Save()
     {
         try

@@ -1,4 +1,4 @@
-namespace SemaBuzz.Protocol;
+﻿namespace SemaBuzz.Protocol;
 
 /// <summary>
 /// Converts a raw string into a stream of SemaBuzzPackets, one character at a time.
@@ -40,7 +40,7 @@ public sealed class SemaBuzzStreamer
     }
 
     /// <summary>
-    /// Map a keystroke interval to a 0–255 intensity byte.
+    /// Map a keystroke interval to a 0-255 intensity byte.
     /// Short interval (fast typing)  high intensity.
     /// Long interval (slow typing)   low intensity.
     /// </summary>

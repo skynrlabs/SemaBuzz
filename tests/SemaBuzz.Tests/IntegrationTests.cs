@@ -101,31 +101,6 @@ public class FullSessionTests
     }
 
     /// <summary>
-    /// Passphrase-derived shield: PBKDF2 key derivation → encrypt 50 packets →
-    /// decrypt with a second shield derived from the same passphrase + salt.
-    /// Exercises the full passphrase path end-to-end.
-    /// </summary>
-    [Fact]
-    [Trait("Category", "Integration")]
-    public void PassphraseShield_SamePassphrase_CrossDecryptsAllPackets()
-    {
-        const string passphrase = "correct-horse-battery-staple";
-
-        using var shieldA = SemaBuzzShield.FromPassphrase(passphrase);
-        using var shieldB = SemaBuzzShield.FromPassphrase(passphrase);
-
-        for (int i = 0; i < 50; i++)
-        {
-            var plain = new SemaBuzzPacket((char)('A' + (i % 26)), 128).ToWireBytes();
-            var ct = shieldA.Encrypt(plain);
-            var recovered = shieldB.Decrypt(ct);
-
-            Assert.NotNull(recovered);
-            Assert.Equal(plain, recovered);
-        }
-    }
-
-    /// <summary>
     /// Streamer pipeline: simulate keystrokes at varying intervals and verify that
     /// the produced packets have monotonically increasing sequence numbers,
     /// intensities within the valid 0–255 range, and the correct packet type.

@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 
 namespace SemaBuzz.Protocol;
@@ -7,7 +7,7 @@ namespace SemaBuzz.Protocol;
 /// UDP hole-punching helper used in the relay + STUN ICE-lite flow.
 ///
 /// How it works
-/// ─────────────
+/// -------------
 /// 1. Both peers bind a UDP socket on their listen port and run STUN to find
 ///    their external IP:port (SemaBuzzStun.DiscoverAsync on the same UdpClient).
 /// 2. They each send a PunchReady frame to the relay, which echoes back a
@@ -22,7 +22,7 @@ namespace SemaBuzz.Protocol;
 public static class SemaBuzzPunchThrough
 {
     private static readonly TimeSpan PunchProbeInterval = TimeSpan.FromMilliseconds(200);
-    private const int PunchMagic = 0x42_5A; // 'BZ' — used to distinguish probe from wire traffic
+    private const int PunchMagic = 0x42_5A; // 'BZ' -- used to distinguish probe from wire traffic
     private const int PunchProbeSize = 4;
     private static readonly byte[] PunchProbe = [0x42, 0x5A, 0x01, 0x00]; // probe
     private static readonly byte[] PunchAck = [0x42, 0x5A, 0x01, 0x01]; // reply
@@ -95,7 +95,7 @@ public static class SemaBuzzPunchThrough
                 {
                     // Reply with an ack so the sender knows the path is open.
                     try { await udp.SendAsync(PunchAck, remoteEp, ct); } catch { }
-                    // A probe from the peer also means we can reach them — success.
+                    // A probe from the peer also means we can reach them -- success.
                     return remoteEp;
                 }
 
