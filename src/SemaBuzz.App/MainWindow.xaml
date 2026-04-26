@@ -297,12 +297,9 @@
                 <Grid VerticalAlignment="Center">
 
                     <!-- Idle state: join a buzz or start a new one -->
-                    <Viewbox x:Name="BuzzIdleState"
-                             Stretch="Uniform"
-                             StretchDirection="UpOnly"
-                             MaxWidth="560"
-                             HorizontalAlignment="Center">
-                        <StackPanel Width="280">
+                    <StackPanel x:Name="BuzzIdleState"
+                                Width="320"
+                                HorizontalAlignment="Center">
 
                         <TextBlock Text="Join a Buzz"
                                    FontSize="13" FontWeight="SemiBold"
@@ -331,7 +328,7 @@
                                             BorderBrush="{DynamicResource AmberDimBrush}"
                                             BorderThickness="1"
                                             Background="#44000000"
-                                            Width="280"
+                                            Width="320"
                                             Height="44">
                                         <Grid Background="Transparent">
                                             <!-- Centered row: spaced text + blinking caret -->
@@ -405,12 +402,12 @@
                                 Content="JOIN"
                                 IsEnabled="False"
                                 HorizontalAlignment="Center"
-                                Width="280"
+                                Width="320"
                                 Padding="0 10"
                                 Margin="0 14 0 0"
                                 Click="InlineConnect_Click"/>
 
-                        <Grid Width="280" Margin="0 20 0 20">
+                        <Grid Width="320" Margin="0 20 0 20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -430,20 +427,15 @@
                         <Button Style="{StaticResource SemaBuzzButton}"
                                 Content="CREATE A BUZZ"
                                 HorizontalAlignment="Center"
-                                Width="280"
+                                Width="320"
                                 Padding="0 10"
                                 Click="InlineStartBuzz_Click"/>
 
-                        </StackPanel>
-                    </Viewbox>
+                    </StackPanel>
 
                     <!-- Waiting state -->
-                    <Viewbox x:Name="BuzzWaitingState" Visibility="Collapsed"
-                             Stretch="Uniform"
-                             StretchDirection="Both"
-                             MaxWidth="700"
-                             HorizontalAlignment="Center">
-                        <StackPanel>
+                    <StackPanel x:Name="BuzzWaitingState" Visibility="Collapsed"
+                               HorizontalAlignment="Center">
                         <TextBlock Text="Your buzz is live"
                                    HorizontalAlignment="Center"
                                    FontSize="12"
@@ -483,12 +475,11 @@
                                    HorizontalAlignment="Center"
                                    TextAlignment="Center"
                                    TextWrapping="Wrap"
-                                   MaxWidth="420"
+                                   MaxWidth="480"
                                    FontSize="10"
                                    Foreground="#FF9800"
                                    Margin="0 16 0 0"/>
-                        </StackPanel>
-                    </Viewbox>
+                    </StackPanel>
 
                     <!-- Incoming request state -->
                     <StackPanel x:Name="BuzzRequestState" Visibility="Collapsed" HorizontalAlignment="Center">
