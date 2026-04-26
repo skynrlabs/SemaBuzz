@@ -23,7 +23,7 @@ public partial class SemaBuzzSettingsDialog : Window
     public double             SelectedBuzzSoundVolume      { get; private set; }
     public string             SelectedRelayUri             { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
-    public SemaBuzzSettingsDialog()
+    public SemaBuzzSettingsDialog(bool lockRelay = false)
     {
         InitializeComponent();
 
@@ -43,6 +43,21 @@ public partial class SemaBuzzSettingsDialog : Window
         BuzzSoundEnabledCheck.IsChecked = s.BuzzSoundEnabled;
         BuzzVolumeSlider.Value     = s.BuzzSoundVolume;
         RelayUriBox.Text           = s.RelayUri;
+
+        // Disable relay editing while a buzz session is waiting for a peer
+        if (lockRelay)
+        {
+            RelayUriBox.IsEnabled      = false;
+            ResetRelayButton.IsEnabled = false;
+            RelayLabelRow.Children.Add(new TextBlock
+            {
+                Text              = "(in use — cancel the buzz to change)",
+                Foreground        = new SolidColorBrush(Colors.Gray),
+                FontSize          = 10,
+                Margin            = new Thickness(8, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            });
+        }
 
         // Gate Pro features when the user has not purchased the Pro add-on
         if (!SemaBuzzLicense.IsProUnlocked)

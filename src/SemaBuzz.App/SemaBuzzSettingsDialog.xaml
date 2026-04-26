@@ -220,9 +220,9 @@
         </Grid>
 
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
-                   Text="WebSocket address of the relay server (must start with wss:// or ws://). Click RESET to restore the default."/>
+                   Text="WebSocket relay address (ws:// or wss://). Click RESET to restore the default."/>
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"
-                   Text="Only use a relay you trust. All traffic is encrypted on your device before it reaches the relay — the relay sees only ciphertext and holds no keys."/>
+                   Text="Only use a relay you trust. Traffic is encrypted before it leaves your device."/>
 
         </StackPanel>
         </ScrollViewer>

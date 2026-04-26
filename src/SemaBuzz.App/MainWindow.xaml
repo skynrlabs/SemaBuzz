@@ -470,15 +470,25 @@
                                     Padding="18 5"
                                     Click="CancelWait_Click"/>
                         </StackPanel>
-                        <TextBlock x:Name="CustomRelayWarning"
-                                   Visibility="Collapsed"
-                                   HorizontalAlignment="Center"
-                                   TextAlignment="Center"
-                                   TextWrapping="Wrap"
-                                   MaxWidth="480"
-                                   FontSize="10"
-                                   Foreground="#FF9800"
-                                   Margin="0 16 0 0"/>
+                        <StackPanel x:Name="CustomRelayWarning"
+                                    Visibility="Collapsed"
+                                    HorizontalAlignment="Center"
+                                    Margin="0 16 0 0">
+                            <TextBlock x:Name="CustomRelayWarningMsg"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="480"
+                                       FontSize="10"
+                                       Foreground="#FF9800"/>
+                            <TextBlock x:Name="CustomRelayWarningUri"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       FontFamily="Cascadia Code, Consolas"
+                                       FontSize="10"
+                                       Foreground="#FF9800"
+                                       Margin="0 4 0 0"/>
+                        </StackPanel>
                     </StackPanel>
 
                     <!-- Incoming request state -->

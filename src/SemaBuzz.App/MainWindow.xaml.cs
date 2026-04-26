@@ -37,9 +37,6 @@ public partial class MainWindow : Window
     private CancellationTokenSource? _warmingCts;
     private bool _warmingTimedOut;
 
-    // Prevents more than one connect dialog from being open simultaneously.
-    private bool _connectDialogOpen;
-
     // Spaced display overlay for the inline token input
     private TextBlock? _spacedDisplay;
     // Glow effects that need their Color updated when the theme changes
@@ -211,7 +208,8 @@ public partial class MainWindow : Window
 
         if (_hostingRelayUri != null && _hostingRelayUri != SemaBuzzRelayPacket.DefaultRelayUri)
         {
-            CustomRelayWarning.Text       = $"You\'re using a custom relay. Your peer must also connect via:\n{_hostingRelayUri}";
+            CustomRelayWarningMsg.Text    = "Custom relay active — your peer must set their relay to:";
+            CustomRelayWarningUri.Text    = _hostingRelayUri;
             CustomRelayWarning.Visibility = Visibility.Visible;
         }
         else
@@ -397,8 +395,8 @@ public partial class MainWindow : Window
         var relayUri = App.Settings.RelayUri;
         if (_cts != null) _cts.Cancel();
         _cts = new CancellationTokenSource();
-        ShowBuzzCode(token);
         StartListeningViaRelay(token, relayUri, _cts.Token);
+        ShowBuzzCode(token);
     }
 
     private void InlineConnect_Click(object sender, RoutedEventArgs e)
@@ -522,7 +520,8 @@ public partial class MainWindow : Window
 
     private void Settings_Preferences_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new SemaBuzzSettingsDialog { Owner = this };
+        bool buzzWaiting = BuzzWaitingState.Visibility == Visibility.Visible;
+        var dlg = new SemaBuzzSettingsDialog(lockRelay: buzzWaiting) { Owner = this };
         if (dlg.ShowDialog() != true) return;
 
         App.Settings.DefaultListenPort    = dlg.SelectedDefaultListenPort;
