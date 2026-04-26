@@ -530,11 +530,14 @@ public partial class MainWindow : Window
         App.Settings.ChatFontSize         = dlg.SelectedChatFontSize;
         App.Settings.LivePreview          = dlg.SelectedLivePreview;
         App.Settings.MinimizeToTray       = dlg.SelectedMinimizeToTray;
+        App.Settings.StartWithWindows     = dlg.SelectedStartWithWindows;
+        App.Settings.AutoApprove          = dlg.SelectedAutoApprove;
         App.Settings.BuzzSoundEnabled     = dlg.SelectedBuzzSoundEnabled;
         App.Settings.BuzzSoundVolume      = dlg.SelectedBuzzSoundVolume;
         App.Settings.RelayUri             = dlg.SelectedRelayUri;
         App.Settings.Save();
 
+        SemaBuzzStartup.Apply(App.Settings.StartWithWindows);
         ApplyIndicatorSettings();
     }
 
@@ -790,6 +793,9 @@ public partial class MainWindow : Window
 
     private async Task<bool> OnConnectionApprovalRequested(System.Net.IPEndPoint remote)
     {
+        if (App.Settings.AutoApprove)
+            return true;
+
         _approvalTcs = new TaskCompletionSource<bool>();
         await Dispatcher.InvokeAsync(() =>
         {
@@ -1418,6 +1424,7 @@ public partial class MainWindow : Window
 
     private static void PlayErrorSound()
     {
+        if (!App.Settings.BuzzSoundEnabled) return;
         var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "error.mp3");
         if (!File.Exists(path)) return;
         var player = new MediaPlayer();

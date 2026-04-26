@@ -60,6 +60,12 @@ public sealed class SemaBuzzSettings
     /// <summary>Playback volume for the local buzz sound (0.0-1.0).</summary>
     public double             BuzzSoundVolume      { get; set; } = 0.75;
 
+    /// <summary>When true, SemaBuzz is registered to run at Windows startup.</summary>
+    public bool               StartWithWindows     { get; set; } = false;
+
+    /// <summary>When true, incoming connection requests are automatically approved without prompting.</summary>
+    public bool               AutoApprove          { get; set; } = false;
+
     /// <summary>
     /// WebSocket relay endpoint. Defaults to the hosted SemaBuzz relay.
     /// Users can override this to point at a self-hosted relay.
