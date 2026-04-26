@@ -7,14 +7,10 @@ namespace SemaBuzz.App;
 /// <summary>
 /// Enforces a single running instance of SemaBuzz.
 ///
-/// When a second instance is launched (e.g. by clicking a buzz:// link):
+/// When a second instance is launched:
 ///   1. It detects the first instance is already running via a named Mutex.
-///   2. It forwards the command-line argument (the buzz:// URI) to the first
-///      instance over a named pipe.
+///   2. It signals the first instance over a named pipe to come to the foreground.
 ///   3. It exits immediately.
-///
-/// The first instance listens on the pipe and raises <see cref="UriReceived"/>
-/// when a URI arrives from a secondary launch.
 /// </summary>
 internal static class SemaBuzzSingleInstance
 {
@@ -23,11 +19,7 @@ internal static class SemaBuzzSingleInstance
 
     private static Mutex? _mutex;
 
-    // Raised on the thread-pool when a buzz:// URI is forwarded from a second instance.
-    // Subscribers must marshal to the UI thread themselves.
-    public static event Action<string>? UriReceived;
-
-    // Raised when a secondary instance starts without a URI (user double-clicked the exe).
+    // Raised when a secondary instance starts (user double-clicked the exe).
     public static event Action? FocusRequested;
 
     //  First-instance check
@@ -116,7 +108,7 @@ internal static class SemaBuzzSingleInstance
         var thread = new Thread(() => ListenLoop(appExiting))
         {
             IsBackground = true,
-            Name         = "BuzzUri-PipeListener",
+            Name         = "SemaBuzz-PipeListener",
         };
         thread.Start();
     }
@@ -143,12 +135,6 @@ internal static class SemaBuzzSingleInstance
                     var focusHandler = FocusRequested;
                     if (focusHandler != null)
                         focusHandler();
-                }
-                else
-                {
-                    var uriHandler = UriReceived;
-                    if (uriHandler != null)
-                        uriHandler(line);
                 }
             }
             catch (OperationCanceledException) { break; }

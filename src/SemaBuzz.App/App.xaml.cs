@@ -17,33 +17,22 @@ public partial class App : Application
     private CancellationTokenSource _appExiting = new();
 
     /// <summary>
-    /// Enforces single-instance, registers buzz:// URI handling, loads settings,
+    /// Enforces single-instance, loads settings,
     /// applies the saved theme, and kicks off the async license check.
     /// </summary>
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
 
-        //  Single-instance: if another SemaBuzz is already running, forward
-        //    any buzz:// URI from our command line to it and exit immediately.
-        var buzzArg = e.Args.FirstOrDefault(
-            a => a.StartsWith("buzz://", StringComparison.OrdinalIgnoreCase));
-
         if (!SemaBuzzSingleInstance.ClaimPrimary())
         {
-            // Always forward something so the primary comes to front;
-            // pass the buzz:// URI if we have one, otherwise just a focus signal.
-            SemaBuzzSingleInstance.ForwardToPrimary(buzzArg);
+            SemaBuzzSingleInstance.ForwardToPrimary(null);
             Shutdown();
             return;
         }
 
-        // Register buzz:// URI scheme and start the pipe listener in the background.
-        Task.Run(SemaBuzzUriHandler.EnsureRegistered);
-
-        //  Start listening for URIs forwarded by secondary instances.
+        //  Start listening for focus requests from secondary instances.
         SemaBuzzSingleInstance.StartListening(_appExiting.Token);
-        SemaBuzzSingleInstance.UriReceived += OnBuzzUriReceived;
         SemaBuzzSingleInstance.FocusRequested += OnFocusRequested;
 
         // Catch any unhandled exceptions so they are visible rather than a silent exit
@@ -111,31 +100,6 @@ public partial class App : Application
                 };
             }
             catch { /* toast activation unavailable  continue without it */ }
-        });
-
-        // If we were launched directly by a buzz:// click, handle it after
-        // the main window has finished loading.
-        if (buzzArg != null)
-        {
-            Dispatcher.InvokeAsync(() =>
-            {
-                if (MainWindow is MainWindow win)
-                    win.OpenBuzzUri(buzzArg);
-            }, System.Windows.Threading.DispatcherPriority.Loaded);
-        }
-    }
-
-    private void OnBuzzUriReceived(string uri)
-    {
-        Dispatcher.Invoke(() =>
-        {
-            if (MainWindow is MainWindow win)
-            {
-                if (win.WindowState == System.Windows.WindowState.Minimized)
-                    win.WindowState = System.Windows.WindowState.Normal;
-                win.Activate();
-                win.OpenBuzzUri(uri);
-            }
         });
     }
 

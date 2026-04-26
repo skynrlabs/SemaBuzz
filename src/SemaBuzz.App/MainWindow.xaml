@@ -84,6 +84,8 @@
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="Auto"/>  <!-- Wire status -->
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
+                <ColumnDefinition Width="Auto"/>  <!-- Profile badge -->
+                <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="Auto"/>  <!-- Window controls -->
             </Grid.ColumnDefinitions>
 
@@ -140,8 +142,36 @@
             <!-- Vertical divider -->
             <Rectangle Grid.Column="5" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
 
+            <!-- Profile badge -->
+            <Button Grid.Column="6"
+                    x:Name="ProfileBadgeBtn"
+                    Style="{StaticResource SemaBuzzWinButton}"
+                    Width="Auto"
+                    VerticalAlignment="Stretch"
+                    WindowChrome.IsHitTestVisibleInChrome="True"
+                    Click="ProfileBadge_Click"
+                    ToolTip="{Binding Text, ElementName=ProfileBadgeLabel}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14 0">
+                    <Ellipse x:Name="ProfileBadgeAvatar"
+                             Width="22" Height="22"
+                             Fill="{DynamicResource ObsidianBrush}"
+                             Stroke="{DynamicResource ObsidianBorderBrush}"
+                             StrokeThickness="1"
+                             Margin="0 0 8 0"/>
+                    <TextBlock x:Name="ProfileBadgeLabel"
+                               Text="ANONYMOUS"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               MaxWidth="120"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Vertical divider -->
+            <Rectangle Grid.Column="7" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
+
             <!-- Window controls: minimize · maximize/restore · close -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Stretch"
+            <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Stretch"
                         WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button x:Name="MinimizeButton"
                         Style="{StaticResource SemaBuzzWinButton}"
@@ -389,7 +419,7 @@
                             <Rectangle Grid.Column="0" Height="1"
                                        Fill="{DynamicResource ObsidianBorderBrush}"
                                        VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="&#x2014; or &#x2014;"
+                            <TextBlock Grid.Column="1" Text="or"
                                        Foreground="{DynamicResource ObsidianBorderBrush}" FontSize="10"
                                        Margin="12 0"/>
                             <Rectangle Grid.Column="2" Height="1"
@@ -441,8 +471,22 @@
                                     Style="{StaticResource SemaBuzzButton}"
                                     Content="COPY"
                                     Padding="18 5"
+                                    Margin="0 0 8 0"
                                     Click="CopyBuzzCode_Click"/>
+                            <Button Style="{StaticResource SemaBuzzButton}"
+                                    Content="CANCEL"
+                                    Padding="18 5"
+                                    Click="CancelWait_Click"/>
                         </StackPanel>
+                        <TextBlock x:Name="CustomRelayWarning"
+                                   Visibility="Collapsed"
+                                   HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="420"
+                                   FontSize="10"
+                                   Foreground="#FF9800"
+                                   Margin="0 16 0 0"/>
                         </StackPanel>
                     </Viewbox>
 

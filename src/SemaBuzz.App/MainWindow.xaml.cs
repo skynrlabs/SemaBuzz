@@ -97,6 +97,7 @@ public partial class MainWindow : Window
         Loaded += (_, _) =>
         {
             ApplyLicenseBanner();
+            LoadActiveProfile();
             InlineTokenInput.Focus();
             // Wire the spaced display TextBlock and caret glow from the template
             _spacedDisplay = InlineTokenInput.Template.FindName("SpacedDisplay", InlineTokenInput) as TextBlock;
@@ -106,6 +107,7 @@ public partial class MainWindow : Window
         };
 
         SemaBuzzThemeManager.ThemeChanged += UpdateGlowColors;
+        SemaBuzzThemeManager.ThemeChanged += RefreshProfileBadge;
 
         _trayIcon = CreateTrayIcon();
     }
@@ -192,48 +194,6 @@ public partial class MainWindow : Window
     }
 
     // ---------------------------------------------
-    // buzz:// URI handling
-    // ---------------------------------------------
-
-    /// <summary>
-    /// Called when the app is launched (or focused) with a buzz:// URI
-    /// either from the command line or forwarded by a secondary instance.
-    /// Pre-populates and opens the connect dialog in dial mode.
-    /// </summary>
-    public void OpenBuzzUri(string rawUri)
-    {
-        if (SemaBuzzUriHandler.TryParse(rawUri) == null) return; // ignore malformed URIs
-        if (_connectDialogOpen) return;
-        _connectDialogOpen = true;
-        try
-        {
-            var dialog = new SemaBuzzConnectDialog(dialBuzzUri: rawUri)
-            {
-                Owner = this,
-            };
-            if (dialog.ShowDialog() != true) return;
-
-            if (_cts != null)
-                _cts.Cancel();
-            _cts = new CancellationTokenSource();
-
-            _localHandle    = dialog.Handle;
-            _localAvatarPng = dialog.AvatarPng;
-            LocalPaneLabel.Text = dialog.Handle.ToUpperInvariant();
-
-            HideBuzzCode();
-            if (!string.IsNullOrEmpty(dialog.RelayToken))
-                StartConnectingViaRelay(dialog.RelayToken, dialog.RelayUri, _cts.Token);
-            else
-                StartConnecting(dialog.PeerHost, dialog.Port, _cts.Token);
-        }
-        finally
-        {
-            _connectDialogOpen = false;
-        }
-    }
-
-    // ---------------------------------------------
     // Connection dialog
     // ---------------------------------------------
 
@@ -248,6 +208,16 @@ public partial class MainWindow : Window
         ChatPanesGrid.Visibility        = Visibility.Collapsed;
         // Allow disconnect while waiting for a peer
         DisconnectMenuItem.IsEnabled    = true;
+
+        if (_hostingRelayUri != null && _hostingRelayUri != SemaBuzzRelayPacket.DefaultRelayUri)
+        {
+            CustomRelayWarning.Text       = $"You\'re using a custom relay. Your peer must also connect via:\n{_hostingRelayUri}";
+            CustomRelayWarning.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            CustomRelayWarning.Visibility = Visibility.Collapsed;
+        }
     }
 
     private void HideBuzzCode()
@@ -269,6 +239,13 @@ public partial class MainWindow : Window
         var timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
         timer.Tick += (_, _) => { BuzzCodeCopyBtn.Content = "COPY"; timer.Stop(); };
         timer.Start();
+    }
+
+    private void CancelWait_Click(object sender, RoutedEventArgs e)
+    {
+        _cts?.Cancel();
+        _cts = null;
+        FadeToIdle();
     }
 
     private void Approve_Click(object sender, RoutedEventArgs e)
@@ -305,9 +282,56 @@ public partial class MainWindow : Window
                     ?? (profiles.Count > 0 ? profiles[0] : null);
         if (active != null)
         {
-            _localHandle    = active.Handle;
+            _localHandle    = string.IsNullOrWhiteSpace(active.Handle) ? "anonymous" : active.Handle;
             _localAvatarPng = active.AvatarPng;
         }
+        else
+        {
+            _localHandle    = "anonymous";
+            _localAvatarPng = null;
+        }
+        RefreshProfileBadge();
+    }
+
+    private void RefreshProfileBadge()
+    {
+        ProfileBadgeLabel.Text = _localHandle.ToUpperInvariant();
+        if (_localAvatarPng is { } png)
+        {
+            var bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.StreamSource = new MemoryStream(png);
+            bmp.CacheOption  = BitmapCacheOption.OnLoad;
+            bmp.EndInit();
+            bmp.Freeze();
+            ProfileBadgeAvatar.Fill = new ImageBrush(bmp) { Stretch = Stretch.UniformToFill };
+        }
+        else
+        {
+            ProfileBadgeAvatar.Fill = MakeInitialsBrush(_localHandle, SemaBuzzThemeManager.AccentColor, 22);
+        }
+    }
+
+    private static ImageBrush MakeInitialsBrush(string handle, Color accent, int size)
+    {
+        var dv = new DrawingVisual();
+        using (var dc = dv.RenderOpen())
+        {
+            dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E)), null, new Rect(0, 0, size, size));
+            var initial = handle.Length > 0 ? handle[0].ToString().ToUpper() : "?";
+            var ft = new FormattedText(initial,
+                System.Globalization.CultureInfo.InvariantCulture,
+                FlowDirection.LeftToRight,
+                new Typeface("Cascadia Code"),
+                size * 0.44,
+                new SolidColorBrush(accent),
+                VisualTreeHelper.GetDpi(dv).PixelsPerDip);
+            dc.DrawText(ft, new Point((size - ft.Width) / 2, (size - ft.Height) / 2));
+        }
+        var rt = new RenderTargetBitmap(size, size, 96, 96, PixelFormats.Pbgra32);
+        rt.Render(dv);
+        rt.Freeze();
+        return new ImageBrush(rt) { Stretch = Stretch.None };
     }
 
     /// <summary>
@@ -485,7 +509,16 @@ public partial class MainWindow : Window
     }
 
     private void Settings_Profiles_Click(object sender, RoutedEventArgs e)
-        => new SemaBuzzProfilesDialog { Owner = this }.ShowDialog();
+        => OpenProfilesDialog();
+
+    private void ProfileBadge_Click(object sender, RoutedEventArgs e)
+        => OpenProfilesDialog();
+
+    private void OpenProfilesDialog()
+    {
+        new SemaBuzzProfilesDialog { Owner = this }.ShowDialog();
+        LoadActiveProfile();
+    }
 
     private void Settings_Preferences_Click(object sender, RoutedEventArgs e)
     {

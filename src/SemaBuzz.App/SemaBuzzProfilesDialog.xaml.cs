@@ -173,12 +173,13 @@ public partial class SemaBuzzProfilesDialog : Window
 
     private void AddProfile_Click(object sender, RoutedEventArgs e)
     {
-        _editingProfile           = null;
-        _editorAvatarPng          = null;
-        ProfileHandleBox.Text     = string.Empty;
-        ProfileAvatarPreview.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
+        _editingProfile                  = null;
+        _editorAvatarPng                 = null;
+        ProfileHandleBox.Text            = string.Empty;
+        HandleErrorText.Visibility       = Visibility.Collapsed;
+        ProfileAvatarPreview.Fill        = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
         ProfileClearAvatarBtn.IsEnabled  = false;
-        ProfileEditorPanel.Visibility = Visibility.Visible;
+        ProfileEditorPanel.Visibility    = Visibility.Visible;
         ProfileHandleBox.Focus();
     }
 
@@ -205,14 +206,26 @@ public partial class SemaBuzzProfilesDialog : Window
             ProfileAvatarPreview.Fill           = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
             ProfileClearAvatarBtn.IsEnabled = false;
         }
+        HandleErrorText.Visibility    = Visibility.Collapsed;
         ProfileEditorPanel.Visibility = Visibility.Visible;
         ProfileHandleBox.Focus();
+    }
+
+    private void ProfileHandleBox_TextChanged(object sender, TextChangedEventArgs e)
+    {
+        if (HandleErrorText != null)
+            HandleErrorText.Visibility = Visibility.Collapsed;
     }
 
     private void ProfileSave_Click(object sender, RoutedEventArgs e)
     {
         var handle = ProfileHandleBox.Text.Trim();
-        if (string.IsNullOrWhiteSpace(handle)) handle = "anonymous";
+        if (string.IsNullOrWhiteSpace(handle))
+        {
+            HandleErrorText.Visibility = Visibility.Visible;
+            ProfileHandleBox.Focus();
+            return;
+        }
 
         if (_editingProfile is not null)
         {
