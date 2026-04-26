@@ -2,12 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — Preferences"
-        Height="560" Width="460"
+        Height="480" Width="460"
         Background="{DynamicResource WindowBackgroundBrush}"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None">
 
+    <Border BorderBrush="{DynamicResource AmberDimBrush}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
@@ -290,4 +291,5 @@
         </Grid>
 
     </Grid>
+    </Border>
 </Window>

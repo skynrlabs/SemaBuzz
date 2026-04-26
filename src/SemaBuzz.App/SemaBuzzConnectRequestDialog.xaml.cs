@@ -69,13 +69,16 @@ public partial class SemaBuzzConnectRequestDialog : Window
         DialogResult = false;
     }
 
+    private static readonly HashSet<MediaPlayer> _activePlayers = [];
+
     public static void PlayRequestSoundOnce()
     {
         var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "request.mp3");
         if (!System.IO.File.Exists(path)) return;
         var ring = new MediaPlayer();
+        _activePlayers.Add(ring);
         ring.MediaOpened += (_, _) => ring.Play();
-        ring.MediaEnded  += (_, _) => ring.Close();
+        ring.MediaEnded  += (_, _) => { ring.Close(); _activePlayers.Remove(ring); };
         ring.Open(new Uri(path));
     }
 

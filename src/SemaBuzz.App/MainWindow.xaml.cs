@@ -113,6 +113,9 @@ public partial class MainWindow : Window
     {
         base.OnSourceInitialized(e);
         SemaBuzzThemeManager.ApplyChrome(this);
+        // Win10 has square window corners — flatten the overlay border to match
+        if (Environment.OSVersion.Version.Build < 22000)
+            AccentBorderOverlay.CornerRadius = new CornerRadius(0);
     }
 
     protected override void OnStateChanged(EventArgs e)
@@ -569,6 +572,7 @@ public partial class MainWindow : Window
         _listener.PacketReceived             += OnRemotePacketReceived;
         _listener.WireStateChanged           += OnWireStateChanged;
         _listener.MetadataReceived           += OnMetadataReceived;
+        _listener.UrlPushReceived            += OnUrlPushReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› listening on port {port}...");
@@ -585,6 +589,7 @@ public partial class MainWindow : Window
         _listener.PacketReceived             += OnRemotePacketReceived;
         _listener.WireStateChanged           += OnWireStateChanged;
         _listener.MetadataReceived           += OnMetadataReceived;
+        _listener.UrlPushReceived            += OnUrlPushReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› waiting via relay (token: {token}) via {relayUri}...");
@@ -600,6 +605,7 @@ public partial class MainWindow : Window
         _client.PacketReceived      += OnRemotePacketReceived;
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
+        _client.UrlPushReceived     += OnUrlPushReceived;
 
         SetStatus($"› dialing {host}:{port}...");
         _ = _client.ConnectAsync(host, port, ct);
@@ -612,6 +618,7 @@ public partial class MainWindow : Window
         _client.PacketReceived      += OnRemotePacketReceived;
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
+        _client.UrlPushReceived     += OnUrlPushReceived;
 
         SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
@@ -655,6 +662,105 @@ public partial class MainWindow : Window
         PlayBuzzSound();
         BuzzIndicator.MaxBurst();
         InputBox.Focus();
+    }
+
+    private async void WalkButton_Click(object sender, RoutedEventArgs e)
+    {
+        // If the input box already has a URL, use it; otherwise prompt
+        var preText = InputBox.Text?.Trim() ?? string.Empty;
+        string url;
+        if (Uri.TryCreate(preText, UriKind.Absolute, out var parsed) &&
+            (parsed.Scheme == Uri.UriSchemeHttp || parsed.Scheme == Uri.UriSchemeHttps))
+        {
+            url = preText;
+        }
+        else
+        {
+            var dlg = new WalkUrlDialog { Owner = this };
+            if (dlg.ShowDialog() != true || string.IsNullOrEmpty(dlg.Url)) return;
+            url = dlg.Url;
+        }
+
+        // Send to peer
+        if (_client   != null) await _client.SendUrlPushAsync(url);
+        if (_listener != null) await _listener.SendUrlPushAsync(url);
+
+        // Clear input box if that's where the URL came from
+        if (InputBox.Text?.Trim() == url)
+            InputBox.Text = string.Empty;
+
+        // Render sent card in local pane
+        AppendUrlCard(url, isSent: true, LocalPanel, LocalScrollViewer);
+
+        InputBox.Focus();
+    }
+
+    private void OnUrlPushReceived(object? sender, SemaBuzzUrlPushEventArgs e)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            AppendUrlCard(e.Url, isSent: false, PeerPanel, PeerScrollViewer);
+            ShowToastIfUnfocused(_peerHandle, $"🔗 {e.Url}");
+        });
+    }
+
+    private void AppendUrlCard(string url, bool isSent, Panel panel, ScrollViewer scrollViewer)
+    {
+        var handle   = isSent ? _localHandle : _peerHandle;
+        var avatar   = isSent ? _localAvatarPng : _peerAvatarPng;
+        var nameColor = isSent ? SemaBuzzThemeManager.AccentColor : Color.FromRgb(0x9E, 0x9E, 0x9E);
+        var accentKey = isSent ? "AmberBrush" : (string?)null;
+
+        // Header row (handle + label)
+        var (headerRow, headerTb) = MakeChatLine(handle, avatar, nameColor, accentKey);
+        headerTb.Text = (string)headerTb.Tag + "shared a link";
+        panel.Children.Add(headerRow);
+
+        // Card border
+        var card = new Border
+        {
+            Margin          = new Thickness(40, 2, 0, 6),
+            Padding         = new Thickness(12, 10, 12, 10),
+            BorderThickness = new Thickness(1),
+            CornerRadius    = new CornerRadius(4),
+        };
+        card.SetResourceReference(Border.BorderBrushProperty, "ObsidianBorderBrush");
+        card.SetResourceReference(Border.BackgroundProperty, "InputBackgroundBrush");
+
+        var cardStack = new StackPanel { Orientation = Orientation.Vertical };
+
+        // URL text (truncated for display)
+        var urlDisplay = url.Length > 80 ? url[..80] + "…" : url;
+        var urlText = new TextBlock
+        {
+            Text         = urlDisplay,
+            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize     = App.Settings.ChatFontSize,
+            TextWrapping = TextWrapping.Wrap,
+            Margin       = new Thickness(0, 0, 0, 8),
+        };
+        urlText.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+        cardStack.Children.Add(urlText);
+
+        // OPEN button
+        var openBtn = new Button
+        {
+            Content             = "OPEN",
+            HorizontalAlignment = HorizontalAlignment.Left,
+            Padding             = new Thickness(14, 4, 14, 4),
+        };
+        openBtn.SetResourceReference(Button.StyleProperty, "SemaBuzzButton");
+        var capturedUrl = url;
+        openBtn.Click += (_, _) =>
+        {
+            try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(capturedUrl) { UseShellExecute = true }); }
+            catch { }
+        };
+        cardStack.Children.Add(openBtn);
+
+        card.Child = cardStack;
+        panel.Children.Add(card);
+        scrollViewer.ScrollToEnd();
     }
 
     private void EmoticonPickerButton_Click(object sender, RoutedEventArgs e)
@@ -950,7 +1056,7 @@ public partial class MainWindow : Window
         TitleSessionLabel.Text         = "NO WIRE";
         DisconnectMenuItem.IsEnabled   = false;
         InputBox.IsEnabled             = false;
-        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        _peerLiveRow                   = null;
+        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        _peerLiveRow                   = null;
         _livePeerBlock                 = null;
         _peerHandle                    = "peer";
         _peerAvatarPng                 = null;
@@ -985,6 +1091,7 @@ public partial class MainWindow : Window
                     InputBox.IsEnabled           = false;
                     SendButton.IsEnabled         = false;
                     BuzzButton.IsEnabled         = false;
+                    WalkButton.IsEnabled         = false;
                     _peerLiveRow                 = null;
                     _livePeerBlock               = null;
                     var savedHandle2             = _peerHandle;
@@ -1022,6 +1129,7 @@ public partial class MainWindow : Window
                 InputBox.IsEnabled   = true;
                 SendButton.IsEnabled = false; // no text yet
                 BuzzButton.IsEnabled = true;
+                WalkButton.IsEnabled = true;
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
                 ClearChatMenuItem.IsEnabled  = true;
@@ -1422,13 +1530,17 @@ public partial class MainWindow : Window
     // Status helpers
     // ---------------------------------------------
 
+    // Keep players alive until playback finishes (prevents GC cut-off)
+    private static readonly HashSet<MediaPlayer> _activePlayers = [];
+
     private static void PlayErrorSound()
     {
         if (!App.Settings.BuzzSoundEnabled) return;
         var path = System.IO.Path.Combine(AppContext.BaseDirectory, "Assets", "error.mp3");
         if (!File.Exists(path)) return;
         var player = new MediaPlayer();
-        player.MediaEnded += (_, _) => player.Close();
+        _activePlayers.Add(player);
+        player.MediaEnded += (_, _) => { player.Close(); _activePlayers.Remove(player); };
         player.Open(new Uri(path));
         player.Play();
     }
@@ -1444,7 +1556,8 @@ public partial class MainWindow : Window
         {
             Volume = Math.Clamp(App.Settings.BuzzSoundVolume, 0.0, 1.0)
         };
-        player.MediaEnded += (_, _) => player.Close();
+        _activePlayers.Add(player);
+        player.MediaEnded += (_, _) => { player.Close(); _activePlayers.Remove(player); };
         player.Open(new Uri(path));
         player.Play();
     }

@@ -51,33 +51,25 @@ public partial class App : Application
         Settings = SemaBuzzSettings.Load();
         SemaBuzzThemeManager.Apply(Settings.Theme);
 
-        // Check the Microsoft Store license in the background  don't block startup.
-        // The main window's Loaded handler calls ApplyLicenseBanner() which will
-        // reflect whatever state is set by the time it runs; if the check finishes
-        // after the window is already shown, it calls ApplyLicenseBanner() directly.
-        _ = Task.Run(SemaBuzzLicense.CheckAsync).ContinueWith(_ =>
-            Dispatcher.InvokeAsync(() =>
+        // Validate the stored license key synchronously — it's a fast local file read.
+        SemaBuzzLicense.Check();
+        if (!SemaBuzzLicense.IsProUnlocked)
+        {
+            var changed = false;
+            if (Settings.Theme != SemaBuzzThemeId.Obsidian
+                && Settings.Theme != SemaBuzzThemeId.Daylight)
             {
-                if (!SemaBuzzLicense.IsProUnlocked)
-                {
-                    var changed = false;
-                    if (Settings.Theme != SemaBuzzThemeId.Obsidian
-                        && Settings.Theme != SemaBuzzThemeId.Daylight)
-                    {
-                        Settings.Theme = SemaBuzzThemeId.Obsidian;
-                        SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
-                        changed = true;
-                    }
-                    if (Settings.RelayUri != SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri)
-                    {
-                        Settings.RelayUri = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
-                        changed = true;
-                    }
-                    if (changed) Settings.Save();
-                }
-                if (MainWindow is MainWindow win)
-                    win.ApplyLicenseBanner();
-            }));
+                Settings.Theme = SemaBuzzThemeId.Obsidian;
+                SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
+                changed = true;
+            }
+            if (Settings.RelayUri != SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri)
+            {
+                Settings.RelayUri = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+                changed = true;
+            }
+            if (changed) Settings.Save();
+        }
 
         // Register for toast notification activation in the background  the COM
         // server registration and Start Menu shortcut creation it performs can take

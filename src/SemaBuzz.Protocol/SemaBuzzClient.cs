@@ -29,6 +29,7 @@ public sealed class SemaBuzzClient : IDisposable
     public event EventHandler<SemaBuzzPacketEventArgs>? PacketReceived;
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
     public event EventHandler<SemaBuzzMetadataEventArgs>? MetadataReceived;
+    public event EventHandler<SemaBuzzUrlPushEventArgs>? UrlPushReceived;
 
     public SemaBuzzWireState State { get; private set; } = SemaBuzzWireState.Cold;
     public SemaBuzzShield? Shield { get; private set; }
@@ -289,6 +290,18 @@ public sealed class SemaBuzzClient : IDisposable
                     continue;
                 }
 
+                // -- URL push --------------------------------------------------
+                if (SemaBuzzUrlPush.IsUrlPushPacket(data))
+                {
+                    var url = SemaBuzzUrlPush.Deserialize(data);
+                    if (url != null)
+                    {
+                        var urlHandler = UrlPushReceived;
+                        if (urlHandler != null)
+                            urlHandler(this, new SemaBuzzUrlPushEventArgs(url));
+                    }
+                    continue;
+                }
 
                 // -- Fixed-size control/data frames --------------------------------------------------
                 for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length; offset += SemaBuzzPacket.WireSize)
@@ -411,6 +424,18 @@ public sealed class SemaBuzzClient : IDisposable
                         var metaHandler = MetadataReceived;
                         if (metaHandler != null)
                             metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                    }
+                    continue;
+                }
+
+                if (SemaBuzzUrlPush.IsUrlPushPacket(data))
+                {
+                    var url = SemaBuzzUrlPush.Deserialize(data);
+                    if (url != null)
+                    {
+                        var urlHandler = UrlPushReceived;
+                        if (urlHandler != null)
+                            urlHandler(this, new SemaBuzzUrlPushEventArgs(url));
                     }
                     continue;
                 }
@@ -550,6 +575,15 @@ public sealed class SemaBuzzClient : IDisposable
 
     /// <summary>Send a Buzz to the peer -- spikes their filament and shakes their window.</summary>
     public Task SendBuzzAsync() => SendAsync(SemaBuzzPacket.Control(SemaBuzzPacketType.Buzz));
+
+    /// <summary>Push a URL to the peer.</summary>
+    public async Task SendUrlPushAsync(string url)
+    {
+        var bytes = SemaBuzzUrlPush.Serialize(url);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        if (_wsSend != null) await _wsSend(bytes);
+        else await _udp!.SendAsync(bytes);
+    }
 
     private async Task SendControlAsync(SemaBuzzPacketType type)
     {

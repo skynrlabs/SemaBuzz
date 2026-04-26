@@ -1,0 +1,89 @@
+<Window x:Class="SemaBuzz.App.SemaBuzzLicenseKeyDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="SemaBuzz — Activate Pro"
+        Height="240" Width="420"
+        Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource AmberBrush}"
+        FontFamily="Cascadia Code, JetBrains Mono, Consolas"
+        FontSize="13"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        WindowStyle="None">
+
+    <Border BorderBrush="{DynamicResource AmberDimBrush}" BorderThickness="1">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="44"/>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="1"/>
+            <RowDefinition Height="48"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Background="{DynamicResource WindowHeaderBrush}"
+              MouseLeftButtonDown="Header_MouseDown">
+            <TextBlock Text="ACTIVATE SEMABUZZ PRO"
+                       VerticalAlignment="Center" Margin="20 0"
+                       FontWeight="Bold" FontSize="13"/>
+        </Grid>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="1" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Content -->
+        <StackPanel Grid.Row="2" VerticalAlignment="Center" Margin="20 12">
+
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="#9E9E9E"
+                       FontSize="11"
+                       Margin="0 0 0 10">
+                Enter the license key from your purchase receipt.
+            </TextBlock>
+
+            <TextBox x:Name="KeyBox"
+                     Background="{DynamicResource SurfaceBrush}"
+                     Foreground="{DynamicResource AmberBrush}"
+                     BorderBrush="{DynamicResource AmberDimBrush}"
+                     BorderThickness="1"
+                     CaretBrush="{DynamicResource AmberBrush}"
+                     SelectionBrush="{DynamicResource AmberDimBrush}"
+                     Padding="6 4"
+                     FontSize="13"
+                     CharacterCasing="Upper"
+                     TextChanged="KeyBox_TextChanged"/>
+
+            <TextBlock x:Name="ErrorLabel"
+                       Text="Invalid license key."
+                       Foreground="#E05555"
+                       FontSize="11"
+                       Margin="0 6 0 0"
+                       Visibility="Collapsed"/>
+        </StackPanel>
+
+        <!-- Separator -->
+        <Rectangle Grid.Row="3" Fill="{DynamicResource ObsidianBorderBrush}"/>
+
+        <!-- Footer -->
+        <Grid Grid.Row="4" VerticalAlignment="Center" Margin="16 0">
+            <Button Content="BUY NOW"
+                    Style="{StaticResource SemaBuzzButton}"
+                    HorizontalAlignment="Left"
+                    Click="BuyNow_Click"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button x:Name="ActivateButton"
+                        Content="ACTIVATE"
+                        Style="{StaticResource SemaBuzzButton}"
+                        IsDefault="True"
+                        Margin="0 0 8 0"
+                        Click="Activate_Click"/>
+                <Button Content="CANCEL"
+                        Style="{StaticResource SemaBuzzButton}"
+                        IsCancel="True"
+                        Click="Cancel_Click"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+    </Border>
+</Window>

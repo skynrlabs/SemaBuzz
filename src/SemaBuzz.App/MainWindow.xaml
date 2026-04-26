@@ -544,7 +544,7 @@
             <emoji:RichTextBox x:Name="InputBox"
                      Style="{StaticResource SemaBuzzInputRTB}"
                      AcceptsReturn="False"
-                     Padding="16 12 132 12"
+                     Padding="16 12 174 12"
                      VerticalAlignment="Center"
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
@@ -719,6 +719,12 @@
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Button>
+            <!-- Divider between action buttons and send -->
+            <Rectangle HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Width="1" Height="20"
+                       Margin="0 0 44 0"
+                       Fill="{DynamicResource ObsidianBorderBrush}"/>
             <!-- Buzz button — slam the remote's filament -->
             <Button x:Name="BuzzButton"
                     Style="{StaticResource SemaBuzzSendButton}"
@@ -732,6 +738,21 @@
                 <TextBlock Text="⚡"
                            FontSize="16"
                            Foreground="{DynamicResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+            <!-- Walk button — push a URL to the peer -->
+            <Button x:Name="WalkButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 132 0"
+                    IsEnabled="False"
+                    ToolTip="Walk the Web — push a URL to your peer"
+                    Click="WalkButton_Click">
+                <TextBlock Text="🔗"
+                           FontSize="16"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Button>
@@ -775,5 +796,15 @@
                        VerticalAlignment="Center"/>
 
         </Grid>
+
+        <!-- Amber border overlay — rendered on top of all content so the
+             header background cannot paint over the top corners -->
+        <Border x:Name="AccentBorderOverlay"
+                Grid.Row="0" Grid.RowSpan="9"
+                BorderBrush="{DynamicResource AmberDimBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                IsHitTestVisible="False"/>
+
     </Grid>
 </Window>

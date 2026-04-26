@@ -6,21 +6,22 @@ namespace SemaBuzz.App;
 /// <summary>Identifies the active visual theme for the SemaBuzz UI.</summary>
 public enum SemaBuzzThemeId
 {
-    Obsidian  = 0,
-    Neon      = 1,
-    Matrix    = 2,
-    BloodMoon = 3,
-    Arctic    = 4,
-    Sepia     = 5,
-    Midnight  = 6,
-    Sunset    = 7,
-    Rose      = 8,
-    Violet    = 9,
-    Emerald   = 10,
-    Steel     = 11,
-    Powwow    = 12,
-    Daylight  = 13,
-    Cloud     = 14,
+    Obsidian   = 0,
+    Neon       = 1,
+    Matrix     = 2,
+    BloodMoon  = 3,
+    Arctic     = 4,
+    Sepia      = 5,
+    Midnight   = 6,
+    Sunset     = 7,
+    Rose       = 8,
+    Violet     = 9,
+    Emerald    = 10,
+    Steel      = 11,
+    Forest     = 12,
+    Daylight   = 13,
+    Cloud      = 14,
+    RetroChat  = 15,
 }
 
 /// <summary>Identifies the filament animation style shown in the buzz indicator.</summary>

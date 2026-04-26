@@ -310,8 +310,8 @@ internal static class SemaBuzzThemeManager
             DwmText:          0x007B8900,   // #00897B  COLORREF
             DwmBorder:        0x00EAE4E0),
 
-        //  Powwow (earth brown / turquoise)
-        [SemaBuzzThemeId.Powwow] = new ThemeDef(
+        //  Forest (earth brown / turquoise)
+        [SemaBuzzThemeId.Forest] = new ThemeDef(
             Background:       C(0x13, 0x0D, 0x07),
             Surface:          C(0x1F, 0x12, 0x08),
             Border:           C(0x4D, 0x2E, 0x12),
@@ -331,6 +331,21 @@ internal static class SemaBuzzThemeManager
             DwmCaption:       0x00070D13,   // #130D07  COLORREF
             DwmText:          0x00A0C800,   // #00C8A0  COLORREF
             DwmBorder:        0x00122E4D),  // #4D2E12  COLORREF
+
+        //  Retro Chat (AIM · ICQ · Powwow era — classic Win95 grey + navy + ICQ yellow-green)
+        [SemaBuzzThemeId.RetroChat] = new ThemeDef(
+            Background:       C(0xC0, 0xC0, 0xC0),      // classic Win95 silver
+            Surface:          C(0xFF, 0xFF, 0xFF),       // white chat pane
+            Border:           C(0x80, 0x80, 0x80),       // classic sunken border
+            Accent:           C(0x00, 0x00, 0x80),       // navy — readable on silver; ICQ green lives in the swatch + DWM titlebar text
+            AccentDim:        A(0x80, 0x00, 0x00, 0x80),
+            AccentGlow:       A(0x33, 0x00, 0x00, 0x80),
+            Dead:             C(0xA0, 0xA0, 0xA0),
+            Header:           C(0xC0, 0xC0, 0xC0),       // silver — matches Win95 app chrome; OS titlebar (navy) is handled by DWM separately
+            WindowBackground: () => new SolidColorBrush(C(0xC0, 0xC0, 0xC0)),
+            DwmCaption:       0x00800000,   // #000080  COLORREF (navy titlebar bg)
+            DwmText:          0x0000D4C8,   // #C8D400  COLORREF (ICQ green titlebar text)
+            DwmBorder:        0x00808080),  // #808080  COLORREF
     };
 
     //  State

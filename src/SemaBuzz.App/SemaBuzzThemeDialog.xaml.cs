@@ -27,11 +27,12 @@ public partial class SemaBuzzThemeDialog : Window
             case SemaBuzzThemeId.Rose:      ThemeRose.IsChecked      = true; break;
             case SemaBuzzThemeId.Violet:    ThemeViolet.IsChecked    = true; break;
             case SemaBuzzThemeId.Emerald:   ThemeEmerald.IsChecked   = true; break;
-            case SemaBuzzThemeId.Steel:    ThemeSteel.IsChecked    = true; break;
-            case SemaBuzzThemeId.Powwow:   ThemePowwow.IsChecked   = true; break;
-            case SemaBuzzThemeId.Daylight: ThemeDaylight.IsChecked = true; break;
-            case SemaBuzzThemeId.Cloud:    ThemeCloud.IsChecked    = true; break;
-            default:                       ThemeObsidian.IsChecked = true; break;
+            case SemaBuzzThemeId.Steel:     ThemeSteel.IsChecked    = true; break;
+            case SemaBuzzThemeId.Forest:    ThemeForest.IsChecked    = true; break;
+            case SemaBuzzThemeId.Daylight:  ThemeDaylight.IsChecked  = true; break;
+            case SemaBuzzThemeId.Cloud:     ThemeCloud.IsChecked     = true; break;
+            case SemaBuzzThemeId.RetroChat: ThemeRetroChat.IsChecked = true; break;
+            default:                        ThemeObsidian.IsChecked  = true; break;
         }
 
         if (!SemaBuzzLicense.IsProUnlocked)
@@ -49,8 +50,9 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeViolet,    "Violet  (electric purple \u00b7 void)"),
                 (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
                 (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
-                (ThemePowwow,    "Powwow  (turquoise \u00b7 earth)"),
+                (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeCloud,     "Cloud  (teal \u00b7 white)"),
+                (ThemeRetroChat, "Retro Chat  (ICQ green \u00b7 silver)"),
             ];
             foreach (var (rb, label) in proThemes)
             {
@@ -121,14 +123,17 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemeSteel_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Steel);
 
-    private void ThemePowwow_Checked(object sender, RoutedEventArgs e)
-        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Powwow);
+    private void ThemeForest_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Forest);
 
     private void ThemeDaylight_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Daylight);
 
     private void ThemeCloud_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Cloud);
+
+    private void ThemeRetroChat_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.RetroChat);
 
     //  Footer
 
@@ -150,8 +155,9 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeViolet,    "Violet  (electric purple \u00b7 void)"),
                 (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
                 (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
-                (ThemePowwow,    "Powwow  (turquoise \u00b7 earth)"),
+                (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeCloud,     "Cloud  (teal \u00b7 white)"),
+                (ThemeRetroChat, "Retro Chat  (ICQ green \u00b7 silver)"),
             ];
             foreach (var (rb, label) in proThemes)
             {

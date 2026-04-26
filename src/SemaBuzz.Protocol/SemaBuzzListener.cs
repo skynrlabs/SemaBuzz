@@ -29,6 +29,7 @@ public sealed class SemaBuzzListener : IDisposable
     private const int MaxBatchPacketsPerSend = 8;
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
     public event EventHandler<SemaBuzzMetadataEventArgs>? MetadataReceived;
+    public event EventHandler<SemaBuzzUrlPushEventArgs>? UrlPushReceived;
 
     /// <summary>
     /// Optional async callback invoked when an incoming Handshake arrives.
@@ -391,6 +392,18 @@ public sealed class SemaBuzzListener : IDisposable
             return;
         }
 
+        if (SemaBuzzUrlPush.IsUrlPushPacket(data))
+        {
+            var url = SemaBuzzUrlPush.Deserialize(data);
+            if (url != null)
+            {
+                var urlHandler = UrlPushReceived;
+                if (urlHandler != null)
+                    urlHandler(this, new SemaBuzzUrlPushEventArgs(url));
+            }
+            return;
+        }
+
 
         for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length; offset += SemaBuzzPacket.WireSize)
         {
@@ -517,6 +530,16 @@ public sealed class SemaBuzzListener : IDisposable
         if (_udp == null && _wsSend == null) return;
         if (PeerEndPoint == null && _wsSend == null) return;
         var bytes = SemaBuzzMetadata.Serialize(handle, avatarPng);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Push a URL to the connected peer.</summary>
+    public async Task SendUrlPushAsync(string url)
+    {
+        if (_udp == null && _wsSend == null) return;
+        if (PeerEndPoint == null && _wsSend == null) return;
+        var bytes = SemaBuzzUrlPush.Serialize(url);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         await SendRawAsync(bytes, PeerEndPoint);
     }

@@ -8,6 +8,7 @@
         ResizeMode="NoResize"
         WindowStyle="None">
 
+    <Border BorderBrush="{DynamicResource AmberDimBrush}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
@@ -115,4 +116,5 @@
         </Grid>
 
     </Grid>
+    </Border>
 </Window>

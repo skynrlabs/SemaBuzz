@@ -42,6 +42,14 @@ public sealed class SemaBuzzMetadataEventArgs(string handle, byte[]? avatarPng) 
 }
 
 /// <summary>
+/// Event args carrying a URL pushed from the remote peer.
+/// </summary>
+public sealed class SemaBuzzUrlPushEventArgs(string url) : EventArgs
+{
+    public string Url { get; } = url;
+}
+
+/// <summary>
 /// Event args carrying one chunk of a peer-sent image.
 /// </summary>
 public sealed class SemaBuzzImageChunkEventArgs(
