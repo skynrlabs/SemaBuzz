@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — Themes"
-        Height="560" Width="460"
+        Height="480" Width="460"
         Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource AmberBrush}"
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
@@ -11,6 +11,7 @@
         ResizeMode="NoResize"
         WindowStyle="None">
 
+    <Border BorderBrush="{DynamicResource WindowHeaderBrush}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
@@ -25,6 +26,7 @@
               MouseLeftButtonDown="Header_MouseDown">
             <TextBlock Text="THEMES"
                        VerticalAlignment="Center" Margin="20 0"
+                       Foreground="{DynamicResource AmberHeaderBrush}"
                        FontWeight="Bold" FontSize="13"/>
         </Grid>
 
@@ -57,22 +59,62 @@
             </Border>
         </Grid>
 
-        <!-- Daylight -->
-        <Grid Margin="0 0 0 12">
+        <!-- Retro '95 (PRO) -->
+        <Grid x:Name="ThemeWin95Row" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeDaylight"
-                         Content="Daylight  (navy · white)"
+            <RadioButton x:Name="ThemeWin95"
+                         Content="Retro &#x2019;95  (navy · silver grey)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemeDaylight_Checked"/>
+                         Checked="ThemeWin95_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#F2F2F2" BorderBrush="#D8D8D8" BorderThickness="1">
+                    Background="#C0C0C0" BorderBrush="#808080" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#1565C0" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#FAFAFA" Margin="3 0 0 0"/>
+                    <Rectangle Width="12" Height="12" Fill="#000080" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#FFFFFF" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Muted Terminal (PRO) -->
+        <Grid x:Name="ThemeMutedTerminalRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeMutedTerminal"
+                         Content="Muted Terminal  (teal · lime green)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeMutedTerminal_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#1A2B2B" BorderBrush="#3A5656" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#8DC200" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#223838" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Chrome (PRO) -->
+        <Grid x:Name="ThemeChromeRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeChrome"
+                         Content="Chrome  (blue · dark grey)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeChrome_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#202124" BorderBrush="#3C4043" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#8AB4F8" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#292A2D" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -303,42 +345,22 @@
             </Border>
         </Grid>
 
-        <!-- Powwow -->
-        <Grid x:Name="ThemePowwowRow" Margin="0 0 0 12">
+        <!-- Forest -->
+        <Grid x:Name="ThemeForestRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemePowwow"
-                         Content="Powwow  (turquoise · earth)"
+            <RadioButton x:Name="ThemeForest"
+                         Content="Forest  (turquoise · earth)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemePowwow_Checked"/>
+                         Checked="ThemeForest_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
                     Background="#130D07" BorderBrush="#4D2E12" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
                     <Rectangle Width="12" Height="12" Fill="#00C8A0" RadiusX="2" RadiusY="2"/>
                     <Rectangle Width="8"  Height="12" Fill="#1F1208" Margin="3 0 0 0"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- Cloud (PRO) -->
-        <Grid x:Name="ThemeCloudRow" Margin="0 0 0 12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="64"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeCloud"
-                         Content="Cloud  (teal · white)"
-                         GroupName="Theme"
-                         VerticalAlignment="Center"
-                         Checked="ThemeCloud_Checked"/>
-            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#F8F9FA" BorderBrush="#E0E4EA" BorderThickness="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#00897B" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#FFFFFF" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>
@@ -366,4 +388,5 @@
         </Grid>
 
     </Grid>
+    </Border>
 </Window>

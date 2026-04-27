@@ -3,12 +3,14 @@ docker-compose.yml
 PLAN.md
 Publish-Relay.ps1
 tools/
+assets/
 
 # Build outputs
 bin/
 obj/
 build/
 dist/
+build_out.txt
 
 # WPF temp project files
 *_wpftmp.csproj
@@ -33,3 +35,4 @@ packages/
 # OS
 .DS_Store
 Thumbs.db
+

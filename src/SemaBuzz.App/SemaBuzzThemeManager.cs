@@ -27,7 +27,14 @@ internal static class SemaBuzzThemeManager
         Func<Brush> WindowBackground,   // factory  creates a fresh, unfrozen brush
         int DwmCaption,                 // COLORREF 0x00BBGGRR
         int DwmText,
-        int DwmBorder);
+        int DwmBorder)
+    {
+        /// <summary>
+        /// Optional override for text drawn ON the header (navy bar).
+        /// When left at default (transparent) the normal <see cref="Accent"/> colour is used.
+        /// </summary>
+        public Color HeaderText { get; init; }
+    }
 
     //  Palettes
 
@@ -280,38 +287,38 @@ internal static class SemaBuzzThemeManager
             DwmText:          0x009C9078,   // #78909C  COLORREF
             DwmBorder:        0x00352A20),  // #202A35  COLORREF
 
-        //  Daylight (light · navy blue) — FREE
-        [SemaBuzzThemeId.Daylight] = new ThemeDef(
-            Background:       C(0xF2, 0xF2, 0xF2),
-            Surface:          C(0xFA, 0xFA, 0xFA),
-            Border:           C(0xD8, 0xD8, 0xD8),
-            Accent:           C(0x15, 0x65, 0xC0),      // navy blue
-            AccentDim:        A(0x80, 0x15, 0x65, 0xC0),
-            AccentGlow:       A(0x33, 0x15, 0x65, 0xC0),
-            Dead:             C(0x9E, 0x9E, 0x9E),
-            Header:           C(0xE2, 0xE2, 0xE2),
-            WindowBackground: () => new SolidColorBrush(C(0xF2, 0xF2, 0xF2)),
-            DwmCaption:       0x00E2E2E2,
-            DwmText:          0x00C06515,   // #1565C0  COLORREF
-            DwmBorder:        0x00D8D8D8),
+        //  Chrome (dark grey · Google blue)
+        [SemaBuzzThemeId.Chrome] = new ThemeDef(
+            Background:       C(0x20, 0x21, 0x24),
+            Surface:          C(0x29, 0x2A, 0x2D),
+            Border:           C(0x3C, 0x40, 0x43),
+            Accent:           C(0x8A, 0xB4, 0xF8),      // Chrome blue
+            AccentDim:        A(0x80, 0x8A, 0xB4, 0xF8),
+            AccentGlow:       A(0x33, 0x8A, 0xB4, 0xF8),
+            Dead:             C(0x5F, 0x63, 0x68),
+            Header:           C(0x1A, 0x1B, 0x1E),
+            WindowBackground: () => new SolidColorBrush(C(0x20, 0x21, 0x24)),
+            DwmCaption:       0x001E1B1A,   // #1A1B1E  COLORREF
+            DwmText:          0x00F8B48A,   // #8AB4F8  COLORREF
+            DwmBorder:        0x0043403C),  // #3C4043  COLORREF
 
-        //  Cloud (light · teal) — PRO
-        [SemaBuzzThemeId.Cloud] = new ThemeDef(
-            Background:       C(0xF8, 0xF9, 0xFA),
-            Surface:          C(0xFF, 0xFF, 0xFF),
-            Border:           C(0xE0, 0xE4, 0xEA),
-            Accent:           C(0x00, 0x89, 0x7B),      // teal
-            AccentDim:        A(0x80, 0x00, 0x89, 0x7B),
-            AccentGlow:       A(0x33, 0x00, 0x89, 0x7B),
-            Dead:             C(0xB0, 0xBE, 0xC5),
-            Header:           C(0xEE, 0xF0, 0xF3),
-            WindowBackground: () => new SolidColorBrush(C(0xF8, 0xF9, 0xFA)),
-            DwmCaption:       0x00F3F0EE,
-            DwmText:          0x007B8900,   // #00897B  COLORREF
-            DwmBorder:        0x00EAE4E0),
+        //  Muted Terminal (dark teal · ICQ green)
+        [SemaBuzzThemeId.MutedTerminal] = new ThemeDef(
+            Background:       C(0x1A, 0x2B, 0x2B),      // dark teal-grey
+            Surface:          C(0x22, 0x38, 0x38),      // slightly lighter teal-grey
+            Border:           C(0x3A, 0x56, 0x56),       // muted teal border
+            Accent:           C(0x8D, 0xC2, 0x00),      // ICQ yellow-green
+            AccentDim:        A(0x80, 0x8D, 0xC2, 0x00),
+            AccentGlow:       A(0x33, 0x8D, 0xC2, 0x00),
+            Dead:             C(0x3A, 0x56, 0x56),
+            Header:           C(0x0F, 0x1A, 0x1A),      // very dark teal header
+            WindowBackground: () => new SolidColorBrush(C(0x1A, 0x2B, 0x2B)),
+            DwmCaption:       0x001A1A0F,   // #0F1A1A  COLORREF
+            DwmText:          0x0000C28D,   // #8DC200  COLORREF (ICQ yellow-green)
+            DwmBorder:        0x0056563A),  // #3A5656  COLORREF
 
-        //  Powwow (earth brown / turquoise)
-        [SemaBuzzThemeId.Powwow] = new ThemeDef(
+        //  Forest (earth brown / turquoise)
+        [SemaBuzzThemeId.Forest] = new ThemeDef(
             Background:       C(0x13, 0x0D, 0x07),
             Surface:          C(0x1F, 0x12, 0x08),
             Border:           C(0x4D, 0x2E, 0x12),
@@ -331,6 +338,24 @@ internal static class SemaBuzzThemeManager
             DwmCaption:       0x00070D13,   // #130D07  COLORREF
             DwmText:          0x00A0C800,   // #00C8A0  COLORREF
             DwmBorder:        0x00122E4D),  // #4D2E12  COLORREF
+
+        //  Retro '95 (silver grey · navy blue — classic Windows 95/98 chrome)
+        [SemaBuzzThemeId.Retro95] = new ThemeDef(
+            Background:       C(0xC0, 0xC0, 0xC0),      // iconic Win95 silver
+            Surface:          C(0xD4, 0xD0, 0xC8),      // Win98 dialog grey (warm tint)
+            Border:           C(0x80, 0x80, 0x80),       // classic 3D sunken border
+            Accent:           C(0x00, 0x00, 0x80),       // navy — body text, buttons, selections
+            AccentDim:        A(0x80, 0x00, 0x00, 0x80),
+            AccentGlow:       A(0x33, 0x00, 0x00, 0x80),
+            Dead:             C(0x90, 0x90, 0x90),
+            Header:           C(0x00, 0x00, 0x80),       // navy — matches DWM titlebar
+            WindowBackground: () => new SolidColorBrush(C(0xC0, 0xC0, 0xC0)),
+            DwmCaption:       0x00800000,   // #000080  COLORREF (navy titlebar)
+            DwmText:          0x00FFFFFF,   // #FFFFFF  COLORREF (white title text)
+            DwmBorder:        0x00808080)   // #808080  COLORREF
+        {
+            HeaderText =      C(0xFF, 0xFF, 0xFF),       // white on navy header/menu bar
+        },
     };
 
     //  State
@@ -365,6 +390,11 @@ internal static class SemaBuzzThemeManager
         res["AmberGlowBrush"]       = Solid(p.AccentGlow);
         res["WireDeadBrush"]        = Solid(p.Dead);
         res["WindowHeaderBrush"]    = Solid(p.Header);
+
+        // Header text — white on dark headers (e.g. Win95 navy), else same as Accent
+        var headerText = p.HeaderText.A == 0 ? p.Accent : p.HeaderText;
+        res["AmberHeaderBrush"]     = Solid(headerText);
+        res["AmberHeaderColor"]     = headerText;
 
         // Color resources (used by a few explicit Color references)
         res["ObsidianColor"]        = p.Background;

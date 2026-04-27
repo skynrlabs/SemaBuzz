@@ -38,21 +38,6 @@ public partial class SemaBuzzConnectDialog : Window
         Loaded += (_, _) => C0.Focus();
     }
 
-    public SemaBuzzConnectDialog(string dialBuzzUri) : this()
-    {
-        Loaded += (_, _) =>
-        {
-            var parsed = SemaBuzzUriHandler.TryParse(dialBuzzUri);
-            if (parsed?.RelayToken is { Length: 6 } tok)
-            {
-                for (int i = 0; i < 6; i++)
-                    _cells[i].Text = tok[i].ToString();
-                UpdateConnectButton();
-                _cells[5].Focus();
-            }
-        };
-    }
-
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
@@ -71,7 +56,7 @@ public partial class SemaBuzzConnectDialog : Window
             active = profiles[0];
         if (active != null)
         {
-            Handle    = active.Handle;
+            Handle    = string.IsNullOrWhiteSpace(active.Handle) ? "anonymous" : active.Handle;
             AvatarPng = active.AvatarPng;
         }
     }

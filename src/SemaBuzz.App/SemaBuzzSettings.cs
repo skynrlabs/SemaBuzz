@@ -6,21 +6,22 @@ namespace SemaBuzz.App;
 /// <summary>Identifies the active visual theme for the SemaBuzz UI.</summary>
 public enum SemaBuzzThemeId
 {
-    Obsidian  = 0,
-    Neon      = 1,
-    Matrix    = 2,
-    BloodMoon = 3,
-    Arctic    = 4,
-    Sepia     = 5,
-    Midnight  = 6,
-    Sunset    = 7,
-    Rose      = 8,
-    Violet    = 9,
-    Emerald   = 10,
-    Steel     = 11,
-    Powwow    = 12,
-    Daylight  = 13,
-    Cloud     = 14,
+    Obsidian   = 0,
+    Neon       = 1,
+    Matrix     = 2,
+    BloodMoon  = 3,
+    Arctic     = 4,
+    Sepia      = 5,
+    Midnight   = 6,
+    Sunset     = 7,
+    Rose       = 8,
+    Violet     = 9,
+    Emerald    = 10,
+    Steel      = 11,
+    Forest     = 12,
+    Chrome        = 13,
+    MutedTerminal = 14,
+    Retro95         = 15,
 }
 
 /// <summary>Identifies the filament animation style shown in the buzz indicator.</summary>
@@ -59,6 +60,12 @@ public sealed class SemaBuzzSettings
 
     /// <summary>Playback volume for the local buzz sound (0.0-1.0).</summary>
     public double             BuzzSoundVolume      { get; set; } = 0.75;
+
+    /// <summary>When true, SemaBuzz is registered to run at Windows startup.</summary>
+    public bool               StartWithWindows     { get; set; } = false;
+
+    /// <summary>When true, incoming connection requests are automatically approved without prompting.</summary>
+    public bool               AutoApprove          { get; set; } = false;
 
     /// <summary>
     /// WebSocket relay endpoint. Defaults to the hosted SemaBuzz relay.

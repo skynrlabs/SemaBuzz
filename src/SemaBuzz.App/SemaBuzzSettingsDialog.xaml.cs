@@ -19,11 +19,13 @@ public partial class SemaBuzzSettingsDialog : Window
     public double             SelectedChatFontSize         { get; private set; }
     public bool               SelectedLivePreview          { get; private set; }
     public bool               SelectedMinimizeToTray       { get; private set; }
+    public bool               SelectedStartWithWindows     { get; private set; }
+    public bool               SelectedAutoApprove          { get; private set; }
     public bool               SelectedBuzzSoundEnabled     { get; private set; }
     public double             SelectedBuzzSoundVolume      { get; private set; }
     public string             SelectedRelayUri             { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
-    public SemaBuzzSettingsDialog()
+    public SemaBuzzSettingsDialog(bool lockRelay = false)
     {
         InitializeComponent();
 
@@ -39,10 +41,29 @@ public partial class SemaBuzzSettingsDialog : Window
         StyleWave.IsChecked        = s.IndicatorStyle == IndicatorStyleId.Wave;
         FontSizeSlider.Value       = s.ChatFontSize;
         LivePreviewCheck.IsChecked = s.LivePreview;
-        MinimizeToTrayCheck.IsChecked = s.MinimizeToTray;
+        MinimizeToTrayCheck.IsChecked   = s.MinimizeToTray;
+        StartWithWindowsCheck.IsChecked = SemaBuzzStartup.IsRegistered();
+        AutoApproveCheck.IsChecked      = s.AutoApprove;
         BuzzSoundEnabledCheck.IsChecked = s.BuzzSoundEnabled;
         BuzzVolumeSlider.Value     = s.BuzzSoundVolume;
+        BuzzVolumeSlider.IsEnabled = s.BuzzSoundEnabled;
+        BuzzVolumeLabel.IsEnabled  = s.BuzzSoundEnabled;
         RelayUriBox.Text           = s.RelayUri;
+
+        // Disable relay editing while a buzz session is waiting for a peer
+        if (lockRelay)
+        {
+            RelayUriBox.IsEnabled      = false;
+            ResetRelayButton.IsEnabled = false;
+            RelayLabelRow.Children.Add(new TextBlock
+            {
+                Text              = "(in use — cancel the buzz to change)",
+                Foreground        = new SolidColorBrush(Colors.Gray),
+                FontSize          = 10,
+                Margin            = new Thickness(8, 0, 0, 0),
+                VerticalAlignment = VerticalAlignment.Center,
+            });
+        }
 
         // Gate Pro features when the user has not purchased the Pro add-on
         if (!SemaBuzzLicense.IsProUnlocked)
@@ -121,6 +142,9 @@ public partial class SemaBuzzSettingsDialog : Window
 
         SelectedMinimizeToTray = MinimizeToTrayCheck.IsChecked == true;
 
+        SelectedStartWithWindows = StartWithWindowsCheck.IsChecked == true;
+        SelectedAutoApprove      = AutoApproveCheck.IsChecked == true;
+
         SelectedBuzzSoundEnabled = BuzzSoundEnabledCheck.IsChecked == true;
         SelectedBuzzSoundVolume  = BuzzVolumeSlider.Value;
 
@@ -157,9 +181,17 @@ public partial class SemaBuzzSettingsDialog : Window
         BuzzVolumeLabel.Text = $"{(int)Math.Round(e.NewValue * 100):0}%";
     }
 
+    private void BuzzSoundEnabledCheck_Changed(object sender, RoutedEventArgs e)
+    {
+        if (BuzzVolumeSlider is null) return;
+        bool enabled = BuzzSoundEnabledCheck.IsChecked == true;
+        BuzzVolumeSlider.IsEnabled = enabled;
+        BuzzVolumeLabel.IsEnabled  = enabled;
+    }
+
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
     {
-        var purchased = await SemaBuzzLicense.PurchaseAsync();
+        var purchased = await SemaBuzzLicense.PurchaseAsync(this);
         if (purchased)
         {
             // Unlock all gated controls in-place

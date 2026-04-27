@@ -62,7 +62,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid ClipToBounds="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>   <!-- Unified header -->
             <RowDefinition Height="1"/>    <!-- Separator -->
@@ -84,13 +84,15 @@
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="Auto"/>  <!-- Wire status -->
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
+                <ColumnDefinition Width="Auto"/>  <!-- Profile badge -->
+                <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="Auto"/>  <!-- Window controls -->
             </Grid.ColumnDefinitions>
 
             <!-- Brand -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20 0 18 0">
-                <TextBlock Text="SEMA" Foreground="{DynamicResource AmberBrush}" FontWeight="Bold"   FontSize="17"/>
-                <TextBlock Text="BUZZ" Foreground="{DynamicResource AmberBrush}" FontWeight="Light"  FontSize="17"/>
+                <TextBlock Text="SEMA" Foreground="{DynamicResource AmberHeaderBrush}" FontWeight="Bold"   FontSize="17"/>
+                <TextBlock Text="BUZZ" Foreground="{DynamicResource AmberHeaderBrush}" FontWeight="Light"  FontSize="17"/>
             </StackPanel>
 
             <!-- Vertical divider -->
@@ -140,26 +142,55 @@
             <!-- Vertical divider -->
             <Rectangle Grid.Column="5" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
 
+            <!-- Profile badge -->
+            <Button Grid.Column="6"
+                    x:Name="ProfileBadgeBtn"
+                    Style="{StaticResource SemaBuzzWinButton}"
+                    Width="Auto"
+                    VerticalAlignment="Stretch"
+                    WindowChrome.IsHitTestVisibleInChrome="True"
+                    Click="ProfileBadge_Click"
+                    ToolTip="{Binding Text, ElementName=ProfileBadgeLabel}">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14 0">
+                    <Ellipse x:Name="ProfileBadgeAvatar"
+                             Width="22" Height="22"
+                             Fill="{DynamicResource ObsidianBrush}"
+                             Stroke="{DynamicResource ObsidianBorderBrush}"
+                             StrokeThickness="1"
+                             Margin="0 0 8 0"/>
+                    <TextBlock x:Name="ProfileBadgeLabel"
+                               Text="ANONYMOUS"
+                               VerticalAlignment="Center"
+                               FontSize="11"
+                               MaxWidth="120"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource AmberHeaderBrush}"/>
+                </StackPanel>
+            </Button>
+
+            <!-- Vertical divider -->
+            <Rectangle Grid.Column="7" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
+
             <!-- Window controls: minimize · maximize/restore · close -->
-            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Stretch"
+            <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Stretch"
                         WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button x:Name="MinimizeButton"
                         Style="{StaticResource SemaBuzzWinButton}"
                         ToolTip="Minimize"
                         Click="WinBtn_Minimize_Click">
-                    <TextBlock Text="&#x2013;" FontSize="14"/>
+                    <TextBlock Text="&#x2013;" FontSize="14" Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </Button>
                 <Button x:Name="MaximizeButton"
                         Style="{StaticResource SemaBuzzWinButton}"
                         ToolTip="Maximize"
                         Click="WinBtn_Maximize_Click">
-                    <TextBlock x:Name="MaximizeGlyph" Text="&#x25A1;" FontSize="12"/>
+                    <TextBlock x:Name="MaximizeGlyph" Text="&#x25A1;" FontSize="12" Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </Button>
                 <Button x:Name="CloseButton"
                         Style="{StaticResource SemaBuzzWinButtonClose}"
                         ToolTip="Close"
                         Click="WinBtn_Close_Click">
-                    <TextBlock Text="&#x2715;" FontSize="12"/>
+                    <TextBlock Text="&#x2715;" FontSize="12" Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </Button>
             </StackPanel>
         </Grid>
@@ -267,12 +298,9 @@
                 <Grid VerticalAlignment="Center">
 
                     <!-- Idle state: join a buzz or start a new one -->
-                    <Viewbox x:Name="BuzzIdleState"
-                             Stretch="Uniform"
-                             StretchDirection="UpOnly"
-                             MaxWidth="560"
-                             HorizontalAlignment="Center">
-                        <StackPanel Width="280">
+                    <StackPanel x:Name="BuzzIdleState"
+                                Width="320"
+                                HorizontalAlignment="Center">
 
                         <TextBlock Text="Join a Buzz"
                                    FontSize="13" FontWeight="SemiBold"
@@ -301,7 +329,7 @@
                                             BorderBrush="{DynamicResource AmberDimBrush}"
                                             BorderThickness="1"
                                             Background="#44000000"
-                                            Width="280"
+                                            Width="320"
                                             Height="44">
                                         <Grid Background="Transparent">
                                             <!-- Centered row: spaced text + blinking caret -->
@@ -375,12 +403,12 @@
                                 Content="JOIN"
                                 IsEnabled="False"
                                 HorizontalAlignment="Center"
-                                Width="280"
+                                Width="320"
                                 Padding="0 10"
                                 Margin="0 14 0 0"
                                 Click="InlineConnect_Click"/>
 
-                        <Grid Width="280" Margin="0 20 0 20">
+                        <Grid Width="320" Margin="0 20 0 20">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -389,7 +417,7 @@
                             <Rectangle Grid.Column="0" Height="1"
                                        Fill="{DynamicResource ObsidianBorderBrush}"
                                        VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="1" Text="&#x2014; or &#x2014;"
+                            <TextBlock Grid.Column="1" Text="or"
                                        Foreground="{DynamicResource ObsidianBorderBrush}" FontSize="10"
                                        Margin="12 0"/>
                             <Rectangle Grid.Column="2" Height="1"
@@ -400,20 +428,15 @@
                         <Button Style="{StaticResource SemaBuzzButton}"
                                 Content="CREATE A BUZZ"
                                 HorizontalAlignment="Center"
-                                Width="280"
+                                Width="320"
                                 Padding="0 10"
                                 Click="InlineStartBuzz_Click"/>
 
-                        </StackPanel>
-                    </Viewbox>
+                    </StackPanel>
 
                     <!-- Waiting state -->
-                    <Viewbox x:Name="BuzzWaitingState" Visibility="Collapsed"
-                             Stretch="Uniform"
-                             StretchDirection="Both"
-                             MaxWidth="700"
-                             HorizontalAlignment="Center">
-                        <StackPanel>
+                    <StackPanel x:Name="BuzzWaitingState" Visibility="Collapsed"
+                               HorizontalAlignment="Center">
                         <TextBlock Text="Your buzz is live"
                                    HorizontalAlignment="Center"
                                    FontSize="12"
@@ -441,10 +464,33 @@
                                     Style="{StaticResource SemaBuzzButton}"
                                     Content="COPY"
                                     Padding="18 5"
+                                    Margin="0 0 8 0"
                                     Click="CopyBuzzCode_Click"/>
+                            <Button Style="{StaticResource SemaBuzzButton}"
+                                    Content="CANCEL"
+                                    Padding="18 5"
+                                    Click="CancelWait_Click"/>
                         </StackPanel>
+                        <StackPanel x:Name="CustomRelayWarning"
+                                    Visibility="Collapsed"
+                                    HorizontalAlignment="Center"
+                                    Margin="0 16 0 0">
+                            <TextBlock x:Name="CustomRelayWarningMsg"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       MaxWidth="480"
+                                       FontSize="10"
+                                       Foreground="#FF9800"/>
+                            <TextBlock x:Name="CustomRelayWarningUri"
+                                       HorizontalAlignment="Center"
+                                       TextAlignment="Center"
+                                       FontFamily="Cascadia Code, Consolas"
+                                       FontSize="10"
+                                       Foreground="#FF9800"
+                                       Margin="0 4 0 0"/>
                         </StackPanel>
-                    </Viewbox>
+                    </StackPanel>
 
                     <!-- Incoming request state -->
                     <StackPanel x:Name="BuzzRequestState" Visibility="Collapsed" HorizontalAlignment="Center">
@@ -486,7 +532,7 @@
         <!-- BuzzIndicator -->
         <Border Grid.Row="4" Background="{DynamicResource WindowHeaderBrush}" Padding="20 0">
             <controls:SemaBuzzIndicator x:Name="BuzzIndicator"
-                                        FilamentBrush="{DynamicResource AmberBrush}"
+                                        FilamentBrush="{DynamicResource AmberHeaderBrush}"
                                         Height="40"
                                         VerticalAlignment="Center"/>
         </Border>
@@ -499,7 +545,7 @@
             <emoji:RichTextBox x:Name="InputBox"
                      Style="{StaticResource SemaBuzzInputRTB}"
                      AcceptsReturn="False"
-                     Padding="16 12 132 12"
+                     Padding="16 12 174 12"
                      VerticalAlignment="Center"
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
@@ -674,6 +720,12 @@
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Button>
+            <!-- Divider between action buttons and send -->
+            <Rectangle HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Width="1" Height="20"
+                       Margin="0 0 44 0"
+                       Fill="{DynamicResource ObsidianBorderBrush}"/>
             <!-- Buzz button — slam the remote's filament -->
             <Button x:Name="BuzzButton"
                     Style="{StaticResource SemaBuzzSendButton}"
@@ -687,6 +739,21 @@
                 <TextBlock Text="⚡"
                            FontSize="16"
                            Foreground="{DynamicResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+            <!-- Walk button — push a URL to the peer -->
+            <Button x:Name="WalkButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 132 0"
+                    IsEnabled="False"
+                    ToolTip="Walk the Web — push a URL to your peer"
+                    Click="WalkButton_Click">
+                <TextBlock Text="🌐"
+                           FontSize="16"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Button>
@@ -713,7 +780,7 @@
         <Rectangle Grid.Row="7" Fill="{DynamicResource ObsidianBorderBrush}"/>
 
         <!-- Status Bar -->
-        <Grid Grid.Row="8" Background="{DynamicResource WindowHeaderBrush}" Margin="20 0">
+        <Grid Grid.Row="8" Margin="20 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -730,5 +797,13 @@
                        VerticalAlignment="Center"/>
 
         </Grid>
+
+        <!-- Amber border overlay — follows Win11 rounded corners natively -->
+        <Border Grid.Row="0" Grid.RowSpan="9"
+                BorderBrush="{DynamicResource WindowHeaderBrush}"
+                BorderThickness="1"
+                CornerRadius="4"
+                IsHitTestVisible="False"/>
+
     </Grid>
 </Window>

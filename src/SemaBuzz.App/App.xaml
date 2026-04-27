@@ -22,6 +22,7 @@
             <SolidColorBrush x:Key="AmberBrush"            Color="{StaticResource AmberColor}"/>
             <SolidColorBrush x:Key="AmberDimBrush"         Color="{StaticResource AmberDimColor}"/>
             <SolidColorBrush x:Key="AmberGlowBrush"        Color="{StaticResource AmberGlowColor}"/>
+            <SolidColorBrush x:Key="AmberHeaderBrush"      Color="{StaticResource AmberColor}"/>
             <SolidColorBrush x:Key="CrtGreenBrush"         Color="{StaticResource CrtGreenColor}"/>
             <SolidColorBrush x:Key="WireDeadBrush"         Color="{StaticResource WireDeadColor}"/>
 
@@ -119,7 +120,7 @@
             <!-- Window chrome control buttons (minimize / maximize / close) -->
             <Style x:Key="SemaBuzzWinButton" TargetType="Button">
                 <Setter Property="Background"      Value="Transparent"/>
-                <Setter Property="Foreground"      Value="{DynamicResource WireDeadBrush}"/>
+                <Setter Property="Foreground"      Value="{DynamicResource AmberHeaderBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Width"           Value="52"/>
                 <Setter Property="Cursor"          Value="Hand"/>
@@ -311,7 +312,7 @@
 
             <Style TargetType="Menu">
                 <Setter Property="Background"       Value="Transparent"/>
-                <Setter Property="Foreground"       Value="{DynamicResource AmberBrush}"/>
+                <Setter Property="Foreground"       Value="{DynamicResource AmberHeaderBrush}"/>
                 <Setter Property="BorderThickness"  Value="0"/>
                 <Setter Property="FontFamily"       Value="{StaticResource MonoFont}"/>
                 <Setter Property="FontSize"         Value="12"/>
@@ -341,7 +342,7 @@
 
             <Style TargetType="MenuItem">
                 <Setter Property="Background"      Value="Transparent"/>
-                <Setter Property="Foreground"      Value="{DynamicResource AmberBrush}"/>
+                <Setter Property="Foreground"      Value="{DynamicResource AmberHeaderBrush}"/>
                 <Setter Property="BorderThickness" Value="0"/>
                 <Setter Property="Template">
                     <Setter.Value>
@@ -353,8 +354,10 @@
                                                    Foreground="{DynamicResource AmberBrush}"
                                                    FontFamily="{StaticResource MonoFont}"
                                                    FontSize="12"/>
-                                        <ContentPresenter ContentSource="Header" RecognizesAccessKey="True"
-                                                          VerticalAlignment="Center"/>
+                                        <TextBlock x:Name="HeaderText"
+                                                   Text="{TemplateBinding Header}"
+                                                   Foreground="{TemplateBinding Foreground}"
+                                                   VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <Popup x:Name="PART_Popup"
@@ -379,9 +382,6 @@
                                 <Trigger Property="IsSubmenuOpen" Value="True">
                                     <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AmberGlowBrush}"/>
                                 </Trigger>
-                                <Trigger Property="IsEnabled" Value="False">
-                                    <Setter Property="Foreground" Value="{DynamicResource WireDeadBrush}"/>
-                                </Trigger>
                                 <Trigger Property="IsChecked" Value="True">
                                     <Setter TargetName="Check" Property="Visibility" Value="Visible"/>
                                 </Trigger>
@@ -389,6 +389,17 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
+                <Style.Triggers>
+                    <Trigger Property="Role" Value="SubmenuItem">
+                        <Setter Property="Foreground" Value="{DynamicResource AmberBrush}"/>
+                    </Trigger>
+                    <Trigger Property="Role" Value="SubmenuHeader">
+                        <Setter Property="Foreground" Value="{DynamicResource AmberBrush}"/>
+                    </Trigger>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Foreground" Value="{DynamicResource WireDeadBrush}"/>
+                    </Trigger>
+                </Style.Triggers>
             </Style>
 
             <Style x:Key="{x:Static MenuItem.SeparatorStyleKey}" TargetType="Separator">
@@ -444,6 +455,71 @@
                 </Setter>
             </Style>
 
+        <!-- ═══ ScrollBar ═══ -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background"  Value="Transparent"/>
+            <Setter Property="Width"       Value="6"/>
+            <Setter Property="MinWidth"    Value="6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent" SnapsToDevicePixels="True">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.LineUpCommand" Opacity="0" Focusable="False" Height="0"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border Background="{DynamicResource AmberDimBrush}" CornerRadius="3" Margin="1 2"/>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.LineDownCommand" Opacity="0" Focusable="False" Height="0"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Height"    Value="6"/>
+                    <Setter Property="MinHeight" Value="6"/>
+                    <Setter Property="Width"     Value="Auto"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Grid Background="Transparent" SnapsToDevicePixels="True">
+                                    <Track x:Name="PART_Track">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.LineLeftCommand" Opacity="0" Focusable="False" Width="0"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb>
+                                                <Thumb.Template>
+                                                    <ControlTemplate TargetType="Thumb">
+                                                        <Border Background="{DynamicResource AmberDimBrush}" CornerRadius="3" Margin="2 1"/>
+                                                    </ControlTemplate>
+                                                </Thumb.Template>
+                                            </Thumb>
+                                        </Track.Thumb>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.LineRightCommand" Opacity="0" Focusable="False" Width="0"/>
+                                        </Track.IncreaseRepeatButton>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>
+

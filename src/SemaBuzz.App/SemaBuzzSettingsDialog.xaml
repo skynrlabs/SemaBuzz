@@ -2,12 +2,13 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — Preferences"
-        Height="560" Width="460"
+        Height="480" Width="460"
         Background="{DynamicResource WindowBackgroundBrush}"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None">
 
+    <Border BorderBrush="{DynamicResource WindowHeaderBrush}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
@@ -22,6 +23,7 @@
               MouseLeftButtonDown="Header_MouseDown">
             <TextBlock Text="PREFERENCES"
                        VerticalAlignment="Center" Margin="20 0"
+                       Foreground="{DynamicResource AmberHeaderBrush}"
                        FontWeight="Bold" FontSize="13"/>
         </Grid>
 
@@ -162,36 +164,79 @@
         <!-- Divider -->
         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
 
-         <!-- ═══ BUZZ SOUND ═══ -->
-         <TextBlock Text="BUZZ SOUND"
+        <!-- ═══ START WITH WINDOWS ═══ -->
+        <TextBlock Text="STARTUP"
+               Foreground="{DynamicResource AmberBrush}"
+               FontWeight="Bold" FontSize="11"
+               Margin="0 0 0 10"/>
+
+        <CheckBox x:Name="StartWithWindowsCheck"
+              Content="Start with Windows"
+              Margin="0 0 0 6"/>
+
+        <TextBlock Text="Launches SemaBuzz automatically when you log in."
+               Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
+
+        <!-- Divider -->
+        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
+
+         <!-- ═══ SOUNDS ═══ -->
+         <TextBlock Text="SOUNDS"
              Foreground="{DynamicResource AmberBrush}"
              FontWeight="Bold" FontSize="11"
              Margin="0 0 0 10"/>
 
          <CheckBox x:Name="BuzzSoundEnabledCheck"
-            Content="Play buzz sound locally"
+            Content="Enable sounds"
+            Checked="BuzzSoundEnabledCheck_Changed"
+            Unchecked="BuzzSoundEnabledCheck_Changed"
             Margin="0 0 0 10"/>
 
-         <Grid Margin="0 0 0 6">
+         <Grid Margin="0 0 0 2">
              <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-              <ColumnDefinition Width="44"/>
+                 <ColumnDefinition Width="Auto"/>
+                 <ColumnDefinition Width="*"/>
+                 <ColumnDefinition Width="Auto"/>
+                 <ColumnDefinition Width="40"/>
              </Grid.ColumnDefinitions>
+             <TextBlock Grid.Column="0" Text="Quiet"
+                        Foreground="#9E9E9E" FontSize="10"
+                        VerticalAlignment="Center" Margin="0 0 8 0"/>
              <Slider x:Name="BuzzVolumeSlider"
+                  Grid.Column="1"
                   Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.1"
                   Foreground="{DynamicResource AmberBrush}"
                   VerticalAlignment="Center"
                   ValueChanged="BuzzVolumeSlider_ValueChanged"/>
+             <TextBlock Grid.Column="2" Text="Loud"
+                        Foreground="#9E9E9E" FontSize="10"
+                        VerticalAlignment="Center" Margin="8 0 8 0"/>
              <TextBlock x:Name="BuzzVolumeLabel"
-                  Grid.Column="1"
+                  Grid.Column="3"
                   Text="75%"
                   HorizontalAlignment="Right"
                   VerticalAlignment="Center"
                   FontSize="11"/>
          </Grid>
 
-         <TextBlock Text="Used when you click Buzz and when a peer buzzes you."
-             Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
+         <TextBlock Text="Applies to buzz and alert sounds."
+             Foreground="#9E9E9E" FontSize="10" Margin="0 6 0 20"/>
+
+         <!-- Divider -->
+         <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
+
+        <!-- ═══ CONNECTION APPROVAL ═══ -->
+        <TextBlock Text="CONNECTION APPROVAL"
+               Foreground="{DynamicResource AmberBrush}"
+               FontWeight="Bold" FontSize="11"
+               Margin="0 0 0 10"/>
+
+        <CheckBox x:Name="AutoApproveCheck"
+              Content="Auto-approve incoming connections"
+              Margin="0 0 0 6"/>
+
+        <TextBlock Text="When enabled, peers are connected immediately without a confirmation prompt."
+               Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"/>
 
          <!-- Divider -->
          <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 0 0 22"/>
@@ -220,9 +265,9 @@
         </Grid>
 
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
-                   Text="WebSocket address of the relay server (must start with wss:// or ws://). Click RESET to restore the default."/>
+                   Text="WebSocket relay address (ws:// or wss://). Click RESET to restore the default."/>
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"
-                   Text="Only use a relay you trust. All traffic is encrypted on your device before it reaches the relay — the relay sees only ciphertext and holds no keys."/>
+                   Text="Only use a relay you trust. Traffic is encrypted before it leaves your device."/>
 
         </StackPanel>
         </ScrollViewer>
@@ -247,4 +292,5 @@
         </Grid>
 
     </Grid>
+    </Border>
 </Window>
