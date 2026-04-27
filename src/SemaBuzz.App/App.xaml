@@ -354,10 +354,9 @@
                                                    Foreground="{DynamicResource AmberBrush}"
                                                    FontFamily="{StaticResource MonoFont}"
                                                    FontSize="12"/>
-                                        <TextBlock x:Name="HeaderText"
-                                                   Text="{TemplateBinding Header}"
-                                                   Foreground="{TemplateBinding Foreground}"
-                                                   VerticalAlignment="Center"/>
+                                        <ContentPresenter ContentSource="Header"
+                                                          RecognizesAccessKey="True"
+                                                          VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <Popup x:Name="PART_Popup"
