@@ -34,9 +34,15 @@
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0 0 6 0">
         <StackPanel Margin="28 20">
 
-        <TextBlock Text="Select the identity that will be used when you start or join a Buzz."
+        <TextBlock Text="Select the identity that will be used when you start or join a Buzz. Profiles cannot be edited or deleted while a Buzz is active."
                    Foreground="#9E9E9E" FontSize="10" TextWrapping="Wrap"
-                   Margin="0 0 0 16"/>
+                   Margin="0 0 0 15"/>
+
+        <TextBlock x:Name="ActiveWireNotice"
+                   Text="⚠ Profiles cannot be edited or deleted while a Buzz is active."
+                   Foreground="#A0804000" FontSize="10" TextWrapping="Wrap"
+                   Visibility="Collapsed"
+                   Margin="0 0 0 15"/>
 
         <!-- Profile rows populated in code -->
         <StackPanel x:Name="ProfileItemsPanel" Margin="0 0 0 10"/>
