@@ -1,11 +1,10 @@
 # ⚡ SemaBuzz for Windows
 
-![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=flat-square)
+![License](https://img.shields.io/badge/license-Proprietary-red?style=flat-square)
 ![.NET](https://img.shields.io/badge/.NET-9-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![C#](https://img.shields.io/badge/C%23-12-239120?style=flat-square&logo=csharp&logoColor=white)
 ![WPF](https://img.shields.io/badge/WPF-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078D6?style=flat-square&logo=windows&logoColor=white)
-![Microsoft Store](https://img.shields.io/badge/Microsoft%20Store-available-0078D6?style=flat-square&logo=microsoftedge&logoColor=white)
 ![Encryption](https://img.shields.io/badge/encryption-AES--256--GCM%20%2B%20ECDH--P256-22c55e?style=flat-square&logo=letsencrypt&logoColor=white)
 ![WebSocket](https://img.shields.io/badge/relay-WebSocket-f97316?style=flat-square)
 ![Docker](https://img.shields.io/badge/relay-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
@@ -35,10 +34,13 @@ Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-G
 - **Color emoji** — full color emoji rendering in chat and the emoji picker (Emoji.Wpf)
 - **13 themes** — Obsidian, Neon, Matrix, BloodMoon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Powwow
 
-### Pro (Microsoft Store license)
-- **Permanent encrypted chat logs** — sessions persisted to disk, AES-encrypted at rest
-- **Custom listen port** — pre-configure your default port in settings
+### Pro (one-time license — $9.99)
+- **15 Pro themes** — Neon, Matrix, Blood Moon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Forest, Chrome, MutedTerminal, Retro '95
 - **Pulse & Wave indicator styles** — additional filament animations beyond the free Flicker mode
+- **Custom relay URI** — override the default relay in settings
+- **Custom default port** — pre-configure your listen port
+
+Purchase at [semabuzz.gumroad.com/l/dgeyxz](https://semabuzz.gumroad.com/l/dgeyxz). License key is emailed instantly and works offline.
 
 ---
 
@@ -84,7 +86,7 @@ Packet integrity is further protected by per-packet sequence numbers to detect r
 | Encryption | ECDH P-256 + AES-256-GCM |
 | NAT Traversal | STUN (RFC 5389) |
 | Emoji | [Emoji.Wpf](https://github.com/samhocevar/emoji.wpf) 0.3.4 |
-| Packaging | MSIX (Microsoft Store) |
+| Packaging | Single-file `.exe` (self-contained) |
 | Min OS | Windows 10 1809 (build 17763)+ |
 
 ---
@@ -204,7 +206,9 @@ For features and fixes, branch off `dev` (`feature/my-thing` or `fix/my-thing`),
 
 ## License
 
-AGPL-3.0 — Copyright (c) 2026 Skynr Labs. See [LICENSE](LICENSE) for details.
+SemaBuzz is **proprietary software**. Copyright © 2026 Skynr Labs. All rights reserved.
+
+You may download and use the application for personal or internal business use. You may not copy, modify, redistribute, sublicense, or sell the software or its source code. See [LICENSE](LICENSE) for full terms.
 
 ---
 

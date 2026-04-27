@@ -12,7 +12,7 @@ Be respectful. Harassment, discrimination, or abusive language toward any contri
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [GNU Affero General Public License v3.0](LICENSE). Do not submit code that you are not permitted to license under AGPL-3.0.
+SemaBuzz is proprietary software. Copyright © 2026 Skynr Labs. All rights reserved. By submitting a contribution you assign all intellectual property rights in that contribution to Skynr Labs and agree it may be incorporated into the software under Skynr Labs' proprietary license.
 
 ---
 
