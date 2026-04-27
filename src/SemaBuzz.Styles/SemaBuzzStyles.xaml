@@ -37,7 +37,7 @@
         </Setter>
     </Style>
 
-    <!-- MenuItem — dark themed rows -->
+    <!-- MenuItem — dark themed rows, with submenu popup support -->
     <Style TargetType="MenuItem">
         <Setter Property="Background"        Value="Transparent"/>
         <Setter Property="Foreground"        Value="{StaticResource AmberBrush}"/>
@@ -47,18 +47,61 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="MenuItem">
-                    <Border x:Name="Bd"
-                            Background="{TemplateBinding Background}"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter ContentSource="Header"
-                                          RecognizesAccessKey="True"/>
-                    </Border>
+                    <Grid>
+                        <Border x:Name="Bd"
+                                Background="{TemplateBinding Background}"
+                                Padding="{TemplateBinding Padding}">
+                            <DockPanel LastChildFill="True">
+                                <Path x:Name="Arrow"
+                                      DockPanel.Dock="Right"
+                                      Data="M 0,0 L 4,3.5 L 0,7"
+                                      Stroke="{TemplateBinding Foreground}"
+                                      StrokeThickness="1.5"
+                                      VerticalAlignment="Center"
+                                      Margin="10 0 0 0"
+                                      Visibility="Collapsed"
+                                      SnapsToDevicePixels="True"/>
+                                <ContentPresenter ContentSource="Header"
+                                                  RecognizesAccessKey="True"
+                                                  VerticalAlignment="Center"/>
+                            </DockPanel>
+                        </Border>
+
+                        <!-- Submenu popup — shown for SubmenuHeader role -->
+                        <Popup x:Name="SubMenuPopup"
+                               IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                               Placement="Right"
+                               HorizontalOffset="-1"
+                               AllowsTransparency="True"
+                               Focusable="False"
+                               PopupAnimation="Fade">
+                            <Border Background="{StaticResource ObsidianSurfaceBrush}"
+                                    BorderBrush="{StaticResource ObsidianBorderBrush}"
+                                    BorderThickness="1"
+                                    Padding="2"
+                                    SnapsToDevicePixels="True">
+                                <ScrollViewer MaxHeight="420"
+                                              VerticalScrollBarVisibility="Auto"
+                                              CanContentScroll="True">
+                                    <ItemsPresenter/>
+                                </ScrollViewer>
+                            </Border>
+                        </Popup>
+                    </Grid>
+
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
                             <Setter TargetName="Bd" Property="Background" Value="{StaticResource AmberGlowBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.35"/>
+                        </Trigger>
+                        <!-- Show the arrow for items that have a submenu -->
+                        <Trigger Property="Role" Value="SubmenuHeader">
+                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                        <Trigger Property="Role" Value="TopLevelHeader">
+                            <Setter TargetName="Arrow" Property="Visibility" Value="Visible"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
