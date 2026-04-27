@@ -690,6 +690,12 @@ public partial class MainWindow : Window
 
     private async void WalkButton_Click(object sender, RoutedEventArgs e)
     {
+        if (!SemaBuzzLicense.IsProUnlocked)
+        {
+            await SemaBuzzLicense.PurchaseAsync(this);
+            return;
+        }
+
         // If the input box already has a URL, use it; otherwise prompt
         var preText = InputBox.Text?.Trim() ?? string.Empty;
         string url;
@@ -733,8 +739,14 @@ public partial class MainWindow : Window
         Dispatcher.Invoke(() => _whiteboard?.ReceiveDraw(e.DrawEvent));
     }
 
-    private void BoardButton_Click(object sender, RoutedEventArgs e)
+    private async void BoardButton_Click(object sender, RoutedEventArgs e)
     {
+        if (!SemaBuzzLicense.IsProUnlocked)
+        {
+            await SemaBuzzLicense.PurchaseAsync(this);
+            return;
+        }
+
         if (_whiteboard == null || !_whiteboard.IsLoaded)
         {
             _whiteboard = new WhiteboardWindow();

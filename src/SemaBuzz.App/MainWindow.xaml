@@ -750,7 +750,7 @@
                     Width="36" Height="36"
                     Margin="0 0 174 0"
                     IsEnabled="False"
-                    ToolTip="Whiteboard — shared drawing board"
+                    ToolTip="Whiteboard — shared drawing board  [Pro]"
                     Click="BoardButton_Click">
                 <TextBlock Text="✏"
                            FontSize="16"
@@ -766,7 +766,7 @@
                     Width="36" Height="36"
                     Margin="0 0 132 0"
                     IsEnabled="False"
-                    ToolTip="Walk the Web — push a URL to your peer"
+                    ToolTip="Walk the Web — push a URL to your peer  [Pro]"
                     Click="WalkButton_Click">
                 <TextBlock Text="🌐"
                            FontSize="16"
