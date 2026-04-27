@@ -911,6 +911,17 @@ public partial class MainWindow : Window
     private void ProcessInputBoxTextChange()
     {
         var text = InputBox.Text;
+
+        // Strip URLs for free-tier users — URL Walk is a Pro feature.
+        // Don't update _previousInputText here so the next event computes
+        // the correct diff against the pre-paste state and streams the
+        // remaining non-URL characters normally.
+        if (!SemaBuzzLicense.IsProUnlocked && UrlRegex.IsMatch(text))
+        {
+            InputBox.Text = UrlRegex.Replace(text, "");
+            return;
+        }
+
         var prev = _previousInputText;
         _previousInputText = text;
 
