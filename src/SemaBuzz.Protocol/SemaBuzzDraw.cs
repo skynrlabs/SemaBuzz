@@ -3,24 +3,24 @@ namespace SemaBuzz.Protocol;
 /// <summary>Identifies a whiteboard drawing action.</summary>
 public enum SemaBuzzDrawAction : byte
 {
-    Down  = 0,  // Pen down — start a new stroke
-    Move  = 1,  // Pen move — extend the current stroke
-    Up    = 2,  // Pen up — end the current stroke
+    Down = 0,  // Pen down — start a new stroke
+    Move = 1,  // Pen move — extend the current stroke
+    Up = 2,  // Pen up — end the current stroke
     Clear = 3,  // Clear the entire board
 }
 
 /// <summary>A single whiteboard draw event transmitted over the wire.</summary>
 public readonly struct SemaBuzzDrawEvent
 {
-    public SemaBuzzDrawAction Action     { get; init; }
+    public SemaBuzzDrawAction Action { get; init; }
     /// <summary>X position normalized to 0–65535 relative to canvas width.</summary>
-    public ushort             X          { get; init; }
+    public ushort X { get; init; }
     /// <summary>Y position normalized to 0–65535 relative to canvas height.</summary>
-    public ushort             Y          { get; init; }
+    public ushort Y { get; init; }
     /// <summary>Index into the whiteboard color palette (0-based, 0–5).</summary>
-    public byte               ColorIndex { get; init; }
+    public byte ColorIndex { get; init; }
     /// <summary>Stroke thickness: 0 = thin (2 px), 1 = medium (4 px), 2 = thick (8 px).</summary>
-    public byte               SizeIndex  { get; init; }
+    public byte SizeIndex { get; init; }
 }
 
 /// <summary>
@@ -37,9 +37,9 @@ public readonly struct SemaBuzzDrawEvent
 /// </summary>
 public static class SemaBuzzDraw
 {
-    internal const byte DrawByte    = 0x0A;
-    public   const int  WireSize    = 10;
-    public   const int  PaletteCount = 6;
+    internal const byte DrawByte = 0x0A;
+    public const int WireSize = 10;
+    public const int PaletteCount = 6;
 
     public static bool IsDrawPacket(byte[] data) =>
         data.Length == WireSize &&
@@ -72,11 +72,11 @@ public static class SemaBuzzDraw
         var y = (ushort)((data[6] << 8) | data[7]);
         return new SemaBuzzDrawEvent
         {
-            Action     = action,
-            X          = x,
-            Y          = y,
+            Action = action,
+            X = x,
+            Y = y,
             ColorIndex = data[8],
-            SizeIndex  = data[9],
+            SizeIndex = data[9],
         };
     }
 }
