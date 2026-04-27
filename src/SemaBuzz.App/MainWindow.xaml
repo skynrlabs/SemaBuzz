@@ -114,7 +114,7 @@
                 <MenuItem Header="SETTINGS">
                     <MenuItem Header="Themes" Click="Settings_Themes_Click"/>
                     <Separator/>
-                    <MenuItem Header="Profiles" Click="Settings_Profiles_Click"/>
+                    <MenuItem Header="Profiles" x:Name="ProfilesMenuItem" Click="Settings_Profiles_Click"/>
                     <Separator/>
                     <MenuItem Header="Preferences" Click="Settings_Preferences_Click"/>
                 </MenuItem>

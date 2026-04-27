@@ -211,6 +211,8 @@ public partial class MainWindow : Window
         ChatPanesGrid.Visibility        = Visibility.Collapsed;
         // Allow disconnect while waiting for a peer
         DisconnectMenuItem.IsEnabled    = true;
+        ProfilesMenuItem.IsEnabled      = false;
+        ProfileBadgeBtn.IsEnabled       = false;
 
         if (_hostingRelayUri != null && _hostingRelayUri != SemaBuzzRelayPacket.DefaultRelayUri)
         {
@@ -389,6 +391,9 @@ public partial class MainWindow : Window
         ChatPanesGrid.Visibility     = Visibility.Collapsed;
         ChatPanesGrid.Opacity        = 1;   // reset after any fade
         DisconnectMenuItem.IsEnabled = false;
+        ProfilesMenuItem.IsEnabled   = true;
+        ProfileBadgeBtn.IsEnabled    = true;
+        InputBox.Document.Blocks.Clear();
         ClearChatPanels();                      // no wire → no chat
         InlineTokenInput.Focus();
     }
@@ -516,7 +521,10 @@ public partial class MainWindow : Window
         => OpenProfilesDialog();
 
     private void ProfileBadge_Click(object sender, RoutedEventArgs e)
-        => OpenProfilesDialog();
+    {
+        if (!ProfileBadgeBtn.IsEnabled) return;
+        OpenProfilesDialog();
+    }
 
     private void OpenProfilesDialog()
     {
@@ -1138,6 +1146,8 @@ public partial class MainWindow : Window
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
                 ClearChatMenuItem.IsEnabled  = true;
+                ProfilesMenuItem.IsEnabled   = false;
+                ProfileBadgeBtn.IsEnabled    = false;
                 string wireDivider;
                 if (e.State == SemaBuzzWireState.Secured)
                     wireDivider = "› sema secured · wire is live";
@@ -1166,6 +1176,7 @@ public partial class MainWindow : Window
                 SendButton.IsEnabled         = false;
                 BuzzButton.IsEnabled         = false;
                 WalkButton.IsEnabled         = false;
+                InputBox.Document.Blocks.Clear();
                 _peerLiveRow                 = null;
                 _livePeerBlock               = null;
                 var savedHandle              = _peerHandle;

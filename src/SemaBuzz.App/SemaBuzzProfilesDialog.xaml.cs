@@ -25,7 +25,10 @@ public partial class SemaBuzzProfilesDialog : Window
             ?? (_profiles.Count > 0 ? _profiles[0].Id : null);
         RebuildProfileRows();
         if (_lockDelete)
-            EditProfileBtn.ToolTip = "Cannot edit a profile while a Buzz is active.";
+        {
+            EditProfileBtn.ToolTip     = "Cannot edit a profile while a Buzz is active.";
+            ActiveWireNotice.Visibility = Visibility.Visible;
+        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)
