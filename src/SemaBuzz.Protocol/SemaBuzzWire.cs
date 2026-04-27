@@ -50,6 +50,14 @@ public sealed class SemaBuzzUrlPushEventArgs(string url) : EventArgs
 }
 
 /// <summary>
+/// Event args carrying a whiteboard draw event from the remote peer.
+/// </summary>
+public sealed class SemaBuzzDrawEventArgs(SemaBuzzDrawEvent drawEvent) : EventArgs
+{
+    public SemaBuzzDrawEvent DrawEvent { get; } = drawEvent;
+}
+
+/// <summary>
 /// Event args carrying one chunk of a peer-sent image.
 /// </summary>
 public sealed class SemaBuzzImageChunkEventArgs(

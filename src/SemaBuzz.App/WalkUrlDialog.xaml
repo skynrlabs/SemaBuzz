@@ -4,6 +4,9 @@
         Title="SemaBuzz — Walk the Web"
         Height="190" Width="420"
         Background="{DynamicResource WindowBackgroundBrush}"
+        Foreground="{DynamicResource AmberBrush}"
+        FontFamily="Cascadia Code, JetBrains Mono, Consolas"
+        FontSize="13"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         WindowStyle="None">
@@ -31,7 +34,7 @@
         <Rectangle Grid.Row="1" Fill="{DynamicResource ObsidianBorderBrush}"/>
 
         <!-- Body -->
-        <StackPanel Grid.Row="2" Margin="20 16 20 0" VerticalAlignment="Top">
+        <StackPanel Grid.Row="2" Margin="28 18 28 0" VerticalAlignment="Top">
             <TextBlock Text="URL TO PUSH"
                        FontSize="10" FontWeight="Bold"
                        Foreground="{DynamicResource DimTextBrush}"
@@ -45,23 +48,21 @@
         <Rectangle Grid.Row="3" Fill="{DynamicResource ObsidianBorderBrush}"/>
 
         <!-- Footer buttons -->
-        <Grid Grid.Row="4" Background="{DynamicResource WindowHeaderBrush}" Margin="20 0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Button Grid.Column="1"
-                    Style="{StaticResource SemaBuzzButton}"
-                    Content="CANCEL"
-                    Width="90" Height="32" Margin="0 0 8 0"
-                    Click="Cancel_Click"/>
-            <Button Grid.Column="2"
-                    Style="{StaticResource SemaBuzzButton}"
-                    Content="PUSH"
-                    Width="90" Height="32"
-                    IsDefault="True"
-                    Click="Push_Click"/>
+        <Grid Grid.Row="4" Background="{DynamicResource WindowHeaderBrush}">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Margin="0 0 20 0">
+                <Button Style="{StaticResource SemaBuzzButton}"
+                        Content="CANCEL"
+                        Width="90" Height="32" Margin="0 0 8 0"
+                        Click="Cancel_Click"/>
+                <Button Style="{StaticResource SemaBuzzButton}"
+                        Content="PUSH"
+                        Width="90" Height="32"
+                        IsDefault="True"
+                        Click="Push_Click"/>
+            </StackPanel>
         </Grid>
     </Grid>
     </Border>
