@@ -24,6 +24,8 @@ public partial class SemaBuzzProfilesDialog : Window
         _selectedProfileId = App.Settings.ActiveProfileId
             ?? (_profiles.Count > 0 ? _profiles[0].Id : null);
         RebuildProfileRows();
+        if (_lockDelete)
+            EditProfileBtn.ToolTip = "Cannot edit a profile while a Buzz is active.";
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -71,7 +73,7 @@ public partial class SemaBuzzProfilesDialog : Window
             radio.Checked += (_, _) =>
             {
                 _selectedProfileId           = p.Id;
-                EditProfileBtn.IsEnabled     = true;
+                EditProfileBtn.IsEnabled     = !_lockDelete;
                 App.Settings.ActiveProfileId = p.Id;
                 App.Settings.Save();
             };
@@ -132,7 +134,7 @@ public partial class SemaBuzzProfilesDialog : Window
                 }
                 SemaBuzzProfileStore.Save(_profiles);
                 RebuildProfileRows();
-                EditProfileBtn.IsEnabled = _selectedProfileId != null;
+                EditProfileBtn.IsEnabled = _selectedProfileId != null && !_lockDelete;
             };
             Grid.SetColumn(deleteBtn, 4);
             row.Children.Add(deleteBtn);
@@ -151,7 +153,7 @@ public partial class SemaBuzzProfilesDialog : Window
             });
         }
 
-        EditProfileBtn.IsEnabled = _selectedProfileId != null;
+        EditProfileBtn.IsEnabled = _selectedProfileId != null && !_lockDelete;
     }
 
     private static System.Windows.Media.Brush InitialsBrush(string handle, Color accent)
