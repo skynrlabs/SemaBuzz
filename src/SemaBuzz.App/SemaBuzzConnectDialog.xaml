@@ -73,7 +73,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderBrush="{DynamicResource AmberDimBrush}" BorderThickness="1">
+    <Border BorderBrush="{DynamicResource WindowHeaderBrush}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
@@ -88,6 +88,7 @@
               MouseLeftButtonDown="Header_MouseDown">
             <TextBlock Text="JOIN A BUZZ"
                        VerticalAlignment="Center" Margin="20 0"
+                       Foreground="{DynamicResource AmberHeaderBrush}"
                        FontWeight="Bold" FontSize="13"/>
         </Grid>
 

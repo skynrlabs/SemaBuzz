@@ -106,6 +106,7 @@ public partial class SemaBuzzProfilesDialog : Window
                 Text              = p.Handle,
                 VerticalAlignment = VerticalAlignment.Center,
                 Margin            = new Thickness(0, 0, 10, 0),
+                Foreground        = (System.Windows.Media.Brush)Application.Current.Resources["AmberBrush"],
             };
             Grid.SetColumn(handleText, 2);
             row.Children.Add(handleText);

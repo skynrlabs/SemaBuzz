@@ -43,7 +43,7 @@ internal static class SemaBuzzLicense
 
 #if DEBUG
     /// <summary>True when SemaBuzz Pro features are unlocked. Always true in DEBUG builds.</summary>
-    public static bool IsProUnlocked { get; private set; } = false;
+    public static bool IsProUnlocked { get; private set; } = true;
 #else
     /// <summary>True when the user has entered a valid SemaBuzz Pro license key.</summary>
     public static bool IsProUnlocked { get; private set; } = false;

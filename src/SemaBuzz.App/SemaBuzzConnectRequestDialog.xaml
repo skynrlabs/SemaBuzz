@@ -10,7 +10,7 @@
         ResizeMode="NoResize"
         WindowStyle="None">
 
-    <Border BorderBrush="{DynamicResource AmberDimBrush}" BorderThickness="1">
+    <Border BorderBrush="{DynamicResource WindowHeaderBrush}" BorderThickness="1">
     <StackPanel Margin="24 20">
 
         <TextBlock Text="› incoming connection request"

@@ -62,7 +62,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid ClipToBounds="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="52"/>   <!-- Unified header -->
             <RowDefinition Height="1"/>    <!-- Separator -->
@@ -91,8 +91,8 @@
 
             <!-- Brand -->
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="20 0 18 0">
-                <TextBlock Text="SEMA" Foreground="{DynamicResource AmberBrush}" FontWeight="Bold"   FontSize="17"/>
-                <TextBlock Text="BUZZ" Foreground="{DynamicResource AmberBrush}" FontWeight="Light"  FontSize="17"/>
+                <TextBlock Text="SEMA" Foreground="{DynamicResource AmberHeaderBrush}" FontWeight="Bold"   FontSize="17"/>
+                <TextBlock Text="BUZZ" Foreground="{DynamicResource AmberHeaderBrush}" FontWeight="Light"  FontSize="17"/>
             </StackPanel>
 
             <!-- Vertical divider -->
@@ -163,7 +163,8 @@
                                VerticalAlignment="Center"
                                FontSize="11"
                                MaxWidth="120"
-                               TextTrimming="CharacterEllipsis"/>
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </StackPanel>
             </Button>
 
@@ -177,19 +178,19 @@
                         Style="{StaticResource SemaBuzzWinButton}"
                         ToolTip="Minimize"
                         Click="WinBtn_Minimize_Click">
-                    <TextBlock Text="&#x2013;" FontSize="14"/>
+                    <TextBlock Text="&#x2013;" FontSize="14" Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </Button>
                 <Button x:Name="MaximizeButton"
                         Style="{StaticResource SemaBuzzWinButton}"
                         ToolTip="Maximize"
                         Click="WinBtn_Maximize_Click">
-                    <TextBlock x:Name="MaximizeGlyph" Text="&#x25A1;" FontSize="12"/>
+                    <TextBlock x:Name="MaximizeGlyph" Text="&#x25A1;" FontSize="12" Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </Button>
                 <Button x:Name="CloseButton"
                         Style="{StaticResource SemaBuzzWinButtonClose}"
                         ToolTip="Close"
                         Click="WinBtn_Close_Click">
-                    <TextBlock Text="&#x2715;" FontSize="12"/>
+                    <TextBlock Text="&#x2715;" FontSize="12" Foreground="{DynamicResource AmberHeaderBrush}"/>
                 </Button>
             </StackPanel>
         </Grid>
@@ -531,7 +532,7 @@
         <!-- BuzzIndicator -->
         <Border Grid.Row="4" Background="{DynamicResource WindowHeaderBrush}" Padding="20 0">
             <controls:SemaBuzzIndicator x:Name="BuzzIndicator"
-                                        FilamentBrush="{DynamicResource AmberBrush}"
+                                        FilamentBrush="{DynamicResource AmberHeaderBrush}"
                                         Height="40"
                                         VerticalAlignment="Center"/>
         </Border>
@@ -779,7 +780,7 @@
         <Rectangle Grid.Row="7" Fill="{DynamicResource ObsidianBorderBrush}"/>
 
         <!-- Status Bar -->
-        <Grid Grid.Row="8" Background="{DynamicResource WindowHeaderBrush}" Margin="20 0">
+        <Grid Grid.Row="8" Margin="20 0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -797,11 +798,9 @@
 
         </Grid>
 
-        <!-- Amber border overlay — rendered on top of all content so the
-             header background cannot paint over the top corners -->
-        <Border x:Name="AccentBorderOverlay"
-                Grid.Row="0" Grid.RowSpan="9"
-                BorderBrush="{DynamicResource AmberDimBrush}"
+        <!-- Amber border overlay — follows Win11 rounded corners natively -->
+        <Border Grid.Row="0" Grid.RowSpan="9"
+                BorderBrush="{DynamicResource WindowHeaderBrush}"
                 BorderThickness="1"
                 CornerRadius="4"
                 IsHitTestVisible="False"/>

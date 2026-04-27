@@ -113,9 +113,12 @@ public partial class MainWindow : Window
     {
         base.OnSourceInitialized(e);
         SemaBuzzThemeManager.ApplyChrome(this);
-        // Win10 has square window corners — flatten the overlay border to match
-        if (Environment.OSVersion.Version.Build < 22000)
-            AccentBorderOverlay.CornerRadius = new CornerRadius(0);
+    }
+
+    protected override void OnContentRendered(EventArgs e)
+    {
+        base.OnContentRendered(e);
+        SemaBuzzThemeManager.ApplyChrome(this);
     }
 
     protected override void OnStateChanged(EventArgs e)

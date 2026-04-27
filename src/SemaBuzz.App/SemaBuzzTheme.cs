@@ -77,7 +77,7 @@ internal static class SemaBuzzTheme
         Set(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE,      1);
         Set(hwnd, DWMWA_CAPTION_COLOR,                 captionColor);
         Set(hwnd, DWMWA_TEXT_COLOR,                    textColor);
-        Set(hwnd, DWMWA_BORDER_COLOR,                  borderColor);
+        Set(hwnd, DWMWA_BORDER_COLOR,                  textColor);
     }
 
     private static void Set(IntPtr hwnd, int attr, int value)

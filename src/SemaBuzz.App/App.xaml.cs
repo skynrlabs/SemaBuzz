@@ -56,8 +56,7 @@ public partial class App : Application
         if (!SemaBuzzLicense.IsProUnlocked)
         {
             var changed = false;
-            if (Settings.Theme != SemaBuzzThemeId.Obsidian
-                && Settings.Theme != SemaBuzzThemeId.Daylight)
+            if (Settings.Theme != SemaBuzzThemeId.Obsidian)
             {
                 Settings.Theme = SemaBuzzThemeId.Obsidian;
                 SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);

@@ -29,10 +29,10 @@ public partial class SemaBuzzThemeDialog : Window
             case SemaBuzzThemeId.Emerald:   ThemeEmerald.IsChecked   = true; break;
             case SemaBuzzThemeId.Steel:     ThemeSteel.IsChecked    = true; break;
             case SemaBuzzThemeId.Forest:    ThemeForest.IsChecked    = true; break;
-            case SemaBuzzThemeId.Daylight:  ThemeDaylight.IsChecked  = true; break;
-            case SemaBuzzThemeId.Cloud:     ThemeCloud.IsChecked     = true; break;
-            case SemaBuzzThemeId.RetroChat: ThemeRetroChat.IsChecked = true; break;
-            default:                        ThemeObsidian.IsChecked  = true; break;
+            case SemaBuzzThemeId.Chrome:        ThemeChrome.IsChecked        = true; break;
+            case SemaBuzzThemeId.MutedTerminal: ThemeMutedTerminal.IsChecked = true; break;
+            case SemaBuzzThemeId.Win95:         ThemeWin95.IsChecked         = true; break;
+            default:                            ThemeObsidian.IsChecked      = true; break;
         }
 
         if (!SemaBuzzLicense.IsProUnlocked)
@@ -51,17 +51,16 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
                 (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
-                (ThemeCloud,     "Cloud  (teal \u00b7 white)"),
-                (ThemeRetroChat, "Retro Chat  (ICQ green \u00b7 silver)"),
+                (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
+                (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
+                (ThemeWin95,         "Win95  (navy \u00b7 silver grey)"),
             ];
             foreach (var (rb, label) in proThemes)
             {
                 rb.IsEnabled = false;
                 rb.Content   = MakeProContent(label);
             }
-            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian
-                && SemaBuzzThemeManager.Current != SemaBuzzThemeId.Daylight
-                && SemaBuzzThemeManager.Current != SemaBuzzThemeId.Daylight)
+            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian)
             {
                 ThemeObsidian.IsChecked = true;
                 SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
@@ -126,14 +125,14 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemeForest_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Forest);
 
-    private void ThemeDaylight_Checked(object sender, RoutedEventArgs e)
-        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Daylight);
+    private void ThemeChrome_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Chrome);
 
-    private void ThemeCloud_Checked(object sender, RoutedEventArgs e)
-        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Cloud);
+    private void ThemeMutedTerminal_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.MutedTerminal);
 
-    private void ThemeRetroChat_Checked(object sender, RoutedEventArgs e)
-        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.RetroChat);
+    private void ThemeWin95_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Win95);
 
     //  Footer
 
@@ -156,8 +155,9 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
                 (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
-                (ThemeCloud,     "Cloud  (teal \u00b7 white)"),
-                (ThemeRetroChat, "Retro Chat  (ICQ green \u00b7 silver)"),
+                (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
+                (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
+                (ThemeWin95,         "Win95  (navy \u00b7 silver grey)"),
             ];
             foreach (var (rb, label) in proThemes)
             {
