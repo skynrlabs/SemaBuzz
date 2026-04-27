@@ -1,6 +1,7 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using System.Windows;
 
 namespace SemaBuzz.App;
 
@@ -43,7 +44,7 @@ internal static class SemaBuzzLicense
 
 #if DEBUG
     /// <summary>True when SemaBuzz Pro features are unlocked. Always true in DEBUG builds.</summary>
-    public static bool IsProUnlocked { get; private set; } = true;
+    public static bool IsProUnlocked { get; private set; } = false;
 #else
     /// <summary>True when the user has entered a valid SemaBuzz Pro license key.</summary>
     public static bool IsProUnlocked { get; private set; } = false;
@@ -83,10 +84,11 @@ internal static class SemaBuzzLicense
     }
 
     /// <summary>Shows the key activation dialog. Returns true when activated.</summary>
-    public static async Task<bool> PurchaseAsync()
+    public static async Task<bool> PurchaseAsync(Window? owner = null)
     {
         await Task.Yield();
         var dialog = new SemaBuzzLicenseKeyDialog();
+        if (owner != null) dialog.Owner = owner;
         return dialog.ShowDialog() == true;
     }
 

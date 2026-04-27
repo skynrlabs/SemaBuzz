@@ -138,7 +138,7 @@ public partial class SemaBuzzThemeDialog : Window
 
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
     {
-        var purchased = await SemaBuzzLicense.PurchaseAsync();
+        var purchased = await SemaBuzzLicense.PurchaseAsync(this);
         if (purchased)
         {
             (RadioButton Rb, string Label)[] proThemes =

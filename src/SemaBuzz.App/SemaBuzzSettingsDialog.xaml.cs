@@ -191,7 +191,7 @@ public partial class SemaBuzzSettingsDialog : Window
 
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
     {
-        var purchased = await SemaBuzzLicense.PurchaseAsync();
+        var purchased = await SemaBuzzLicense.PurchaseAsync(this);
         if (purchased)
         {
             // Unlock all gated controls in-place
