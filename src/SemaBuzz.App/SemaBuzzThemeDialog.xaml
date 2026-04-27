@@ -59,14 +59,14 @@
             </Border>
         </Grid>
 
-        <!-- Win95 (PRO) -->
+        <!-- Retro '95 (PRO) -->
         <Grid x:Name="ThemeWin95Row" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="ThemeWin95"
-                         Content="Win95  (navy · silver grey)"
+                         Content="Retro &#x2019;95  (navy · silver grey)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
                          Checked="ThemeWin95_Checked"/>

@@ -752,7 +752,7 @@
                     IsEnabled="False"
                     ToolTip="Walk the Web — push a URL to your peer"
                     Click="WalkButton_Click">
-                <TextBlock Text="🔗"
+                <TextBlock Text="🌐"
                            FontSize="16"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>

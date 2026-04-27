@@ -339,8 +339,8 @@ internal static class SemaBuzzThemeManager
             DwmText:          0x00A0C800,   // #00C8A0  COLORREF
             DwmBorder:        0x00122E4D),  // #4D2E12  COLORREF
 
-        //  Win95 (silver grey · navy blue — classic Windows 95/98 chrome)
-        [SemaBuzzThemeId.Win95] = new ThemeDef(
+        //  Retro '95 (silver grey · navy blue — classic Windows 95/98 chrome)
+        [SemaBuzzThemeId.Retro95] = new ThemeDef(
             Background:       C(0xC0, 0xC0, 0xC0),      // iconic Win95 silver
             Surface:          C(0xD4, 0xD0, 0xC8),      // Win98 dialog grey (warm tint)
             Border:           C(0x80, 0x80, 0x80),       // classic 3D sunken border
