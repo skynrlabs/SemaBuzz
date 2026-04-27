@@ -3,11 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — Whiteboard"
         Width="500" Height="430"
+        MinWidth="360" MinHeight="300"
         Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource AmberBrush}"
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
         FontSize="13"
-        ResizeMode="NoResize"
+        ResizeMode="CanResizeWithGrip"
         WindowStyle="None"
         Topmost="True">
 
@@ -143,6 +144,13 @@
                     Click="Close_Click"/>
 
         </Grid>
+
+        <!-- Resize grip — spans all rows, sits in bottom-right corner -->
+        <ResizeGrip Grid.Row="4"
+                    HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                    Foreground="{DynamicResource DimTextBrush}"
+                    IsTabStop="False"/>
+
     </Grid>
     </Border>
 </Window>

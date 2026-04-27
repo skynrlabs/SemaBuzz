@@ -690,6 +690,12 @@ public partial class MainWindow : Window
 
     private async void WalkButton_Click(object sender, RoutedEventArgs e)
     {
+        if (!SemaBuzzLicense.IsProUnlocked)
+        {
+            await SemaBuzzLicense.PurchaseAsync(this);
+            return;
+        }
+
         // If the input box already has a URL, use it; otherwise prompt
         var preText = InputBox.Text?.Trim() ?? string.Empty;
         string url;
@@ -733,8 +739,14 @@ public partial class MainWindow : Window
         Dispatcher.Invoke(() => _whiteboard?.ReceiveDraw(e.DrawEvent));
     }
 
-    private void BoardButton_Click(object sender, RoutedEventArgs e)
+    private async void BoardButton_Click(object sender, RoutedEventArgs e)
     {
+        if (!SemaBuzzLicense.IsProUnlocked)
+        {
+            await SemaBuzzLicense.PurchaseAsync(this);
+            return;
+        }
+
         if (_whiteboard == null || !_whiteboard.IsLoaded)
         {
             _whiteboard = new WhiteboardWindow();
@@ -899,6 +911,17 @@ public partial class MainWindow : Window
     private void ProcessInputBoxTextChange()
     {
         var text = InputBox.Text;
+
+        // Strip URLs for free-tier users — URL Walk is a Pro feature.
+        // Don't update _previousInputText here so the next event computes
+        // the correct diff against the pre-paste state and streams the
+        // remaining non-URL characters normally.
+        if (!SemaBuzzLicense.IsProUnlocked && UrlRegex.IsMatch(text))
+        {
+            InputBox.Text = UrlRegex.Replace(text, "");
+            return;
+        }
+
         var prev = _previousInputText;
         _previousInputText = text;
 
