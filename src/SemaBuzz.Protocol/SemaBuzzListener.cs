@@ -30,6 +30,7 @@ public sealed class SemaBuzzListener : IDisposable
     public event EventHandler<SemaBuzzWireStateEventArgs>? WireStateChanged;
     public event EventHandler<SemaBuzzMetadataEventArgs>? MetadataReceived;
     public event EventHandler<SemaBuzzUrlPushEventArgs>? UrlPushReceived;
+    public event EventHandler<SemaBuzzDrawEventArgs>? DrawReceived;
 
     /// <summary>
     /// Optional async callback invoked when an incoming Handshake arrives.
@@ -404,6 +405,13 @@ public sealed class SemaBuzzListener : IDisposable
             return;
         }
 
+        if (SemaBuzzDraw.IsDrawPacket(data))
+        {
+            var ev = SemaBuzzDraw.Deserialize(data);
+            if (ev.HasValue)
+                DrawReceived?.Invoke(this, new SemaBuzzDrawEventArgs(ev.Value));
+            return;
+        }
 
         for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length; offset += SemaBuzzPacket.WireSize)
         {
@@ -579,6 +587,16 @@ public sealed class SemaBuzzListener : IDisposable
 
     /// <summary>Send a Buzz to the peer  spikes their filament and shakes their window.</summary>
     public Task SendBuzzAsync() => SendAsync(SemaBuzzPacket.Control(SemaBuzzPacketType.Buzz));
+
+    /// <summary>Send a whiteboard draw event to the connected peer.</summary>
+    public async Task SendDrawAsync(SemaBuzzDrawEvent drawEvent)
+    {
+        if (_udp == null && _wsSend == null) return;
+        if (PeerEndPoint == null && _wsSend == null) return;
+        var bytes = SemaBuzzDraw.Serialize(drawEvent);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
 
 
     private static async Task<byte[]?> ReceiveWsMessageAsync(WebSocket ws, byte[] buffer, CancellationToken ct)

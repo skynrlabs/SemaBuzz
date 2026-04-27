@@ -68,7 +68,7 @@
                         </Border>
 
                         <!-- Submenu popup — shown for SubmenuHeader role -->
-                        <Popup x:Name="SubMenuPopup"
+                        <Popup x:Name="PART_Popup"
                                IsOpen="{Binding IsSubmenuOpen, RelativeSource={RelativeSource TemplatedParent}}"
                                Placement="Right"
                                HorizontalOffset="-1"

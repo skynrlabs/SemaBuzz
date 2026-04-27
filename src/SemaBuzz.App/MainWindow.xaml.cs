@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -60,6 +61,9 @@ public partial class MainWindow : Window
     // Chat row containers (tracked so they can be removed when cleared)
     private Grid?               _peerLiveRow;
     private EmojiWpf.TextBlock? _livePeerBlock;
+
+    // Shared whiteboard window (non-modal, stays open while wire is live)
+    private WhiteboardWindow? _whiteboard;
 
     // Hosting session params — set when we start listening so we can resume after a peer disconnects
     private string? _hostingToken;
@@ -393,6 +397,9 @@ public partial class MainWindow : Window
         DisconnectMenuItem.IsEnabled = false;
         ProfilesMenuItem.IsEnabled   = true;
         ProfileBadgeBtn.IsEnabled    = true;
+        BoardButton.IsEnabled        = false;
+        _whiteboard?.Close();
+        _whiteboard = null;
         InputBox.Document.Blocks.Clear();
         ClearChatPanels();                      // no wire → no chat
         InlineTokenInput.Focus();
@@ -586,6 +593,7 @@ public partial class MainWindow : Window
         _listener.WireStateChanged           += OnWireStateChanged;
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.UrlPushReceived            += OnUrlPushReceived;
+        _listener.DrawReceived               += OnDrawReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› listening on port {port}...");
@@ -603,6 +611,7 @@ public partial class MainWindow : Window
         _listener.WireStateChanged           += OnWireStateChanged;
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.UrlPushReceived            += OnUrlPushReceived;
+        _listener.DrawReceived               += OnDrawReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› waiting via relay (token: {token}) via {relayUri}...");
@@ -619,6 +628,7 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
         _client.UrlPushReceived     += OnUrlPushReceived;
+        _client.DrawReceived        += OnDrawReceived;
 
         SetStatus($"› dialing {host}:{port}...");
         _ = _client.ConnectAsync(host, port, ct);
@@ -632,6 +642,7 @@ public partial class MainWindow : Window
         _client.WireStateChanged    += OnWireStateChanged;
         _client.MetadataReceived    += OnMetadataReceived;
         _client.UrlPushReceived     += OnUrlPushReceived;
+        _client.DrawReceived        += OnDrawReceived;
 
         SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
@@ -715,6 +726,30 @@ public partial class MainWindow : Window
             AppendUrlCard(e.Url, isSent: false, PeerPanel, PeerScrollViewer);
             ShowToastIfUnfocused(_peerHandle, $"🔗 {e.Url}");
         });
+    }
+
+    private void OnDrawReceived(object? sender, SemaBuzzDrawEventArgs e)
+    {
+        Dispatcher.Invoke(() => _whiteboard?.ReceiveDraw(e.DrawEvent));
+    }
+
+    private void BoardButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_whiteboard == null || !_whiteboard.IsLoaded)
+        {
+            _whiteboard = new WhiteboardWindow();
+            _whiteboard.DrawSent += async (_, ev) =>
+            {
+                if (_client   != null) await _client.SendDrawAsync(ev);
+                if (_listener != null) await _listener.SendDrawAsync(ev);
+            };
+            _whiteboard.Closed += (_, _) => _whiteboard = null;
+            _whiteboard.Show();
+        }
+        else
+        {
+            _whiteboard.Activate();
+        }
     }
 
     private void AppendUrlCard(string url, bool isSent, Panel panel, ScrollViewer scrollViewer)
@@ -1069,7 +1104,7 @@ public partial class MainWindow : Window
         TitleSessionLabel.Text         = "NO WIRE";
         DisconnectMenuItem.IsEnabled   = false;
         InputBox.IsEnabled             = false;
-        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        _peerLiveRow                   = null;
+        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        _peerLiveRow                   = null;
         _livePeerBlock                 = null;
         _peerHandle                    = "peer";
         _peerAvatarPng                 = null;
@@ -1105,6 +1140,9 @@ public partial class MainWindow : Window
                     SendButton.IsEnabled         = false;
                     BuzzButton.IsEnabled         = false;
                     WalkButton.IsEnabled         = false;
+                    BoardButton.IsEnabled        = false;
+                    _whiteboard?.Close();
+                    _whiteboard = null;
                     _peerLiveRow                 = null;
                     _livePeerBlock               = null;
                     var savedHandle2             = _peerHandle;
@@ -1143,6 +1181,7 @@ public partial class MainWindow : Window
                 SendButton.IsEnabled = false; // no text yet
                 BuzzButton.IsEnabled = true;
                 WalkButton.IsEnabled = true;
+                BoardButton.IsEnabled = true;
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
                 ClearChatMenuItem.IsEnabled  = true;
@@ -1176,6 +1215,9 @@ public partial class MainWindow : Window
                 SendButton.IsEnabled         = false;
                 BuzzButton.IsEnabled         = false;
                 WalkButton.IsEnabled         = false;
+                BoardButton.IsEnabled        = false;
+                _whiteboard?.Close();
+                _whiteboard = null;
                 InputBox.Document.Blocks.Clear();
                 _peerLiveRow                 = null;
                 _livePeerBlock               = null;
@@ -1622,19 +1664,36 @@ public partial class MainWindow : Window
 
     private void BuyNowButton_Click(object sender, RoutedEventArgs e) { }
 
+    private bool _isClosing;
+
+    protected override async void OnClosing(CancelEventArgs e)
+    {
+        if (!_isClosing)
+        {
+            // WPF sets an internal _isClosingCalled flag that is never cleared even when
+            // e.Cancel = true, so calling Close() again afterwards always throws.
+            // Solution: cancel once, do all cleanup here, then call Environment.Exit directly.
+            e.Cancel = true;
+            _isClosing = true;
+            _hostingToken    = null;
+            _hostingRelayUri = null;
+            _hostingPort     = 0;
+            _cts?.Cancel();
+            if (_client   != null) await _client.DisconnectAsync();
+            if (_listener != null) await _listener.DisconnectAsync();
+            _trayIcon.Visible = false;
+            _trayIcon.Dispose();
+            _client?.Dispose();
+            _listener?.Dispose();
+            Environment.Exit(0);
+        }
+        base.OnClosing(e);
+    }
+
     protected override void OnClosed(EventArgs e)
     {
-        _trayIcon.Visible = false;
-        _trayIcon.Dispose();
-        if (_cts != null)
-            _cts.Cancel();
-        if (_client != null)
-            _client.Dispose();
-        if (_listener != null)
-            _listener.Dispose();
+        // Fallback — only reached if OnClosing path was bypassed (e.g. forced close).
         base.OnClosed(e);
-        // Force-terminate the process so no threads, sockets, or protocol loops
-        // linger in Task Manager after the window is closed.
         Environment.Exit(0);
     }
 }

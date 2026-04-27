@@ -545,7 +545,7 @@
             <emoji:RichTextBox x:Name="InputBox"
                      Style="{StaticResource SemaBuzzInputRTB}"
                      AcceptsReturn="False"
-                     Padding="16 12 174 12"
+                     Padding="16 12 216 12"
                      VerticalAlignment="Center"
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
@@ -737,6 +737,22 @@
                     ToolTip="Buzz (shock the wire)"
                     Click="BuzzButton_Click">
                 <TextBlock Text="⚡"
+                           FontSize="16"
+                           Foreground="{DynamicResource AmberBrush}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+            <!-- Whiteboard button — open the shared drawing board -->
+            <Button x:Name="BoardButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 174 0"
+                    IsEnabled="False"
+                    ToolTip="Whiteboard — shared drawing board"
+                    Click="BoardButton_Click">
+                <TextBlock Text="✏"
                            FontSize="16"
                            Foreground="{DynamicResource AmberBrush}"
                            HorizontalAlignment="Center"
