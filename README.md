@@ -18,40 +18,40 @@
 
 SemaBuzz is a C# / .NET 9 WPF desktop application that lets two people communicate in real time over a direct encrypted connection. Text is streamed **character-by-character** as it is typed, so the other person sees your thoughts form live on their screen. A visual "filament" indicator pulses with the rhythm of incoming data, making the connection feel tactile and alive.
 
-Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-GCM before leaving it. The relay forwards packets but never holds the keys and cannot read your messages. No account required — just a handle, a port (or a relay token), and a peer.
+Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-GCM before leaving it. The relay forwards packets but never holds the keys and cannot read your messages. No account required — just a handle and a relay token.
 
 ---
 
 ## Features
 
-### Core
+### Free
 - **Live-wire typing** — characters stream keystroke-by-keystroke in real time
 - **Buzz alerts** — send an instant ⚡ that shakes the peer's window and pulses the filament
 - **Strong encryption** — ephemeral ECDH P-256 key exchange + AES-256-GCM; relay sees only ciphertext
-- **Three connection modes** — direct P2P, relay (WebSocket), or `buzz://` URI deep-links
-- **STUN NAT discovery** — auto-detects your external IP/port to simplify direct connections
+- **Relay connection** — connect via the default relay; no port-forwarding needed
+- **STUN NAT discovery** — auto-detects your external IP/port for direct connections
 - **Identity profiles** — named handles with optional avatar images, saved locally
-- **Color emoji** — full color emoji rendering in chat and the emoji picker (Emoji.Wpf)
-- **13 themes** — Obsidian, Neon, Matrix, BloodMoon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Powwow
+- **100+ emoji** — full colour emoji rendering in chat and built-in picker (7 categories)
+- **Obsidian theme** — the default dark amber look
+- **Flicker indicator** — the live-typing filament animation
 
 ### Pro (one-time license — $9.99)
-- **15 Pro themes** — Neon, Matrix, Blood Moon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Forest, Chrome, MutedTerminal, Retro '95
-- **Pulse & Wave indicator styles** — additional filament animations beyond the free Flicker mode
-- **Custom relay URI** — override the default relay in settings
+- **URL Walk** — push a live URL to your peer mid-conversation; appears as a clickable card
+- **Shared whiteboard** — open a real-time drawing board alongside chat; 6 colours, 3 stroke sizes, synced CLEAR; strokes encrypted over the wire
+- **15 Pro themes** — Neon, Matrix, Blood Moon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Forest, Chrome, Muted Terminal, Retro '95
+- **Pulse & Wave indicator styles** — additional filament animations
+- **Custom relay URI** — override the default relay in Settings
 - **Custom default port** — pre-configure your listen port
 
-Purchase at [semabuzz.gumroad.com/l/dgeyxz](https://semabuzz.gumroad.com/l/dgeyxz). License key is emailed instantly and works offline.
+Purchase at [semabuzz.gumroad.com/l/dgeyxz](https://semabuzz.gumroad.com/l/dgeyxz). License key is emailed instantly and activates offline.
 
 ---
 
 ## How Connections Work
 
-Connections are relay-first. The host generates a short `buzz://TOKEN` address and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted on-device before transmission. The relay forwards opaque ciphertext only.
+The host generates a short token and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted on-device before transmission.
 
-Default relay: `wss://relay.semabuzz.me` (configurable in Settings)
-
-### `buzz://` Deep Links
-The app registers the `buzz://` URI scheme. A `buzz://TOKEN` link opens the app and pre-populates the dial dialog. Direct `buzz://host:port` URIs are also supported at the protocol level for advanced use.
+Default relay: `wss://relay.semabuzz.me` (configurable in Settings for Pro users)
 
 ---
 
@@ -59,7 +59,7 @@ The app registers the `buzz://` URI scheme. A `buzz://TOKEN` link opens the app 
 
 Every session generates a **fresh ephemeral ECDH P-256 key pair**. Public keys are exchanged during the handshake, a shared secret is derived, and all subsequent traffic is encrypted with **AES-256-GCM** — providing both confidentiality and tamper detection. Private keys never leave the device. Peer identity metadata (handle + avatar) is also encrypted before transmission.
 
-Packet integrity is further protected by per-packet sequence numbers to detect replays.
+Per-packet sequence numbers guard against replays.
 
 ---
 
@@ -70,8 +70,8 @@ Packet integrity is further protected by per-packet sequence numbers to detect r
 | `SemaBuzz.App` | WPF UI — windows, dialogs, theming, indicator |
 | `SemaBuzz.Protocol` | Core library — wire protocol, encryption, STUN, relay client |
 | `SemaBuzz.Relay` | Self-hostable ASP.NET Core WebSocket relay server |
-| `SemaBuzz.Styles` | Shared XAML styles and color resources |
-| `SemaBuzz.Tests` | Unit tests |
+| `SemaBuzz.Styles` | Shared XAML styles and colour resources |
+| `SemaBuzz.Tests` | Unit and integration tests |
 
 ---
 
@@ -82,7 +82,7 @@ Packet integrity is further protected by per-packet sequence numbers to detect r
 | Language | C# 12 |
 | Runtime | .NET 9 |
 | UI Framework | WPF (Windows Presentation Foundation) |
-| Networking | UDP (P2P), WebSocket (relay) |
+| Networking | WebSocket (relay), UDP (direct P2P) |
 | Encryption | ECDH P-256 + AES-256-GCM |
 | NAT Traversal | STUN (RFC 5389) |
 | Emoji | [Emoji.Wpf](https://github.com/samhocevar/emoji.wpf) 0.3.4 |
@@ -143,7 +143,7 @@ docker build -t semabuzz-relay .
 docker run -p 7171:7171 semabuzz-relay
 ```
 
-Or deploy to Railway, Render, or Fly.io — set the `PORT` environment variable and TLS is terminated by the platform.
+Or deploy to Railway, Render, or Fly.io — set the `PORT` environment variable; TLS is terminated by the platform.
 
 ### Endpoints
 
@@ -184,7 +184,7 @@ The relay is a **blind pass-through**. It does not log, read, or store message c
 
 ## Data & Privacy (App)
 
-All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer (and optionally routed through the relay). The relay server sees only opaque encrypted binary frames.
+All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer (routed through the relay). The relay server sees only opaque encrypted binary frames.
 
 ---
 
@@ -200,7 +200,7 @@ The repo uses a two-branch model:
 For features and fixes, branch off `dev` (`feature/my-thing` or `fix/my-thing`), open a PR back to `dev`. Releases are cut by merging `dev` → `main` and tagging:
 
 - App releases: `vX.Y.Z`
-- Relay releases: `relay/vX.Y.Z`
+- Relay releases: `vX.Y.Z-relay`
 
 ---
 
