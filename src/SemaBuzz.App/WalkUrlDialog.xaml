@@ -37,7 +37,7 @@
                        Foreground="{DynamicResource DimTextBrush}"
                        Margin="0 0 0 6"/>
             <TextBox x:Name="UrlBox"
-                     Style="{StaticResource SemaBuzzTextBox}"
+                     Style="{StaticResource SemaBuzzInput}"
                      KeyDown="UrlBox_KeyDown"/>
         </StackPanel>
 

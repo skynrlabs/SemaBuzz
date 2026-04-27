@@ -13,12 +13,14 @@ public partial class SemaBuzzProfilesDialog : Window
     private SemaBuzzProfile?      _editingProfile;
     private byte[]?               _editorAvatarPng;
     private string?               _selectedProfileId;
+    private readonly bool         _lockDelete;
 
-    public SemaBuzzProfilesDialog()
+    public SemaBuzzProfilesDialog(bool lockDelete = false)
     {
         InitializeComponent();
 
-        _profiles = SemaBuzzProfileStore.Load();
+        _lockDelete        = lockDelete;
+        _profiles          = SemaBuzzProfileStore.Load();
         _selectedProfileId = App.Settings.ActiveProfileId
             ?? (_profiles.Count > 0 ? _profiles[0].Id : null);
         RebuildProfileRows();
@@ -113,9 +115,11 @@ public partial class SemaBuzzProfilesDialog : Window
 
             var deleteBtn = new Button
             {
-                Content = "DELETE",
-                Style   = (Style)FindResource("SemaBuzzButton"),
-                Margin  = new Thickness(0),
+                Content   = "DELETE",
+                Style     = (Style)FindResource("SemaBuzzButton"),
+                Margin    = new Thickness(0),
+                IsEnabled = !_lockDelete,
+                ToolTip   = _lockDelete ? "Cannot delete a profile while a Buzz is active." : null,
             };
             deleteBtn.Click += (_, _) =>
             {

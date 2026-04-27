@@ -520,7 +520,9 @@ public partial class MainWindow : Window
 
     private void OpenProfilesDialog()
     {
-        new SemaBuzzProfilesDialog { Owner = this }.ShowDialog();
+        bool wireActive = BuzzWaitingState.Visibility == Visibility.Visible
+                       || ChatPanesGrid.Visibility    == Visibility.Visible;
+        new SemaBuzzProfilesDialog(lockDelete: wireActive) { Owner = this }.ShowDialog();
         LoadActiveProfile();
     }
 
@@ -1163,6 +1165,7 @@ public partial class MainWindow : Window
                 InputBox.IsEnabled           = false;
                 SendButton.IsEnabled         = false;
                 BuzzButton.IsEnabled         = false;
+                WalkButton.IsEnabled         = false;
                 _peerLiveRow                 = null;
                 _livePeerBlock               = null;
                 var savedHandle              = _peerHandle;
@@ -1187,8 +1190,16 @@ public partial class MainWindow : Window
                         _                => "× wire is dead",
                     };
                 }
+                string statusMsg = _warmingTimedOut ? "› session timed out" : e.Message switch
+                {
+                    "peer-disconnect" => $"› {savedHandle} disconnected",
+                    "not-available"   => $"› {savedHandle} not available",
+                    _                 => "› wire is dead",
+                };
+                SetStatus(statusMsg);
                 _warmingTimedOut = false;
                 AddChatDivider(divider);
+
 
                 // Always return to the connect screen
                 _hostingToken    = null;
@@ -1611,5 +1622,8 @@ public partial class MainWindow : Window
         if (_listener != null)
             _listener.Dispose();
         base.OnClosed(e);
+        // Force-terminate the process so no threads, sockets, or protocol loops
+        // linger in Task Manager after the window is closed.
+        Environment.Exit(0);
     }
 }
