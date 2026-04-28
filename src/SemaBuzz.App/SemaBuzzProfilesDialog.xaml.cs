@@ -310,4 +310,5 @@ public partial class SemaBuzzProfilesDialog : Window
         ProfileAvatarPreview.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
         ProfileClearAvatarBtn.IsEnabled = false;
     }
+
 }

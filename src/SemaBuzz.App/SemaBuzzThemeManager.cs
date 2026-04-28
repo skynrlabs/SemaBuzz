@@ -448,6 +448,7 @@ internal static class SemaBuzzThemeManager
         res["AmberGlowBrush"]       = Solid(p.AccentGlow);
         res["WireDeadBrush"]        = Solid(p.Dead);
         res["WindowHeaderBrush"]    = Solid(p.Header);
+        res["WindowHeaderDimBrush"] = Solid(Color.FromArgb(0x66, p.Header.R, p.Header.G, p.Header.B));
 
         // Header text — white on dark headers (e.g. Win95 navy), else same as Accent
         var headerText = p.HeaderText.A == 0 ? p.Accent : p.HeaderText;
