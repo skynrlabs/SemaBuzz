@@ -59,49 +59,27 @@
             </Border>
         </Grid>
 
-
-
-        <!-- Muted Terminal (PRO) -->
-        <Grid x:Name="ThemeMutedTerminalRow" Margin="0 0 0 12">
+        <!-- Daylight (free) -->
+        <Grid Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeMutedTerminal"
-                         Content="Muted Terminal  (teal · lime green)"
+            <RadioButton x:Name="ThemeDaylight"
+                         Content="Daylight  (light · ocean blue)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemeMutedTerminal_Checked"/>
+                         Checked="ThemeDaylight_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#1A2B2B" BorderBrush="#3A5656" BorderThickness="1">
+                    Background="#E8EDF2" BorderBrush="#AAB8C5" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#8DC200" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#223838" Margin="3 0 0 0"/>
+                    <Rectangle Width="12" Height="12" Fill="#1B6CA8" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#D5DCE5" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- Chrome (PRO) -->
-        <Grid x:Name="ThemeChromeRow" Margin="0 0 0 12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="64"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeChrome"
-                         Content="Chrome  (blue · dark grey)"
-                         GroupName="Theme"
-                         VerticalAlignment="Center"
-                         Checked="ThemeChrome_Checked"/>
-            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#202124" BorderBrush="#3C4043" BorderThickness="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#8AB4F8" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#292A2D" Margin="3 0 0 0"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- Neon -->
+        <!-- Neon (PRO) -->
         <Grid x:Name="ThemeNeonRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -127,87 +105,27 @@
             </Border>
         </Grid>
 
-        <!-- Matrix -->
-        <Grid x:Name="ThemeMatrixRow" Margin="0 0 0 12">
+        <!-- Lavender (PRO) -->
+        <Grid x:Name="ThemeLavenderRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeMatrix"
-                         Content="Matrix  (CRT green · black)"
+            <RadioButton x:Name="ThemeLavender"
+                         Content="Lavender  (soft violet · deep indigo)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemeMatrix_Checked"/>
+                         Checked="ThemeLavender_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#000000" BorderBrush="#002800" BorderThickness="1">
+                    Background="#EAE5F2" BorderBrush="#B8A8D5" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#00FF41" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#000D00" Margin="3 0 0 0"/>
+                    <Rectangle Width="12" Height="12" Fill="#442799" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#DBD3E8" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- Blood Moon -->
-        <Grid x:Name="ThemeBloodMoonRow" Margin="0 0 0 12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="64"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeBloodMoon"
-                         Content="Blood Moon  (crimson · black)"
-                         GroupName="Theme"
-                         VerticalAlignment="Center"
-                         Checked="ThemeBloodMoon_Checked"/>
-            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#0F0000" BorderBrush="#3A0505" BorderThickness="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#FF1744" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#1C0000" Margin="3 0 0 0"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- Arctic -->
-        <Grid x:Name="ThemeArcticRow" Margin="0 0 0 12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="64"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeArctic"
-                         Content="Arctic  (icy cyan · deep navy)"
-                         GroupName="Theme"
-                         VerticalAlignment="Center"
-                         Checked="ThemeArctic_Checked"/>
-            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#060B14" BorderBrush="#1E3A5A" BorderThickness="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#00E5FF" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#0D1626" Margin="3 0 0 0"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- Sepia -->
-        <Grid x:Name="ThemeSepiaRow" Margin="0 0 0 12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="64"/>
-            </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeSepia"
-                         Content="Sepia  (old gold · dark oak)"
-                         GroupName="Theme"
-                         VerticalAlignment="Center"
-                         Checked="ThemeSepia_Checked"/>
-            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#1A1200" BorderBrush="#3D2E00" BorderThickness="1">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#D4A017" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#261A00" Margin="3 0 0 0"/>
-                </StackPanel>
-            </Border>
-        </Grid>
-
-        <!-- Midnight -->
+        <!-- Midnight (PRO) -->
         <Grid x:Name="ThemeMidnightRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -227,7 +145,87 @@
             </Border>
         </Grid>
 
-        <!-- Sunset -->
+        <!-- Arctic (PRO) -->
+        <Grid x:Name="ThemeArcticRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeArctic"
+                         Content="Arctic  (icy cyan · deep navy)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeArctic_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#060B14" BorderBrush="#1E3A5A" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#00E5FF" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#0D1626" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Chrome (PRO) -->
+        <Grid x:Name="ThemeChromeRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeChrome"
+                         Content="Chrome  (blue · dark grey)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeChrome_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#202124" BorderBrush="#3C4043" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#8AB4F8" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#292A2D" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Parchment (PRO) -->
+        <Grid x:Name="ThemeParchmentRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeParchment"
+                         Content="Parchment  (warm cream · deep rust)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeParchment_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#EDE5D8" BorderBrush="#BFAA8A" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#7A3B1E" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#E0D5C4" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Sepia (PRO) -->
+        <Grid x:Name="ThemeSepiaRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeSepia"
+                         Content="Sepia  (old gold · dark oak)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeSepia_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#1A1200" BorderBrush="#3D2E00" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#D4A017" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#261A00" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Sunset (PRO) -->
         <Grid x:Name="ThemeSunsetRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -247,47 +245,47 @@
             </Border>
         </Grid>
 
-        <!-- Rose -->
-        <Grid x:Name="ThemeRoseRow" Margin="0 0 0 12">
+        <!-- Forest (PRO) -->
+        <Grid x:Name="ThemeForestRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeRose"
-                         Content="Rose  (hot pink · dark)"
+            <RadioButton x:Name="ThemeForest"
+                         Content="Forest  (turquoise · earth)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemeRose_Checked"/>
+                         Checked="ThemeForest_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#140010" BorderBrush="#420030" BorderThickness="1">
+                    Background="#130D07" BorderBrush="#4D2E12" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#F50057" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#200018" Margin="3 0 0 0"/>
+                    <Rectangle Width="12" Height="12" Fill="#00C8A0" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#1F1208" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- Violet -->
-        <Grid x:Name="ThemeVioletRow" Margin="0 0 0 12">
+        <!-- Sage (PRO) -->
+        <Grid x:Name="ThemeSageRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeViolet"
-                         Content="Violet  (electric purple · void)"
+            <RadioButton x:Name="ThemeSage"
+                         Content="Sage  (soft green · deep forest)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemeViolet_Checked"/>
+                         Checked="ThemeSage_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#0A0014" BorderBrush="#2A0050" BorderThickness="1">
+                    Background="#DFEBDF" BorderBrush="#A3C2A3" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#AA00FF" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#120020" Margin="3 0 0 0"/>
+                    <Rectangle Width="12" Height="12" Fill="#1B5E37" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#CEDECE" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>
 
-        <!-- Emerald -->
+        <!-- Emerald (PRO) -->
         <Grid x:Name="ThemeEmeraldRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -307,7 +305,67 @@
             </Border>
         </Grid>
 
-        <!-- Steel -->
+        <!-- Matrix (PRO) -->
+        <Grid x:Name="ThemeMatrixRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeMatrix"
+                         Content="Matrix  (CRT green · black)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeMatrix_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#000000" BorderBrush="#002800" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#00FF41" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#000D00" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Muted Terminal (PRO) -->
+        <Grid x:Name="ThemeMutedTerminalRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeMutedTerminal"
+                         Content="Muted Terminal  (teal · lime green)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeMutedTerminal_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#1A2B2B" BorderBrush="#3A5656" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#8DC200" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#223838" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Sand (PRO) -->
+        <Grid x:Name="ThemeSandRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeSand"
+                         Content="Sand  (warm tan · deep teal)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeSand_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#EBE0CB" BorderBrush="#C5AF8A" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#2C6060" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#DED0B5" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Steel (PRO) -->
         <Grid x:Name="ThemeSteelRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -327,22 +385,62 @@
             </Border>
         </Grid>
 
-        <!-- Forest -->
-        <Grid x:Name="ThemeForestRow" Margin="0 0 0 12">
+        <!-- Blood Moon (PRO) -->
+        <Grid x:Name="ThemeBloodMoonRow" Margin="0 0 0 12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="64"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="ThemeForest"
-                         Content="Forest  (turquoise · earth)"
+            <RadioButton x:Name="ThemeBloodMoon"
+                         Content="Blood Moon  (crimson · black)"
                          GroupName="Theme"
                          VerticalAlignment="Center"
-                         Checked="ThemeForest_Checked"/>
+                         Checked="ThemeBloodMoon_Checked"/>
             <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
-                    Background="#130D07" BorderBrush="#4D2E12" BorderThickness="1">
+                    Background="#0F0000" BorderBrush="#3A0505" BorderThickness="1">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
-                    <Rectangle Width="12" Height="12" Fill="#00C8A0" RadiusX="2" RadiusY="2"/>
-                    <Rectangle Width="8"  Height="12" Fill="#1F1208" Margin="3 0 0 0"/>
+                    <Rectangle Width="12" Height="12" Fill="#FF1744" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#1C0000" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Rose (PRO) -->
+        <Grid x:Name="ThemeRoseRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeRose"
+                         Content="Rose  (hot pink · dark)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeRose_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#140010" BorderBrush="#420030" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#F50057" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#200018" Margin="3 0 0 0"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- Violet (PRO) -->
+        <Grid x:Name="ThemeVioletRow" Margin="0 0 0 12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="64"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ThemeViolet"
+                         Content="Violet  (electric purple · void)"
+                         GroupName="Theme"
+                         VerticalAlignment="Center"
+                         Checked="ThemeViolet_Checked"/>
+            <Border Grid.Column="1" Width="54" Height="26" CornerRadius="3"
+                    Background="#0A0014" BorderBrush="#2A0050" BorderThickness="1">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="4 0">
+                    <Rectangle Width="12" Height="12" Fill="#AA00FF" RadiusX="2" RadiusY="2"/>
+                    <Rectangle Width="8"  Height="12" Fill="#120020" Margin="3 0 0 0"/>
                 </StackPanel>
             </Border>
         </Grid>

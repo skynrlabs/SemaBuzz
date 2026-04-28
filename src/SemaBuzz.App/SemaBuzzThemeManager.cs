@@ -317,6 +317,81 @@ internal static class SemaBuzzThemeManager
             DwmText:          0x0000C28D,   // #8DC200  COLORREF (ICQ yellow-green)
             DwmBorder:        0x0056563A),  // #3A5656  COLORREF
 
+        //  Daylight (cool grey-blue · deep ocean blue)  — free tier
+        [SemaBuzzThemeId.Daylight] = new ThemeDef(
+            Background:       C(0xE8, 0xED, 0xF2),      // light cool grey-blue
+            Surface:          C(0xD5, 0xDC, 0xE5),      // slightly darker panel
+            Border:           C(0xAA, 0xB8, 0xC5),      // clear but soft border
+            Accent:           C(0x1B, 0x6C, 0xA8),      // deep ocean blue
+            AccentDim:        A(0x80, 0x1B, 0x6C, 0xA8),
+            AccentGlow:       A(0x33, 0x1B, 0x6C, 0xA8),
+            Dead:             C(0x8F, 0xA0, 0xAF),      // muted slate
+            Header:           C(0xC5, 0xD0, 0xDA),      // soft blue-grey header
+            WindowBackground: () => new SolidColorBrush(C(0xE8, 0xED, 0xF2)),
+            DwmCaption:       0x00DAD0C5,   // #C5D0DA  COLORREF
+            DwmText:          0x00A86C1B,   // #1B6CA8  COLORREF
+            DwmBorder:        0x00C5B8AA),  // #AAB8C5  COLORREF
+
+        //  Parchment (warm cream · deep rust)  — PRO
+        [SemaBuzzThemeId.Parchment] = new ThemeDef(
+            Background:       C(0xED, 0xE5, 0xD8),      // warm parchment cream
+            Surface:          C(0xE0, 0xD5, 0xC4),      // slightly deeper warm panel
+            Border:           C(0xBF, 0xAA, 0x8A),      // warm tan border
+            Accent:           C(0x7A, 0x3B, 0x1E),      // deep rust / terracotta
+            AccentDim:        A(0x80, 0x7A, 0x3B, 0x1E),
+            AccentGlow:       A(0x33, 0x7A, 0x3B, 0x1E),
+            Dead:             C(0xA8, 0x90, 0x70),      // muted warm grey
+            Header:           C(0xD5, 0xC8, 0xB0),      // warm sandy header
+            WindowBackground: () => new SolidColorBrush(C(0xED, 0xE5, 0xD8)),
+            DwmCaption:       0x00B0C8D5,   // #D5C8B0  COLORREF
+            DwmText:          0x001E3B7A,   // #7A3B1E  COLORREF
+            DwmBorder:        0x008AAABF),  // #BFAA8A  COLORREF
+
+        //  Sage (soft sage-green · deep forest)  — PRO
+        [SemaBuzzThemeId.Sage] = new ThemeDef(
+            Background:       C(0xDF, 0xEB, 0xDF),      // soft sage green
+            Surface:          C(0xCE, 0xDE, 0xCE),      // slightly deeper sage panel
+            Border:           C(0xA3, 0xC2, 0xA3),      // muted leaf border
+            Accent:           C(0x1B, 0x5E, 0x37),      // deep forest green
+            AccentDim:        A(0x80, 0x1B, 0x5E, 0x37),
+            AccentGlow:       A(0x33, 0x1B, 0x5E, 0x37),
+            Dead:             C(0x7D, 0xA8, 0x7D),      // muted mid-green
+            Header:           C(0xC4, 0xD8, 0xC4),      // pale sage header
+            WindowBackground: () => new SolidColorBrush(C(0xDF, 0xEB, 0xDF)),
+            DwmCaption:       0x00D8D8C4,   // #C4D8C4  COLORREF
+            DwmText:          0x00375E1B,   // #1B5E37  COLORREF
+            DwmBorder:        0x00A3C2A3),  // #A3C2A3  COLORREF
+
+        //  Lavender (soft violet · deep indigo)  — PRO
+        [SemaBuzzThemeId.Lavender] = new ThemeDef(
+            Background:       C(0xEA, 0xE5, 0xF2),      // soft lavender
+            Surface:          C(0xDB, 0xD3, 0xE8),      // slightly deeper lavender panel
+            Border:           C(0xB8, 0xA8, 0xD5),      // muted violet border
+            Accent:           C(0x44, 0x27, 0x99),      // deep indigo
+            AccentDim:        A(0x80, 0x44, 0x27, 0x99),
+            AccentGlow:       A(0x33, 0x44, 0x27, 0x99),
+            Dead:             C(0x96, 0x88, 0xBB),      // muted slate-violet
+            Header:           C(0xD0, 0xC7, 0xE4),      // pale lavender header
+            WindowBackground: () => new SolidColorBrush(C(0xEA, 0xE5, 0xF2)),
+            DwmCaption:       0x00E4C7D0,   // #D0C7E4  COLORREF
+            DwmText:          0x00992744,   // #442799  COLORREF
+            DwmBorder:        0x00D5A8B8),  // #B8A8D5  COLORREF
+
+        //  Sand (warm tan · deep teal)  — PRO
+        [SemaBuzzThemeId.Sand] = new ThemeDef(
+            Background:       C(0xEB, 0xE0, 0xCB),      // warm sandy tan
+            Surface:          C(0xDE, 0xD0, 0xB5),      // slightly deeper sand panel
+            Border:           C(0xC5, 0xAF, 0x8A),      // warm sand border
+            Accent:           C(0x2C, 0x60, 0x60),      // deep teal
+            AccentDim:        A(0x80, 0x2C, 0x60, 0x60),
+            AccentGlow:       A(0x33, 0x2C, 0x60, 0x60),
+            Dead:             C(0xA8, 0x90, 0x70),      // muted warm grey
+            Header:           C(0xD5, 0xC5, 0xA5),      // sandy header
+            WindowBackground: () => new SolidColorBrush(C(0xEB, 0xE0, 0xCB)),
+            DwmCaption:       0x00A5C5D5,   // #D5C5A5  COLORREF
+            DwmText:          0x0060602C,   // #2C6060  COLORREF
+            DwmBorder:        0x008AAFC5),  // #C5AF8A  COLORREF
+
         //  Forest (earth brown / turquoise)
         [SemaBuzzThemeId.Forest] = new ThemeDef(
             Background:       C(0x13, 0x0D, 0x07),

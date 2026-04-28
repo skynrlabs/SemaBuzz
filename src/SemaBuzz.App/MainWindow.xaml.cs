@@ -61,6 +61,7 @@ public partial class MainWindow : Window
     // Chat row containers (tracked so they can be removed when cleared)
     private Grid?               _peerLiveRow;
     private EmojiWpf.TextBlock? _livePeerBlock;
+    private TextBlock?          _livePeerTimestamp;
 
     // Shared whiteboard window (non-modal, stays open while wire is live)
     private WhiteboardWindow? _whiteboard;
@@ -82,6 +83,12 @@ public partial class MainWindow : Window
     // Remote peer identity (received via metadata exchange)
     private string  _peerHandle     = "peer";
     private byte[]? _peerAvatarPng;
+
+    // Online status
+    private SemaBuzz.Protocol.SemaBuzzStatus _localStatus        = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+    private string                           _localStatusMessage = string.Empty;
+    private SemaBuzz.Protocol.SemaBuzzStatus _peerStatus         = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+    private string                           _peerStatusMessage  = string.Empty;
     private readonly Forms.NotifyIcon _trayIcon;
     private bool _trayTipShown;
 
@@ -300,7 +307,10 @@ public partial class MainWindow : Window
             _localHandle    = "anonymous";
             _localAvatarPng = null;
         }
+        _localStatus        = App.Settings.Status;
+        _localStatusMessage = App.Settings.StatusMessage ?? string.Empty;
         RefreshProfileBadge();
+        ApplyLocalStatusUI();
     }
 
     private void RefreshProfileBadge()
@@ -503,9 +513,10 @@ public partial class MainWindow : Window
     {
         LocalPanel.Children.Clear();
         PeerPanel.Children.Clear();
-        _peerLiveRow       = null;
-        _livePeerBlock     = null;
-        _previousInputText = string.Empty;
+        _peerLiveRow         = null;
+        _livePeerBlock       = null;
+        _livePeerTimestamp   = null;
+        _previousInputText   = string.Empty;
     }
 
     //  SETTINGS menu
@@ -690,12 +701,6 @@ public partial class MainWindow : Window
 
     private async void WalkButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!SemaBuzzLicense.IsProUnlocked)
-        {
-            await SemaBuzzLicense.PurchaseAsync(this);
-            return;
-        }
-
         // If the input box already has a URL, use it; otherwise prompt
         var preText = InputBox.Text?.Trim() ?? string.Empty;
         string url;
@@ -741,12 +746,6 @@ public partial class MainWindow : Window
 
     private async void BoardButton_Click(object sender, RoutedEventArgs e)
     {
-        if (!SemaBuzzLicense.IsProUnlocked)
-        {
-            await SemaBuzzLicense.PurchaseAsync(this);
-            return;
-        }
-
         if (_whiteboard == null || !_whiteboard.IsLoaded)
         {
             _whiteboard = new WhiteboardWindow();
@@ -772,8 +771,9 @@ public partial class MainWindow : Window
         var accentKey = isSent ? "AmberBrush" : (string?)null;
 
         // Header row (handle + label)
-        var (headerRow, headerTb) = MakeChatLine(handle, avatar, nameColor, accentKey);
+        var (headerRow, headerTb, headerTs) = MakeChatLine(handle, avatar, nameColor, accentKey);
         headerTb.Text = (string)headerTb.Tag + "shared a link";
+        headerTs.Text = DateTime.Now.ToString("h:mm tt");
         panel.Children.Add(headerRow);
 
         // Card border
@@ -881,11 +881,22 @@ public partial class MainWindow : Window
             foreach (var c in msg)
                 _streamer.Feed(c);
 
-        // Add the committed row to the local pane
-        var (row, tb) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
-        tb.Text = (string)tb.Tag + msg;
-        HyperlinkifyTextBlock(tb);
-        LocalPanel.Children.Add(row);
+        // /me action message
+        if (msg.StartsWith("/me ", StringComparison.OrdinalIgnoreCase) && msg.Length > 4)
+        {
+            var action = msg[4..];
+            LocalPanel.Children.Add(MakeActionRow(_localHandle, action));
+            LocalScrollViewer.ScrollToEnd();
+        }
+        else
+        {
+            // Add the committed row to the local pane
+            var (row, tb, ts) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
+            tb.Text = (string)tb.Tag + msg;
+            ts.Text = DateTime.Now.ToString("h:mm tt");
+            HyperlinkifyTextBlock(tb);
+            LocalPanel.Children.Add(row);
+        }
         LocalScrollViewer.ScrollToEnd();
 
         // Clear the box.
@@ -912,21 +923,11 @@ public partial class MainWindow : Window
     {
         var text = InputBox.Text;
 
-        // Strip URLs for free-tier users — URL Walk is a Pro feature.
-        // Don't update _previousInputText here so the next event computes
-        // the correct diff against the pre-paste state and streams the
-        // remaining non-URL characters normally.
-        if (!SemaBuzzLicense.IsProUnlocked && UrlRegex.IsMatch(text))
-        {
-            InputBox.Text = UrlRegex.Replace(text, "");
-            return;
-        }
+        // Enable the send button only when there is something to send
+        SendButton.IsEnabled = InputBox.IsEnabled && text.Length > 0;
 
         var prev = _previousInputText;
         _previousInputText = text;
-
-        // Enable the send button only when there is something to send
-        SendButton.IsEnabled = InputBox.IsEnabled && text.Length > 0;
 
         // When LivePreview is off, don't stream keystrokes live
         if (!App.Settings.LivePreview) return;
@@ -1129,9 +1130,15 @@ public partial class MainWindow : Window
         InputBox.IsEnabled             = false;
         SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        _peerLiveRow                   = null;
         _livePeerBlock                 = null;
+        _livePeerTimestamp             = null;
         _peerHandle                    = "peer";
         _peerAvatarPng                 = null;
+        _peerStatus                    = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+        _peerStatusMessage             = string.Empty;
         PeerLabel.Text                 = string.Empty;
+        PeerStatusDot.Fill             = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x61, 0x61, 0x61));
+        PeerStatusMsg.Text             = string.Empty;
+        PeerStatusMsg.Visibility       = Visibility.Collapsed;
         UpdateWireStateDot(SemaBuzzWireState.Cold);
         BuzzIndicator.Flatline();
         ClearChatMenuItem.IsEnabled    = false;
@@ -1168,6 +1175,7 @@ public partial class MainWindow : Window
                     _whiteboard = null;
                     _peerLiveRow                 = null;
                     _livePeerBlock               = null;
+                    _livePeerTimestamp           = null;
                     var savedHandle2             = _peerHandle;
                     _peerHandle                  = "peer";
                     _peerAvatarPng               = null;
@@ -1218,8 +1226,8 @@ public partial class MainWindow : Window
                 AddChatDivider(wireDivider);
 
                 // Exchange identity with the peer
-                if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng);
-                if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng);
+                if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+                if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
             }
             else if (e.State == SemaBuzzWireState.Dead)
             {
@@ -1244,6 +1252,7 @@ public partial class MainWindow : Window
                 InputBox.Document.Blocks.Clear();
                 _peerLiveRow                 = null;
                 _livePeerBlock               = null;
+                _livePeerTimestamp           = null;
                 var savedHandle              = _peerHandle;
                 _peerHandle                  = "peer";
                 _peerAvatarPng               = null;
@@ -1315,11 +1324,96 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            _peerHandle    = e.Handle;
-            _peerAvatarPng = e.AvatarPng;
+            _peerHandle        = e.Handle;
+            _peerAvatarPng     = e.AvatarPng;
+            _peerStatus        = e.Status;
+            _peerStatusMessage = e.StatusMessage ?? string.Empty;
             PeerLabel.Text     = e.Handle;
             PeerPaneLabel.Text = e.Handle.ToUpperInvariant();
+            ApplyPeerStatusUI();
         });
+    }
+
+    // -----------------------------------------
+    // Status
+    // -----------------------------------------
+
+    private static System.Windows.Media.Color StatusColor(SemaBuzz.Protocol.SemaBuzzStatus s) => s switch
+    {
+        SemaBuzz.Protocol.SemaBuzzStatus.Away => System.Windows.Media.Color.FromRgb(0xFF, 0xC1, 0x07),
+        SemaBuzz.Protocol.SemaBuzzStatus.Busy => System.Windows.Media.Color.FromRgb(0xF4, 0x43, 0x36),
+        _                                     => System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50),
+    };
+
+    private void ApplyLocalStatusUI()
+    {
+        var c = StatusColor(_localStatus);
+        LocalStatusDot.Fill    = new SolidColorBrush(c);
+        ProfileStatusDot.Fill  = new SolidColorBrush(c);
+        if (!string.IsNullOrWhiteSpace(_localStatusMessage))
+        {
+            LocalStatusMsg.Text       = _localStatusMessage;
+            LocalStatusMsg.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            LocalStatusMsg.Text       = string.Empty;
+            LocalStatusMsg.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void ApplyPeerStatusUI()
+    {
+        var c = _peerStatus == SemaBuzz.Protocol.SemaBuzzStatus.Available
+            ? System.Windows.Media.Color.FromRgb(0x61, 0x61, 0x61)  // grey when unknown/available
+            : StatusColor(_peerStatus);
+        // Only show a colored dot when peer has explicitly set a non-available status
+        if (_peerStatus != SemaBuzz.Protocol.SemaBuzzStatus.Available)
+            PeerStatusDot.Fill = new SolidColorBrush(StatusColor(_peerStatus));
+        else
+            PeerStatusDot.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50));
+        if (!string.IsNullOrWhiteSpace(_peerStatusMessage))
+        {
+            PeerStatusMsg.Text       = _peerStatusMessage;
+            PeerStatusMsg.Visibility = Visibility.Visible;
+        }
+        else
+        {
+            PeerStatusMsg.Text       = string.Empty;
+            PeerStatusMsg.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void StatusMenu_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not MenuItem mi) return;
+        _localStatus = (string)mi.Tag switch
+        {
+            "Away" => SemaBuzz.Protocol.SemaBuzzStatus.Away,
+            "Busy" => SemaBuzz.Protocol.SemaBuzzStatus.Busy,
+            _      => SemaBuzz.Protocol.SemaBuzzStatus.Available,
+        };
+        App.Settings.Status = _localStatus;
+        App.Settings.Save();
+        ApplyLocalStatusUI();
+        // Re-broadcast to peer if wire is live
+        if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+        if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+    }
+
+    private void StatusMessage_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SemaBuzzInputDialog("Status message", "Enter a short status message (or leave blank to clear):", _localStatusMessage)
+        {
+            Owner = this
+        };
+        if (dlg.ShowDialog() != true) return;
+        _localStatusMessage = dlg.InputText.Trim();
+        App.Settings.StatusMessage = _localStatusMessage;
+        App.Settings.Save();
+        ApplyLocalStatusUI();
+        if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+        if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
     }
 
     /// <summary>
@@ -1357,9 +1451,10 @@ public partial class MainWindow : Window
 
         if (_livePeerBlock == null)
         {
-            var (row, tb) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x9E, 0x9E, 0x9E));
-            _peerLiveRow   = row;
-            _livePeerBlock = tb;
+            var (row, tb, ts) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x9E, 0x9E, 0x9E));
+            _peerLiveRow       = row;
+            _livePeerBlock     = tb;
+            _livePeerTimestamp = ts;
             PeerPanel.Children.Add(_peerLiveRow);
         }
 
@@ -1390,12 +1485,26 @@ public partial class MainWindow : Window
                     msgText = _livePeerBlock.Text[prefix.Length..];
                 else
                     msgText = string.Empty;
-                HyperlinkifyTextBlock(_livePeerBlock);
-                ShowToastIfUnfocused(_peerHandle, msgText);
 
+                // /me action message — replace live row with an action row
+                if (msgText.StartsWith("/me ", StringComparison.OrdinalIgnoreCase) && msgText.Length > 4)
+                {
+                    var action = msgText[4..];
+                    PeerPanel.Children.Remove(_peerLiveRow);
+                    PeerPanel.Children.Add(MakeActionRow(_peerHandle, action));
+                    ShowToastIfUnfocused(_peerHandle, $"* {_peerHandle} {action}");
+                }
+                else
+                {
+                    HyperlinkifyTextBlock(_livePeerBlock);
+                    if (_livePeerTimestamp != null)
+                        _livePeerTimestamp.Text = DateTime.Now.ToString("h:mm tt");
+                    ShowToastIfUnfocused(_peerHandle, msgText);
+                }
             }
-            _peerLiveRow   = null;
-            _livePeerBlock = null;
+            _peerLiveRow       = null;
+            _livePeerBlock     = null;
+            _livePeerTimestamp = null;
             return;
         }
         else
@@ -1411,12 +1520,13 @@ public partial class MainWindow : Window
     /// Pass <paramref name="accentResourceKey"/> (e.g. "AmberBrush") to bind Foreground as a
     /// DynamicResource so the text recolors automatically when the theme changes.
     /// </summary>
-    private static (Grid Row, EmojiWpf.TextBlock TextBlock) MakeChatLine(
+    private static (Grid Row, EmojiWpf.TextBlock TextBlock, TextBlock TimestampBlock) MakeChatLine(
         string handle, byte[]? avatarPng, Color nameColor, string? accentResourceKey = null)
     {
         var grid = new Grid { Margin = new Thickness(0, 7, 0, 3) };
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(36) });
         grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
 
         // Avatar circle
         var ellipse = new Ellipse
@@ -1475,7 +1585,39 @@ public partial class MainWindow : Window
         Grid.SetColumn(tb, 1);
         grid.Children.Add(tb);
 
-        return (grid, tb);
+        // Timestamp label — populated when the message is committed
+        var timestamp = new TextBlock
+        {
+            Text              = string.Empty,
+            FontFamily        = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize          = 9,
+            VerticalAlignment = VerticalAlignment.Top,
+            Margin            = new Thickness(6, 4, 4, 0),
+        };
+        timestamp.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
+        Grid.SetColumn(timestamp, 2);
+        grid.Children.Add(timestamp);
+
+        return (grid, tb, timestamp);
+    }
+
+    /// <summary>
+    /// Builds an IRC-style /me action row: * handle action (italic, muted color, no avatar).
+    /// </summary>
+    private static TextBlock MakeActionRow(string handle, string action)
+    {
+        var tb = new TextBlock
+        {
+            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize     = App.Settings.ChatFontSize,
+            FontStyle    = FontStyles.Italic,
+            TextWrapping = TextWrapping.Wrap,
+            Margin       = new Thickness(40, 6, 4, 2),
+        };
+        tb.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
+        tb.Inlines.Add(new Run($"* {handle} ") { FontWeight = FontWeights.SemiBold });
+        tb.Inlines.Add(new Run(action));
+        return tb;
     }
 
     // ---------------------------------------------
