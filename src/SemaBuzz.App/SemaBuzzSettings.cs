@@ -21,7 +21,6 @@ public enum SemaBuzzThemeId
     Forest     = 12,
     Chrome        = 13,
     MutedTerminal = 14,
-    Retro95         = 15,
 }
 
 /// <summary>Identifies the filament animation style shown in the buzz indicator.</summary>

@@ -31,7 +31,6 @@ public partial class SemaBuzzThemeDialog : Window
             case SemaBuzzThemeId.Forest:    ThemeForest.IsChecked    = true; break;
             case SemaBuzzThemeId.Chrome:        ThemeChrome.IsChecked        = true; break;
             case SemaBuzzThemeId.MutedTerminal: ThemeMutedTerminal.IsChecked = true; break;
-            case SemaBuzzThemeId.Retro95:         ThemeWin95.IsChecked         = true; break;
             default:                            ThemeObsidian.IsChecked      = true; break;
         }
 
@@ -53,7 +52,6 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
                 (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeWin95,         "Retro \u201995  (navy \u00b7 silver grey)"),
             ];
             foreach (var (rb, label) in proThemes)
             {
@@ -131,9 +129,6 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemeMutedTerminal_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.MutedTerminal);
 
-    private void ThemeWin95_Checked(object sender, RoutedEventArgs e)
-        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Retro95);
-
     //  Footer
 
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
@@ -157,7 +152,6 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
                 (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeWin95,         "Retro \u201995  (navy \u00b7 silver grey)"),
             ];
             foreach (var (rb, label) in proThemes)
             {

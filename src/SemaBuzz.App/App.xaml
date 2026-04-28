@@ -353,20 +353,7 @@
                                         <TextBlock x:Name="Check" Text="✓ " Visibility="Collapsed"
                                                    FontFamily="{StaticResource MonoFont}"
                                                    FontSize="12"/>
-                                        <!-- TopLevelHeader (WIRE/VIEW/etc.): explicit TextBlock with a locally-set
-                                             Foreground. A locally-set value (rank 3) beats the implicit TextBlock
-                                             style (rank 7), so this is always white in Retro '95 on the navy bar.
-                                             Hidden by default; shown only when Role=TopLevelHeader via trigger. -->
-                                        <TextBlock x:Name="HeaderText"
-                                                   Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
-                                                   Foreground="{DynamicResource AmberHeaderBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Visibility="Collapsed"/>
-                                        <!-- All other roles: ContentPresenter handles complex content
-                                             (submenu strings, emoji picker StackPanels, etc.).
-                                             Collapsed for TopLevelHeader; visible for everything else. -->
-                                        <ContentPresenter x:Name="HeaderContent"
-                                                          ContentSource="Header"
+                                        <ContentPresenter ContentSource="Header"
                                                           RecognizesAccessKey="True"
                                                           VerticalAlignment="Center"/>
                                     </StackPanel>
@@ -384,10 +371,6 @@
                                 </Popup>
                             </Grid>
                             <ControlTemplate.Triggers>
-                                <Trigger Property="Role" Value="TopLevelHeader">
-                                    <Setter TargetName="HeaderText"    Property="Visibility" Value="Visible"/>
-                                    <Setter TargetName="HeaderContent" Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
                                 <Trigger Property="Role" Value="SubmenuHeader">
                                     <Setter TargetName="PART_Popup" Property="Placement" Value="Right"/>
                                 </Trigger>
