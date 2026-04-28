@@ -26,15 +26,15 @@
 
     <Window.Resources>
         <Style x:Key="SemaBuzzInputRTB" TargetType="emoji:RichTextBox">
-            <Setter Property="Background"         Value="{StaticResource ObsidianSurfaceBrush}"/>
-            <Setter Property="Foreground"         Value="{StaticResource AmberBrush}"/>
-            <Setter Property="CaretBrush"         Value="{StaticResource AmberBrush}"/>
-            <Setter Property="BorderBrush"        Value="{StaticResource AmberDimBrush}"/>
+            <Setter Property="Background"         Value="{DynamicResource ObsidianSurfaceBrush}"/>
+            <Setter Property="Foreground"         Value="{DynamicResource AmberBrush}"/>
+            <Setter Property="CaretBrush"         Value="{DynamicResource AmberBrush}"/>
+            <Setter Property="BorderBrush"        Value="{DynamicResource AmberDimBrush}"/>
             <Setter Property="BorderThickness"    Value="0 0 0 1"/>
             <Setter Property="FontFamily"         Value="{StaticResource MonoFont}"/>
             <Setter Property="FontSize"           Value="14"/>
             <Setter Property="Padding"            Value="6 4"/>
-            <Setter Property="SelectionBrush"     Value="{StaticResource AmberDimBrush}"/>
+            <Setter Property="SelectionBrush"     Value="{DynamicResource AmberDimBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RichTextBox">
@@ -45,7 +45,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter Property="BorderBrush" Value="{StaticResource AmberBrush}"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AmberBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

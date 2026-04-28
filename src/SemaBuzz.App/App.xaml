@@ -354,8 +354,7 @@
                                                    Foreground="{DynamicResource AmberBrush}"
                                                    FontFamily="{StaticResource MonoFont}"
                                                    FontSize="12"/>
-                                        <TextBlock x:Name="HeaderText"
-                                                   Text="{TemplateBinding Header}"
+                                        <TextBlock Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
                                                    Foreground="{TemplateBinding Foreground}"
                                                    VerticalAlignment="Center"/>
                                     </StackPanel>

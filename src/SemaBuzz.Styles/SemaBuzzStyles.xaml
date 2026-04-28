@@ -17,9 +17,9 @@
 
     <!-- ContextMenu — dark themed popup -->
     <Style TargetType="ContextMenu">
-        <Setter Property="Background"   Value="{StaticResource ObsidianSurfaceBrush}"/>
-        <Setter Property="Foreground"   Value="{StaticResource AmberBrush}"/>
-        <Setter Property="BorderBrush"  Value="{StaticResource ObsidianBorderBrush}"/>
+        <Setter Property="Background"   Value="{DynamicResource ObsidianSurfaceBrush}"/>
+        <Setter Property="Foreground"   Value="{DynamicResource AmberBrush}"/>
+        <Setter Property="BorderBrush"  Value="{DynamicResource ObsidianBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Padding"      Value="2"/>
         <Setter Property="Template">
@@ -40,7 +40,7 @@
     <!-- MenuItem — dark themed rows, with submenu popup support -->
     <Style TargetType="MenuItem">
         <Setter Property="Background"        Value="Transparent"/>
-        <Setter Property="Foreground"        Value="{StaticResource AmberBrush}"/>
+        <Setter Property="Foreground"        Value="{DynamicResource AmberHeaderBrush}"/>
         <Setter Property="FontFamily"        Value="{StaticResource MonoFont}"/>
         <Setter Property="FontSize"          Value="13"/>
         <Setter Property="Padding"           Value="12 6"/>
@@ -75,8 +75,8 @@
                                AllowsTransparency="True"
                                Focusable="False"
                                PopupAnimation="Fade">
-                            <Border Background="{StaticResource ObsidianSurfaceBrush}"
-                                    BorderBrush="{StaticResource ObsidianBorderBrush}"
+                            <Border Background="{DynamicResource ObsidianSurfaceBrush}"
+                                    BorderBrush="{DynamicResource ObsidianBorderBrush}"
                                     BorderThickness="1"
                                     Padding="2"
                                     SnapsToDevicePixels="True">
@@ -91,7 +91,7 @@
 
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsHighlighted" Value="True">
-                            <Setter TargetName="Bd" Property="Background" Value="{StaticResource AmberGlowBrush}"/>
+                            <Setter TargetName="Bd" Property="Background" Value="{DynamicResource AmberGlowBrush}"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
                             <Setter Property="Opacity" Value="0.35"/>

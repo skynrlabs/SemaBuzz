@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — Whiteboard"
         Width="500" Height="430"
-        MinWidth="360" MinHeight="300"
+        MinWidth="460" MinHeight="300"
         Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource AmberBrush}"
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
