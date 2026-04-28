@@ -536,20 +536,19 @@ public partial class MainWindow : Window
     }
 
     private void Settings_Profiles_Click(object sender, RoutedEventArgs e)
-        => OpenProfilesDialog();
-
-    private void ProfileBadge_Click(object sender, RoutedEventArgs e)
-    {
-        if (!ProfileBadgeBtn.IsEnabled) return;
-        OpenProfilesDialog();
-    }
-
-    private void OpenProfilesDialog()
     {
         bool wireActive = BuzzWaitingState.Visibility == Visibility.Visible
                        || ChatPanesGrid.Visibility    == Visibility.Visible;
         new SemaBuzzProfilesDialog(lockDelete: wireActive) { Owner = this }.ShowDialog();
         LoadActiveProfile();
+    }
+
+    private void ProfileBadge_Click(object sender, RoutedEventArgs e)
+    {
+        if (!ProfileBadgeBtn.IsEnabled) return;
+        ProfileBadgeBtn.ContextMenu.PlacementTarget = ProfileBadgeBtn;
+        ProfileBadgeBtn.ContextMenu.Placement       = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        ProfileBadgeBtn.ContextMenu.IsOpen          = true;
     }
 
     private void Settings_Preferences_Click(object sender, RoutedEventArgs e)
@@ -1396,7 +1395,6 @@ public partial class MainWindow : Window
         App.Settings.Status = _localStatus;
         App.Settings.Save();
         ApplyLocalStatusUI();
-        // Re-broadcast to peer if wire is live
         if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
         if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
     }
