@@ -350,19 +350,23 @@
                             <Grid>
                                 <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="10 5">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                        <!-- Local implicit TextBlock style: binds Foreground to the parent
-                                             MenuItem.Foreground so it picks up theme changes (including
-                                             Retro '95 white-on-navy). Local resource lookup beats the
-                                             app-level implicit TextBlock style, fixing invisible menu text. -->
-                                        <StackPanel.Resources>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=MenuItem}}"/>
-                                            </Style>
-                                        </StackPanel.Resources>
                                         <TextBlock x:Name="Check" Text="✓ " Visibility="Collapsed"
                                                    FontFamily="{StaticResource MonoFont}"
                                                    FontSize="12"/>
-                                        <ContentPresenter ContentSource="Header"
+                                        <!-- TopLevelHeader (WIRE/VIEW/etc.): explicit TextBlock with a locally-set
+                                             Foreground. A locally-set value (rank 3) beats the implicit TextBlock
+                                             style (rank 7), so this is always white in Retro '95 on the navy bar.
+                                             Hidden by default; shown only when Role=TopLevelHeader via trigger. -->
+                                        <TextBlock x:Name="HeaderText"
+                                                   Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
+                                                   Foreground="{DynamicResource AmberHeaderBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Visibility="Collapsed"/>
+                                        <!-- All other roles: ContentPresenter handles complex content
+                                             (submenu strings, emoji picker StackPanels, etc.).
+                                             Collapsed for TopLevelHeader; visible for everything else. -->
+                                        <ContentPresenter x:Name="HeaderContent"
+                                                          ContentSource="Header"
                                                           RecognizesAccessKey="True"
                                                           VerticalAlignment="Center"/>
                                     </StackPanel>
@@ -380,6 +384,10 @@
                                 </Popup>
                             </Grid>
                             <ControlTemplate.Triggers>
+                                <Trigger Property="Role" Value="TopLevelHeader">
+                                    <Setter TargetName="HeaderText"    Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="HeaderContent" Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
                                 <Trigger Property="Role" Value="SubmenuHeader">
                                     <Setter TargetName="PART_Popup" Property="Placement" Value="Right"/>
                                 </Trigger>
