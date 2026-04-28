@@ -350,13 +350,21 @@
                             <Grid>
                                 <Border x:Name="Bd" Background="{TemplateBinding Background}" Padding="10 5">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <!-- Local implicit TextBlock style: binds Foreground to the parent
+                                             MenuItem.Foreground so it picks up theme changes (including
+                                             Retro '95 white-on-navy). Local resource lookup beats the
+                                             app-level implicit TextBlock style, fixing invisible menu text. -->
+                                        <StackPanel.Resources>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=MenuItem}}"/>
+                                            </Style>
+                                        </StackPanel.Resources>
                                         <TextBlock x:Name="Check" Text="✓ " Visibility="Collapsed"
-                                                   Foreground="{DynamicResource AmberBrush}"
                                                    FontFamily="{StaticResource MonoFont}"
                                                    FontSize="12"/>
-                                        <TextBlock Text="{Binding Header, RelativeSource={RelativeSource TemplatedParent}}"
-                                                   Foreground="{TemplateBinding Foreground}"
-                                                   VerticalAlignment="Center"/>
+                                        <ContentPresenter ContentSource="Header"
+                                                          RecognizesAccessKey="True"
+                                                          VerticalAlignment="Center"/>
                                     </StackPanel>
                                 </Border>
                                 <Popup x:Name="PART_Popup"
