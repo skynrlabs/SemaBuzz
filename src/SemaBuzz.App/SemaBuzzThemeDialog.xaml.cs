@@ -30,8 +30,12 @@ public partial class SemaBuzzThemeDialog : Window
             case SemaBuzzThemeId.Steel:     ThemeSteel.IsChecked    = true; break;
             case SemaBuzzThemeId.Forest:    ThemeForest.IsChecked    = true; break;
             case SemaBuzzThemeId.Chrome:        ThemeChrome.IsChecked        = true; break;
+            case SemaBuzzThemeId.Daylight:      ThemeDaylight.IsChecked      = true; break;
             case SemaBuzzThemeId.MutedTerminal: ThemeMutedTerminal.IsChecked = true; break;
-            case SemaBuzzThemeId.Retro95:         ThemeWin95.IsChecked         = true; break;
+            case SemaBuzzThemeId.Parchment:     ThemeParchment.IsChecked     = true; break;
+            case SemaBuzzThemeId.Sage:           ThemeSage.IsChecked          = true; break;
+            case SemaBuzzThemeId.Lavender:       ThemeLavender.IsChecked      = true; break;
+            case SemaBuzzThemeId.Sand:           ThemeSand.IsChecked          = true; break;
             default:                            ThemeObsidian.IsChecked      = true; break;
         }
 
@@ -53,14 +57,18 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
                 (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeWin95,         "Retro \u201995  (navy \u00b7 silver grey)"),
+                (ThemeParchment,     "Parchment  (warm cream \u00b7 deep rust)"),
+                (ThemeSage,          "Sage  (soft green \u00b7 deep forest)"),
+                (ThemeLavender,      "Lavender  (soft violet \u00b7 deep indigo)"),
+                (ThemeSand,          "Sand  (warm tan \u00b7 deep teal)"),
             ];
             foreach (var (rb, label) in proThemes)
             {
                 rb.IsEnabled = false;
                 rb.Content   = MakeProContent(label);
             }
-            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian)
+            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian &&
+                SemaBuzzThemeManager.Current != SemaBuzzThemeId.Daylight)
             {
                 ThemeObsidian.IsChecked = true;
                 SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
@@ -128,11 +136,23 @@ public partial class SemaBuzzThemeDialog : Window
     private void ThemeChrome_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Chrome);
 
+    private void ThemeDaylight_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Daylight);
+
     private void ThemeMutedTerminal_Checked(object sender, RoutedEventArgs e)
         => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.MutedTerminal);
 
-    private void ThemeWin95_Checked(object sender, RoutedEventArgs e)
-        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Retro95);
+    private void ThemeParchment_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Parchment);
+
+    private void ThemeSage_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Sage);
+
+    private void ThemeLavender_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Lavender);
+
+    private void ThemeSand_Checked(object sender, RoutedEventArgs e)
+        => SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Sand);
 
     //  Footer
 
@@ -157,7 +177,10 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
                 (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeWin95,         "Retro \u201995  (navy \u00b7 silver grey)"),
+                (ThemeParchment,     "Parchment  (warm cream \u00b7 deep rust)"),
+                (ThemeSage,          "Sage  (soft green \u00b7 deep forest)"),
+                (ThemeLavender,      "Lavender  (soft violet \u00b7 deep indigo)"),
+                (ThemeSand,          "Sand  (warm tan \u00b7 deep teal)"),
             ];
             foreach (var (rb, label) in proThemes)
             {

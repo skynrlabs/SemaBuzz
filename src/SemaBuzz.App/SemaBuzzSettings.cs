@@ -21,7 +21,11 @@ public enum SemaBuzzThemeId
     Forest     = 12,
     Chrome        = 13,
     MutedTerminal = 14,
-    Retro95         = 15,
+    Daylight      = 15,
+    Parchment     = 16,
+    Sage          = 17,
+    Lavender      = 18,
+    Sand          = 19,
 }
 
 /// <summary>Identifies the filament animation style shown in the buzz indicator.</summary>
@@ -78,6 +82,11 @@ public sealed class SemaBuzzSettings
     /// Null means use the first available profile, or "anonymous" if none exist.
     /// </summary>
     public string?            ActiveProfileId      { get; set; } = null;
+
+    /// <summary>Your current online status shown to the peer.</summary>
+    public SemaBuzz.Protocol.SemaBuzzStatus Status        { get; set; } = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+    /// <summary>Optional short message shown alongside your status (e.g. "Back in 10 min").</summary>
+    public string             StatusMessage        { get; set; } = string.Empty;
 
     //  Persistence
 

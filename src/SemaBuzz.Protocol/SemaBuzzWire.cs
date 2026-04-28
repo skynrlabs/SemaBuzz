@@ -33,12 +33,26 @@ public sealed class SemaBuzzWireStateEventArgs(SemaBuzzWireState state, string? 
 }
 
 /// <summary>
-/// Event args carrying peer identity metadata (handle + optional avatar PNG).
+/// Online status for a connected peer.
 /// </summary>
-public sealed class SemaBuzzMetadataEventArgs(string handle, byte[]? avatarPng) : EventArgs
+public enum SemaBuzzStatus : byte
+{
+    Available = 0,
+    Away = 1,
+    Busy = 2,
+}
+
+/// <summary>
+/// Event args carrying peer identity metadata (handle + optional avatar PNG + status).
+/// </summary>
+public sealed class SemaBuzzMetadataEventArgs(
+    string handle, byte[]? avatarPng,
+    SemaBuzzStatus status = SemaBuzzStatus.Available, string statusMessage = "") : EventArgs
 {
     public string Handle { get; } = handle;
     public byte[]? AvatarPng { get; } = avatarPng;
+    public SemaBuzzStatus Status { get; } = status;
+    public string StatusMessage { get; } = statusMessage;
 }
 
 /// <summary>

@@ -286,7 +286,7 @@ public sealed class SemaBuzzClient : IDisposable
                     {
                         var metaHandler = MetadataReceived;
                         if (metaHandler != null)
-                            metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                            metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng, meta.Value.Status, meta.Value.StatusMessage));
                     }
                     continue;
                 }
@@ -433,7 +433,7 @@ public sealed class SemaBuzzClient : IDisposable
                     {
                         var metaHandler = MetadataReceived;
                         if (metaHandler != null)
-                            metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                            metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng, meta.Value.Status, meta.Value.StatusMessage));
                     }
                     continue;
                 }
@@ -547,10 +547,11 @@ public sealed class SemaBuzzClient : IDisposable
     }
 
     /// <summary>Send peer identity metadata to the host.</summary>
-    public async Task SendMetadataAsync(string handle, byte[]? avatarPng)
+    public async Task SendMetadataAsync(string handle, byte[]? avatarPng,
+        SemaBuzzStatus status = SemaBuzzStatus.Available, string statusMessage = "")
     {
         if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
-        var bytes = SemaBuzzMetadata.Serialize(handle, avatarPng);
+        var bytes = SemaBuzzMetadata.Serialize(handle, avatarPng, status, statusMessage);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         if (_wsSend != null) { await _wsSend(bytes); return; }
         await _udp!.SendAsync(bytes);

@@ -388,7 +388,7 @@ public sealed class SemaBuzzListener : IDisposable
             {
                 var metaHandler = MetadataReceived;
                 if (metaHandler != null)
-                    metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng));
+                    metaHandler(this, new SemaBuzzMetadataEventArgs(meta.Value.Handle, meta.Value.AvatarPng, meta.Value.Status, meta.Value.StatusMessage));
             }
             return;
         }
@@ -533,11 +533,12 @@ public sealed class SemaBuzzListener : IDisposable
     }
 
     /// <summary>Send peer identity metadata to the connected peer.</summary>
-    public async Task SendMetadataAsync(string handle, byte[]? avatarPng)
+    public async Task SendMetadataAsync(string handle, byte[]? avatarPng,
+        SemaBuzzStatus status = SemaBuzzStatus.Available, string statusMessage = "")
     {
         if (_udp == null && _wsSend == null) return;
         if (PeerEndPoint == null && _wsSend == null) return;
-        var bytes = SemaBuzzMetadata.Serialize(handle, avatarPng);
+        var bytes = SemaBuzzMetadata.Serialize(handle, avatarPng, status, statusMessage);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         await SendRawAsync(bytes, PeerEndPoint);
     }

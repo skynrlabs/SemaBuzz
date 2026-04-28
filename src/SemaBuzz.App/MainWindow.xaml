@@ -165,7 +165,21 @@
                                MaxWidth="120"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource AmberHeaderBrush}"/>
+                    <Ellipse x:Name="ProfileStatusDot"
+                             Width="10" Height="10"
+                             Margin="6 0 0 0"
+                             VerticalAlignment="Center"
+                             Fill="#4CAF50"/>
                 </StackPanel>
+                <Button.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="● Available" Tag="Available" Click="StatusMenu_Click"/>
+                        <MenuItem Header="◑ Away"      Tag="Away"      Click="StatusMenu_Click"/>
+                        <MenuItem Header="● Busy"      Tag="Busy"      Click="StatusMenu_Click"/>
+                        <Separator/>
+                        <MenuItem Header="Set status message..." Click="StatusMessage_Click"/>
+                    </ContextMenu>
+                </Button.ContextMenu>
             </Button>
 
             <!-- Vertical divider -->
@@ -239,13 +253,29 @@
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0"
                         Background="{DynamicResource WindowHeaderBrush}"
-                        Padding="14 5">
-                    <TextBlock x:Name="LocalPaneLabel"
-                               Text="YOU"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource AmberBrush}"
-                               Opacity="0.7"/>
+                        Padding="14 5 14 4">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse x:Name="LocalStatusDot"
+                                     Width="10" Height="10"
+                                     Margin="0 0 6 0"
+                                     VerticalAlignment="Center"
+                                     Fill="#4CAF50"/>
+                            <TextBlock x:Name="LocalPaneLabel"
+                                       Text="YOU"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource AmberBrush}"
+                                       Opacity="0.7"/>
+                        </StackPanel>
+                        <TextBlock x:Name="LocalStatusMsg"
+                                   Text=""
+                                   FontSize="9"
+                                   Foreground="{DynamicResource WireDeadBrush}"
+                                   Margin="13 1 0 0"
+                                   Visibility="Collapsed"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
                 </Border>
                 <ScrollViewer Grid.Row="1"
                               x:Name="LocalScrollViewer"
@@ -267,12 +297,28 @@
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0"
                         Background="{DynamicResource WindowHeaderBrush}"
-                        Padding="14 5">
-                    <TextBlock x:Name="PeerPaneLabel"
-                               Text="PEER"
-                               FontSize="10"
-                               FontWeight="SemiBold"
-                               Foreground="#9E9E9E"/>
+                        Padding="14 5 14 4">
+                    <StackPanel Orientation="Vertical">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Ellipse x:Name="PeerStatusDot"
+                                     Width="10" Height="10"
+                                     Margin="0 0 6 0"
+                                     VerticalAlignment="Center"
+                                     Fill="#616161"/>
+                            <TextBlock x:Name="PeerPaneLabel"
+                                       Text="PEER"
+                                       FontSize="10"
+                                       FontWeight="SemiBold"
+                                       Foreground="#9E9E9E"/>
+                        </StackPanel>
+                        <TextBlock x:Name="PeerStatusMsg"
+                                   Text=""
+                                   FontSize="9"
+                                   Foreground="{DynamicResource WireDeadBrush}"
+                                   Margin="13 1 0 0"
+                                   Visibility="Collapsed"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
                 </Border>
                 <ScrollViewer Grid.Row="1"
                               x:Name="PeerScrollViewer"
@@ -566,7 +612,8 @@
                                  Placement="Top">
 
                         <!-- ── Faces ── -->
-                        <MenuItem Header="😀  Faces ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😀" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Faces ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="🙂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🙂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Smile" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="😊" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😊" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blush" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="😉" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😉" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wink" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -590,7 +637,8 @@
                         </MenuItem>
 
                         <!-- ── Gestures ── -->
-                        <MenuItem Header="👋  Gestures ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👋" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Gestures ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="👍" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👍" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thumbs up" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="👎" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👎" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thumbs down" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="👏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Clap" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -607,7 +655,8 @@
                         </MenuItem>
 
                         <!-- ── Symbols ── -->
-                        <MenuItem Header="❤️  Symbols ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❤️" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Symbols ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="❤️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❤️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🧡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🧡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Orange heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="💛" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💛" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Yellow heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -628,7 +677,8 @@
                         </MenuItem>
 
                         <!-- ── Animals & Nature ── -->
-                        <MenuItem Header="🐶  Animals &amp; Nature ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐶" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Animals &amp; Nature ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="🐶" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐶" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Dog" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🐱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cat" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🐭" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐭" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mouse" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -647,7 +697,8 @@
                         </MenuItem>
 
                         <!-- ── Food &amp; Drink ── -->
-                        <MenuItem Header="🍕  Food &amp; Drink ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍕" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Food &amp; Drink ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="🍕" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍕" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Pizza" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🍔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Burger" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🌮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Taco" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -663,7 +714,8 @@
                         </MenuItem>
 
                         <!-- ── Travel &amp; Places ── -->
-                        <MenuItem Header="🌍  Travel &amp; Places ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌍" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Travel &amp; Places ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="🌍" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌍" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Earth" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🗺️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🗺️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Map" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🏔️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏔️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mountain" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -680,7 +732,8 @@
                         </MenuItem>
 
                         <!-- ── Activities ── -->
-                        <MenuItem Header="⚽  Activities ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⚽" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Activities ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="⚽" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⚽" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Soccer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🏀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Basketball" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="🏈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Football" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -696,7 +749,8 @@
                         </MenuItem>
 
                         <!-- ── Objects ── -->
-                        <MenuItem Header="💻  Objects ▶">
+                        <MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💻" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Objects ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
                             <MenuItem Tag="💻" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💻" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Laptop" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="📱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="📱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Phone" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                             <MenuItem Tag="⌨️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⌨️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Keyboard" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
@@ -750,7 +804,7 @@
                     Width="36" Height="36"
                     Margin="0 0 174 0"
                     IsEnabled="False"
-                    ToolTip="Whiteboard — shared drawing board  [Pro]"
+                    ToolTip="Whiteboard — shared drawing board"
                     Click="BoardButton_Click">
                 <TextBlock Text="✏"
                            FontSize="16"
@@ -766,7 +820,7 @@
                     Width="36" Height="36"
                     Margin="0 0 132 0"
                     IsEnabled="False"
-                    ToolTip="Walk the Web — push a URL to your peer  [Pro]"
+                    ToolTip="Walk the Web — push a URL to your peer"
                     Click="WalkButton_Click">
                 <TextBlock Text="🌐"
                            FontSize="16"

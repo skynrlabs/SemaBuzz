@@ -22,7 +22,8 @@ public static class SemaBuzzMetadata
         data[1] == SemaBuzzPacket.MagicByte2 &&
         data[2] == MetaByte;
 
-    public static byte[] Serialize(string handle, byte[]? avatarPng)
+    public static byte[] Serialize(string handle, byte[]? avatarPng,
+        SemaBuzzStatus status = SemaBuzzStatus.Available, string statusMessage = "")
     {
         string trimmedHandle;
         if (handle.Length > 32)
@@ -36,7 +37,12 @@ public static class SemaBuzzMetadata
         else
             imgBytes = Array.Empty<byte>();
 
-        var buf = new byte[3 + 1 + handleBytes.Length + 4 + imgBytes.Length];
+        // Clamp status message to 127 UTF-8 bytes
+        var msgRaw = statusMessage ?? string.Empty;
+        var msgBytes = Encoding.UTF8.GetBytes(msgRaw.Length > 60 ? msgRaw[..60] : msgRaw);
+        if (msgBytes.Length > 127) msgBytes = msgBytes[..127];
+
+        var buf = new byte[3 + 1 + handleBytes.Length + 4 + imgBytes.Length + 1 + 1 + msgBytes.Length];
         buf[0] = SemaBuzzPacket.MagicByte1;
         buf[1] = SemaBuzzPacket.MagicByte2;
         buf[2] = MetaByte;
@@ -49,10 +55,16 @@ public static class SemaBuzzMetadata
         buf[lo + 2] = (byte)((imgBytes.Length >> 16) & 0xFF);
         buf[lo + 3] = (byte)((imgBytes.Length >> 24) & 0xFF);
         imgBytes.CopyTo(buf, lo + 4);
+
+        // Append status byte + message (backward-compatible extension)
+        var so = lo + 4 + imgBytes.Length;
+        buf[so] = (byte)status;
+        buf[so + 1] = (byte)msgBytes.Length;
+        msgBytes.CopyTo(buf, so + 2);
         return buf;
     }
 
-    public static (string Handle, byte[]? AvatarPng)? Deserialize(byte[] data)
+    public static (string Handle, byte[]? AvatarPng, SemaBuzzStatus Status, string StatusMessage)? Deserialize(byte[] data)
     {
         if (!IsMetadataPacket(data)) return null;
 
@@ -77,6 +89,20 @@ public static class SemaBuzzMetadata
             img = data[(lo + 4)..(lo + 4 + (int)imgLen)];
         else
             img = null;
-        return (handle, img);
+
+        // Read optional status extension (backward compatible)
+        SemaBuzzStatus status = SemaBuzzStatus.Available;
+        string statusMessage = string.Empty;
+        var so = lo + 4 + (int)imgLen;
+        if (so + 2 <= data.Length)
+        {
+            status = (SemaBuzzStatus)data[so];
+            if (!Enum.IsDefined(status)) status = SemaBuzzStatus.Available;
+            var msgLen2 = data[so + 1];
+            if (so + 2 + msgLen2 <= data.Length)
+                statusMessage = Encoding.UTF8.GetString(data, so + 2, msgLen2);
+        }
+
+        return (handle, img, status, statusMessage);
     }
 }
