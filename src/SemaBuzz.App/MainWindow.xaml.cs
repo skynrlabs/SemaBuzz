@@ -744,7 +744,7 @@ public partial class MainWindow : Window
         Dispatcher.Invoke(() => _whiteboard?.ReceiveDraw(e.DrawEvent));
     }
 
-    private async void BoardButton_Click(object sender, RoutedEventArgs e)
+    private void BoardButton_Click(object sender, RoutedEventArgs e)
     {
         if (_whiteboard == null || !_whiteboard.IsLoaded)
         {
