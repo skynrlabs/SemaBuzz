@@ -38,8 +38,8 @@ public sealed class SemaBuzzWireStateEventArgs(SemaBuzzWireState state, string? 
 public enum SemaBuzzStatus : byte
 {
     Available = 0,
-    Away      = 1,
-    Busy      = 2,
+    Away = 1,
+    Busy = 2,
 }
 
 /// <summary>

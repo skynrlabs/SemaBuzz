@@ -38,7 +38,7 @@ public static class SemaBuzzMetadata
             imgBytes = Array.Empty<byte>();
 
         // Clamp status message to 127 UTF-8 bytes
-        var msgRaw  = statusMessage ?? string.Empty;
+        var msgRaw = statusMessage ?? string.Empty;
         var msgBytes = Encoding.UTF8.GetBytes(msgRaw.Length > 60 ? msgRaw[..60] : msgRaw);
         if (msgBytes.Length > 127) msgBytes = msgBytes[..127];
 
@@ -58,7 +58,7 @@ public static class SemaBuzzMetadata
 
         // Append status byte + message (backward-compatible extension)
         var so = lo + 4 + imgBytes.Length;
-        buf[so]     = (byte)status;
+        buf[so] = (byte)status;
         buf[so + 1] = (byte)msgBytes.Length;
         msgBytes.CopyTo(buf, so + 2);
         return buf;
@@ -92,7 +92,7 @@ public static class SemaBuzzMetadata
 
         // Read optional status extension (backward compatible)
         SemaBuzzStatus status = SemaBuzzStatus.Available;
-        string statusMessage  = string.Empty;
+        string statusMessage = string.Empty;
         var so = lo + 4 + (int)imgLen;
         if (so + 2 <= data.Length)
         {
