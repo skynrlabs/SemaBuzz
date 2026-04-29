@@ -37,7 +37,7 @@
         <StackPanel Grid.Row="2" Margin="28 18 28 0" VerticalAlignment="Top">
             <TextBlock Text="URL TO PUSH"
                        FontSize="10" FontWeight="Bold"
-                       Foreground="{DynamicResource DimTextBrush}"
+                       Foreground="{DynamicResource WireDeadBrush}"
                        Margin="0 0 0 6"/>
             <TextBox x:Name="UrlBox"
                      Style="{StaticResource SemaBuzzInput}"

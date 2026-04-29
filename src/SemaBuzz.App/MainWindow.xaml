@@ -11,7 +11,8 @@
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
         FontSize="13"
         WindowStyle="SingleBorderWindow"
-        ResizeMode="CanResize">
+        ResizeMode="CanResize"
+        Closing="Window_Closing">
 
     <!-- Extend client area into the title bar so DWM stops drawing its own
          title text and icon. CaptionHeight=52 matches the unified header row.
@@ -253,9 +254,14 @@
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0"
                         Background="{DynamicResource WindowHeaderBrush}"
-                        Padding="14 5 14 4">
-                    <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        Height="52"
+                        Padding="14 0">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Ellipse x:Name="LocalStatusDot"
                                      Width="10" Height="10"
                                      Margin="0 0 6 0"
@@ -263,19 +269,27 @@
                                      Fill="#4CAF50"/>
                             <TextBlock x:Name="LocalPaneLabel"
                                        Text="YOU"
-                                       FontSize="10"
+                                       FontSize="12"
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource AmberBrush}"
                                        Opacity="0.7"/>
                         </StackPanel>
-                        <TextBlock x:Name="LocalStatusMsg"
-                                   Text=""
-                                   FontSize="9"
-                                   Foreground="{DynamicResource WireDeadBrush}"
-                                   Margin="13 1 0 0"
-                                   Visibility="Collapsed"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                    x:Name="LocalStatusMsgRow"
+                                    Margin="0 6 0 0"
+                                    Visibility="Collapsed">
+                            <TextBlock Text="›"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       Margin="0 0 4 0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="LocalStatusMsg"
+                                       Text=""
+                                       FontSize="10"
+                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
                 <ScrollViewer Grid.Row="1"
                               x:Name="LocalScrollViewer"
@@ -297,9 +311,14 @@
                 </Grid.RowDefinitions>
                 <Border Grid.Row="0"
                         Background="{DynamicResource WindowHeaderBrush}"
-                        Padding="14 5 14 4">
-                    <StackPanel Orientation="Vertical">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        Height="52"
+                        Padding="14 0">
+                    <Grid VerticalAlignment="Center">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" VerticalAlignment="Center">
                             <Ellipse x:Name="PeerStatusDot"
                                      Width="10" Height="10"
                                      Margin="0 0 6 0"
@@ -307,18 +326,26 @@
                                      Fill="#616161"/>
                             <TextBlock x:Name="PeerPaneLabel"
                                        Text="PEER"
-                                       FontSize="10"
+                                       FontSize="12"
                                        FontWeight="SemiBold"
                                        Foreground="#9E9E9E"/>
                         </StackPanel>
-                        <TextBlock x:Name="PeerStatusMsg"
-                                   Text=""
-                                   FontSize="9"
-                                   Foreground="{DynamicResource WireDeadBrush}"
-                                   Margin="13 1 0 0"
-                                   Visibility="Collapsed"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
+                        <StackPanel Grid.Row="1" Orientation="Horizontal"
+                                    x:Name="PeerStatusMsgRow"
+                                    Margin="0 6 0 0"
+                                    Visibility="Collapsed">
+                            <TextBlock Text="›"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       Margin="0 0 4 0"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock x:Name="PeerStatusMsg"
+                                       Text=""
+                                       FontSize="10"
+                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
                 <ScrollViewer Grid.Row="1"
                               x:Name="PeerScrollViewer"
@@ -596,8 +623,21 @@
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
                      IsEnabled="False"
+                     ToolTip="Type a message, or /me [action] for an action"
                      PreviewKeyDown="InputBox_PreviewKeyDown"
                      TextChanged="InputBox_TextChanged"/>
+            <TextBlock x:Name="InputPlaceholder"
+                       Text="Say something…"
+                       IsHitTestVisible="False"
+                       Focusable="False"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"
+                       Margin="16 0 0 0"
+                       FontFamily="Cascadia Code, JetBrains Mono, Consolas"
+                       FontSize="13"
+                       Foreground="{DynamicResource WireDeadBrush}"
+                       Opacity="0.45"
+                       Visibility="Collapsed"/>
             <Button x:Name="EmoticonPickerButton"
                     Style="{StaticResource SemaBuzzSendButton}"
                     HorizontalAlignment="Right"
@@ -613,163 +653,163 @@
 
                         <!-- ── Faces ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😀" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Faces ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="🙂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🙂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Smile" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😊" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😊" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blush" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😉" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😉" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wink" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Laugh" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤣" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤣" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="ROFL" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😎" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😎" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cool" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thinking" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Smirk" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Surprised" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Screaming" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😢" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😢" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sad" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😭" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😭" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Crying" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Angry" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤯" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤯" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mind blown" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🥳" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🥳" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Party" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🥺" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🥺" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Pleading" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😴" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😴" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sleeping" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤒" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤒" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sick" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="😈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="😈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Devil" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Skull" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😀" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Faces ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="🙂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🙂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Smile" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😊" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😊" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blush" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😉" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😉" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wink" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Laugh" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤣" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤣" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="ROFL" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😎" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😎" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cool" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thinking" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Smirk" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Surprised" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Screaming" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😢" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😢" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sad" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😭" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😭" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Crying" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Angry" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤯" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤯" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mind blown" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🥳" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🥳" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Party" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🥺" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🥺" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Pleading" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😴" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😴" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sleeping" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤒" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤒" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sick" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="😈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="😈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Devil" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Skull" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Gestures ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👋" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Gestures ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="👍" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👍" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thumbs up" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="👎" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👎" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thumbs down" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="👏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Clap" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🙌" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🙌" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Raise hands" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤝" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤝" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Handshake" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="✌️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="✌️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Peace" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤞" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤞" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Fingers crossed" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤙" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤙" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Call me" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="👋" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="👋" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wave" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💪" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💪" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Flex" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🙏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🙏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Please / Thanks" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤦" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤦" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Facepalm" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🤷" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🤷" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Shrug" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="👋" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Gestures ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="👍" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="👍" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thumbs up" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="👎" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="👎" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Thumbs down" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="👏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="👏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Clap" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🙌" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🙌" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Raise hands" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤝" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤝" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Handshake" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="✌️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="✌️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Peace" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤞" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤞" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Fingers crossed" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤙" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤙" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Call me" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="👋" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="👋" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wave" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💪" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💪" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Flex" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🙏" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🙏" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Please / Thanks" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤦" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤦" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Facepalm" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🤷" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🤷" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Shrug" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Symbols ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❤️" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Symbols ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="❤️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❤️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🧡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🧡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Orange heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💛" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💛" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Yellow heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💚" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💚" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Green heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💙" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💙" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blue heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💜" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💜" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Purple heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Broken heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="⭐" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⭐" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Star" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🔥" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🔥" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Fire" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="✨" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="✨" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sparkles" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💥" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💥" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Boom" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💤" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💤" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Zzz" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💯" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💯" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="100" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="✅" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="✅" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Check" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="❌" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❌" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="X" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="❓" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❓" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Question" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="❗" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="❗" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Exclaim" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="❤️" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Symbols ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="❤️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="❤️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🧡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🧡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Orange heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💛" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💛" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Yellow heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💚" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💚" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Green heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💙" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💙" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blue heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💜" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💜" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Purple heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Broken heart" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="⭐" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⭐" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Star" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🔥" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🔥" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Fire" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="✨" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="✨" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sparkles" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💥" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💥" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Boom" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💤" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💤" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Zzz" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💯" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💯" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="100" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="✅" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="✅" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Check" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="❌" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="❌" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="X" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="❓" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="❓" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Question" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="❗" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="❗" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Exclaim" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Animals & Nature ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐶" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Animals &amp; Nature ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="🐶" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐶" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Dog" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cat" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐭" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐭" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mouse" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐺" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐺" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wolf" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🦊" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🦊" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Fox" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐻" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐻" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Bear" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐼" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐼" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Panda" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐸" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐸" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Frog" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🐧" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🐧" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Penguin" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🦋" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🦋" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Butterfly" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🌸" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌸" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blossom" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🌿" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌿" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Herb" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Four-leaf clover" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🌈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Rainbow" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="⛄" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⛄" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Snowman" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐶" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Animals &amp; Nature ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="🐶" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐶" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Dog" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cat" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐭" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐭" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mouse" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐺" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐺" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Wolf" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🦊" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🦊" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Fox" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐻" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐻" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Bear" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐼" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐼" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Panda" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐸" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐸" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Frog" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🐧" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🐧" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Penguin" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🦋" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🦋" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Butterfly" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🌸" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🌸" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Blossom" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🌿" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🌿" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Herb" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Four-leaf clover" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🌈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🌈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Rainbow" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="⛄" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⛄" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Snowman" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Food &amp; Drink ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍕" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Food &amp; Drink ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="🍕" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍕" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Pizza" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Burger" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🌮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Taco" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍣" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍣" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sushi" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍜" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍜" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Noodles" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍩" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍩" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Donut" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🎂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🎂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cake" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍦" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍦" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Ice cream" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="☕" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="☕" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Coffee" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🧃" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🧃" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Juice box" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🍺" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🍺" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Beer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🥂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🥂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Toast" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍕" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Food &amp; Drink ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="🍕" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍕" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Pizza" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍔" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍔" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Burger" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🌮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🌮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Taco" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍣" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍣" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sushi" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍜" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍜" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Noodles" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍩" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍩" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Donut" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🎂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🎂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Cake" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍦" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍦" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Ice cream" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="☕" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="☕" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Coffee" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🧃" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🧃" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Juice box" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🍺" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🍺" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Beer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🥂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🥂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Toast" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Travel &amp; Places ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌍" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Travel &amp; Places ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="🌍" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🌍" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Earth" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🗺️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🗺️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Map" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏔️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏔️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mountain" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏖️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏖️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Beach" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏕️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏕️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Camping" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏙️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏙️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="City" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🗼" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🗼" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Tokyo Tower" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🗽" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🗽" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Statue of Liberty" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="✈️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="✈️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Airplane" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🚂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🚂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Train" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🚗" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🚗" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Car" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="⛵" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⛵" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sailboat" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🚀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🚀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Rocket" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🌍" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Travel &amp; Places ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="🌍" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🌍" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Earth" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🗺️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🗺️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Map" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏔️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏔️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Mountain" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏖️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏖️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Beach" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏕️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏕️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Camping" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏙️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏙️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="City" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🗼" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🗼" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Tokyo Tower" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🗽" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🗽" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Statue of Liberty" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="✈️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="✈️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Airplane" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🚂" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🚂" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Train" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🚗" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🚗" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Car" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="⛵" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⛵" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Sailboat" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🚀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🚀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Rocket" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Activities ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⚽" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Activities ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="⚽" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⚽" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Soccer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Basketball" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Football" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="⚾" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⚾" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Baseball" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🎮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🎮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Video game" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🎸" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🎸" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Guitar" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🎵" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🎵" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Music note" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🎬" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🎬" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Movie" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="📚" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="📚" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Books" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🏆" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🏆" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Trophy" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🎯" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🎯" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Bullseye" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🧩" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🧩" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Puzzle" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⚽" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Activities ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="⚽" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⚽" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Soccer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏀" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏀" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Basketball" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏈" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏈" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Football" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="⚾" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⚾" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Baseball" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🎮" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🎮" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Video game" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🎸" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🎸" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Guitar" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🎵" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🎵" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Music note" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🎬" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🎬" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Movie" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="📚" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="📚" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Books" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🏆" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🏆" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Trophy" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🎯" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🎯" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Bullseye" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🧩" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🧩" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Puzzle" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                         <!-- ── Objects ── -->
                         <MenuItem>
-                            <MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💻" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Objects ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
-                            <MenuItem Tag="💻" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💻" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Laptop" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="📱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="📱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Phone" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="⌨️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⌨️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Keyboard" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🖥️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🖥️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Desktop" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🖨️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🖨️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Printer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="📷" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="📷" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Camera" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="💡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="💡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Idea" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🔑" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🔑" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Key" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🔒" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🔒" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Lock" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🔓" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🔓" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Unlock" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="📦" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="📦" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Package" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🗑️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🗑️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Trash" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="⚙️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="⚙️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Settings" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
-                            <MenuItem Tag="🧲" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><TextBlock FontFamily="Segoe UI Emoji" Text="🧲" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Magnet" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💻" FontSize="16" Margin="0 0 6 0" VerticalAlignment="Center"/><TextBlock Text="Objects ▶" VerticalAlignment="Center"/></StackPanel></MenuItem.Header>
+                            <MenuItem Tag="💻" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💻" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Laptop" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="📱" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="📱" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Phone" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="⌨️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⌨️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Keyboard" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🖥️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🖥️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Desktop" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🖨️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🖨️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Printer" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="📷" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="📷" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Camera" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="💡" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="💡" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Idea" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🔑" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🔑" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Key" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🔒" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🔒" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Lock" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🔓" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🔓" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Unlock" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="📦" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="📦" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Package" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🗑️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🗑️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Trash" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="⚙️" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="⚙️" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Settings" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
+                            <MenuItem Tag="🧲" Click="EmoticonButton_Click"><MenuItem.Header><StackPanel Orientation="Horizontal"><emoji:TextBlock Text="🧲" FontSize="16" Margin="0 0 8 0"/><TextBlock Text="Magnet" VerticalAlignment="Center"/></StackPanel></MenuItem.Header></MenuItem>
                         </MenuItem>
 
                     </ContextMenu>
                 </Button.ContextMenu>
-                <TextBlock FontFamily="Segoe UI Emoji" Text="😊"
+                <emoji:TextBlock Text="😊"
                            FontSize="16"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>

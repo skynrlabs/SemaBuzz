@@ -57,9 +57,9 @@ public partial class SemaBuzzThemeDialog : Window
                 (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
                 (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
                 (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeParchment,     "Parchment  (warm cream \u00b7 deep rust)"),
+                (ThemeParchment,     "Parchment  (warm cream \u00b7 rust)"),
                 (ThemeSage,          "Sage  (soft green \u00b7 deep forest)"),
-                (ThemeLavender,      "Lavender  (soft violet \u00b7 deep indigo)"),
+                (ThemeLavender,      "Lavender  (soft violet \u00b7 indigo)"),
                 (ThemeSand,          "Sand  (warm tan \u00b7 deep teal)"),
             ];
             foreach (var (rb, label) in proThemes)
