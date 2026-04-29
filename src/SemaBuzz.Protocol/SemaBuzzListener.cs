@@ -37,8 +37,9 @@ public sealed class SemaBuzzListener : IDisposable
     /// Optional async callback invoked when an incoming Handshake arrives.
     /// Return <c>true</c> to accept the connection, <c>false</c> to reject it.
     /// If null, all connections are accepted automatically.
+    /// The string argument is the peer's handle (if available) or their IP:port endpoint string.
     /// </summary>
-    public Func<IPEndPoint, Task<bool>>? ConnectionApprovalCallback { get; set; }
+    public Func<string, Task<bool>>? ConnectionApprovalCallback { get; set; }
 
     private NetworkAddressChangedEventHandler? _networkChangeHandler;
 
@@ -374,7 +375,38 @@ public sealed class SemaBuzzListener : IDisposable
             {
                 await SendEncryptedControlToAsync(SemaBuzzPacketType.HandshakeHold, result.RemoteEndPoint);
 
-                bool approved = await ConnectionApprovalCallback(result.RemoteEndPoint);
+                // Attempt to read a compact metadata packet the client sends immediately after
+                // receiving HandshakeHold, so the approval dialog can show the peer's handle.
+                string peerIdentifier = result.RemoteEndPoint.ToString();
+                try
+                {
+                    using var identCts = CancellationTokenSource.CreateLinkedTokenSource(_cts!.Token);
+                    identCts.CancelAfter(TimeSpan.FromSeconds(3));
+                    byte[]? identData = null;
+                    if (_isRelayMode && _wsClient != null)
+                    {
+                        var identBuf = new byte[16_384];
+                        identData = await ReceiveWsMessageAsync(_wsClient, identBuf, identCts.Token);
+                    }
+                    else if (!_isRelayMode && _udp != null)
+                    {
+                        var udpResult = await _udp.ReceiveAsync(identCts.Token);
+                        identData = udpResult.Buffer;
+                    }
+                    if (identData != null)
+                    {
+                        var decIdent = Shield?.Decrypt(identData) ?? identData;
+                        if (decIdent != null && SemaBuzzMetadata.IsMetadataPacket(decIdent))
+                        {
+                            var meta = SemaBuzzMetadata.Deserialize(decIdent);
+                            if (meta.HasValue && !string.IsNullOrEmpty(meta.Value.Handle))
+                                peerIdentifier = meta.Value.Handle;
+                        }
+                    }
+                }
+                catch { /* timeout or transport error -- use fallback identifier */ }
+
+                bool approved = await ConnectionApprovalCallback(peerIdentifier);
                 if (!approved)
                 {
                     await SendEncryptedControlToAsync(SemaBuzzPacketType.ConnectRejected, result.RemoteEndPoint);
@@ -457,7 +489,7 @@ public sealed class SemaBuzzListener : IDisposable
                         // Tell the dialer to hold on while the host decides
                         await SendControlToAsync(SemaBuzzPacketType.HandshakeHold, result.RemoteEndPoint);
 
-                        bool approved = await ConnectionApprovalCallback(result.RemoteEndPoint);
+                        bool approved = await ConnectionApprovalCallback(result.RemoteEndPoint.ToString());
                         if (!approved)
                         {
                             await SendControlToAsync(SemaBuzzPacketType.ConnectRejected, result.RemoteEndPoint);

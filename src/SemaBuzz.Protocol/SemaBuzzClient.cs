@@ -39,6 +39,9 @@ public sealed class SemaBuzzClient : IDisposable
     private volatile bool _waitingForApproval;
     private NetworkAddressChangedEventHandler? _networkChangeHandler;
 
+    /// <summary>Fired when the host sends a HandshakeHold, giving the app a chance to send pre-approval metadata so the host can show the peer's handle in the approval dialog.</summary>
+    public event EventHandler? HandshakeHoldReceived;
+
     public async Task ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -340,6 +343,7 @@ public sealed class SemaBuzzClient : IDisposable
                         case SemaBuzzPacketType.HandshakeHold:
                             _waitingForApproval = true;
                             SetState(SemaBuzzWireState.Warming, "waiting for host to approve connection...");
+                            HandshakeHoldReceived?.Invoke(this, EventArgs.Empty);
                             break;
                         case SemaBuzzPacketType.ConnectRejected:
                             SetState(SemaBuzzWireState.Dead, "not-available");
@@ -496,6 +500,7 @@ public sealed class SemaBuzzClient : IDisposable
                         case SemaBuzzPacketType.HandshakeHold:
                             _waitingForApproval = true;
                             SetState(SemaBuzzWireState.Warming, "waiting for host to approve connection...");
+                            HandshakeHoldReceived?.Invoke(this, EventArgs.Empty);
                             break;
 
                         case SemaBuzzPacketType.ConnectRejected:
@@ -579,6 +584,21 @@ public sealed class SemaBuzzClient : IDisposable
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         if (_wsSend != null) { await _wsSend(bytes); return; }
         await _udp!.SendAsync(bytes);
+    }
+
+    /// <summary>
+    /// Sends compact metadata (handle only, no avatar) to the host while in the Warming state
+    /// after receiving a HandshakeHold. The host can use this to display the peer's handle in
+    /// the approval dialog before the full handshake completes.
+    /// Only valid when the ECDH shield is already established.
+    /// </summary>
+    public async Task SendPreApprovalMetadataAsync(string handle)
+    {
+        if (Shield == null) return;
+        var bytes = SemaBuzzMetadata.Serialize(handle, null, SemaBuzzStatus.Available, string.Empty);
+        bytes = Shield.Encrypt(bytes);
+        if (_wsSend != null) { await _wsSend(bytes); return; }
+        if (_udp != null) await _udp.SendAsync(bytes);
     }
 
     public async Task SendAsync(SemaBuzzPacket packet)
