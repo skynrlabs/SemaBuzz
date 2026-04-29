@@ -29,9 +29,6 @@ public partial class SemaBuzzAboutDialog : Window
         if (e.LeftButton == MouseButtonState.Pressed) DragMove();
     }
 
-    private void GitHub_Click(object sender, RoutedEventArgs e)
-        => Process.Start(new ProcessStartInfo("https://github.com/SemaBuzz/") { UseShellExecute = true });
-
     private void Website_Click(object sender, RoutedEventArgs e)
         => Process.Start(new ProcessStartInfo("https://semabuzz.me") { UseShellExecute = true });
 

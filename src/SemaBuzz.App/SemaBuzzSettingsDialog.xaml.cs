@@ -74,14 +74,15 @@ public partial class SemaBuzzSettingsDialog : Window
             StylePulse.Content   = MakeProContent("Pulse");
             StyleWave.IsEnabled  = false;
             StyleWave.Content    = MakeProContent("Wave");
-            IndicatorStyleLabelRow.Children.Add(new TextBlock
+            var indicatorStyleLabel = new TextBlock
             {
                 Text              = "INDICATOR STYLE",
-                Foreground        = new SolidColorBrush(SemaBuzzThemeManager.AccentColor),
                 FontWeight        = FontWeights.Bold,
                 FontSize          = 11,
                 VerticalAlignment = VerticalAlignment.Center,
-            });
+            };
+            indicatorStyleLabel.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+            IndicatorStyleLabelRow.Children.Add(indicatorStyleLabel);
             IndicatorStyleLabelRow.Children.Add(MakeProBadge());
 
             RelayUriBox.IsEnabled       = false;
@@ -95,14 +96,15 @@ public partial class SemaBuzzSettingsDialog : Window
         }
         else
         {
-            IndicatorStyleLabelRow.Children.Add(new TextBlock
+            var indicatorLabel = new TextBlock
             {
                 Text              = "INDICATOR STYLE",
-                Foreground        = new SolidColorBrush(SemaBuzzThemeManager.AccentColor),
                 FontWeight        = FontWeights.Bold,
                 FontSize          = 11,
                 VerticalAlignment = VerticalAlignment.Center,
-            });
+            };
+            indicatorLabel.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+            IndicatorStyleLabelRow.Children.Add(indicatorLabel);
             BuyNowSettingsButton.Visibility = Visibility.Collapsed;
         }
     }
@@ -215,25 +217,25 @@ public partial class SemaBuzzSettingsDialog : Window
     /// <summary>Standalone PRO badge — appended to an existing label panel.</summary>
     private static Border MakeProBadge()
     {
-        var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
         var badge = new Border
         {
             CornerRadius      = new CornerRadius(3),
-            BorderBrush       = accentBrush,
             BorderThickness   = new Thickness(1),
             Background        = Brushes.Transparent,
             Padding           = new Thickness(5, 1, 5, 1),
             Margin            = new Thickness(8, 0, 0, 0),
             VerticalAlignment = VerticalAlignment.Center,
         };
-        badge.Child = new TextBlock
+        badge.SetResourceReference(Border.BorderBrushProperty, "AmberBrush");
+        var tb = new TextBlock
         {
             Text       = "PRO",
-            Foreground = accentBrush,
             FontSize   = 9,
             FontWeight = FontWeights.Bold,
             FontFamily = new FontFamily("Cascadia Code, Consolas"),
         };
+        tb.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+        badge.Child = tb;
         return badge;
     }
 
@@ -242,31 +244,13 @@ public partial class SemaBuzzSettingsDialog : Window
 
     private static StackPanel BuildProPanel(string label)
     {
-        var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
         var panel = new StackPanel { Orientation = Orientation.Horizontal };
         panel.Children.Add(new TextBlock
         {
             Text              = label,
             VerticalAlignment = VerticalAlignment.Center,
         });
-        panel.Children.Add(new Border
-        {
-            CornerRadius      = new CornerRadius(3),
-            BorderBrush       = accentBrush,
-            BorderThickness   = new Thickness(1),
-            Background        = Brushes.Transparent,
-            Padding           = new Thickness(5, 1, 5, 1),
-            Margin            = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            Child             = new TextBlock
-            {
-                Text       = "PRO",
-                Foreground = accentBrush,
-                FontSize   = 9,
-                FontWeight = FontWeights.Bold,
-                FontFamily = new FontFamily("Cascadia Code, Consolas"),
-            },
-        });
+        panel.Children.Add(MakeProBadge());
         return panel;
     }
 

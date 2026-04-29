@@ -72,14 +72,19 @@
                 <TextBlock Text="Handle *" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
                 <TextBox x:Name="ProfileHandleBox"
                          Style="{StaticResource SemaBuzzInput}"
-                         MaxLength="32"
+                         MaxLength="16"
                          Margin="0 0 0 4"
-                         TextChanged="ProfileHandleBox_TextChanged"/>
+                         TextChanged="ProfileHandleBox_TextChanged"
+                         PreviewTextInput="ProfileHandleBox_PreviewTextInput"
+                         DataObject.Pasting="ProfileHandleBox_Pasting"/>
                 <TextBlock x:Name="HandleErrorText"
                            Text="A handle is required."
                            Foreground="#FF5252" FontSize="10"
                            Visibility="Collapsed"
-                           Margin="0 0 0 8"/>
+                           Margin="0 0 0 4"/>
+                <TextBlock Text="Letters, numbers, - and _ only. Max 16 characters."
+                           Foreground="#616161" FontSize="10"
+                           Margin="0 0 0 4"/>
                 <TextBlock Text="Avatar (optional)" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 6"/>
                 <StackPanel Orientation="Horizontal" Margin="0 0 0 12">
                     <Ellipse x:Name="ProfileAvatarPreview"

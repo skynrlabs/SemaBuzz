@@ -37,6 +37,7 @@ public partial class MainWindow : Window
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _warmingCts;
     private bool _warmingTimedOut;
+    private bool _suppressNextDeadSound;
 
     // Spaced display overlay for the inline token input
     private TextBlock? _spacedDisplay;
@@ -487,6 +488,7 @@ public partial class MainWindow : Window
         _hostingToken    = null;
         _hostingRelayUri = null;
         _hostingPort     = 0;
+        _suppressNextDeadSound = true;
         if (_client   != null) await _client.DisconnectAsync();
         if (_listener != null) await _listener.DisconnectAsync();
         if (_cts != null)
@@ -504,20 +506,6 @@ public partial class MainWindow : Window
 
     private void Wire_Exit_Click(object sender, RoutedEventArgs e)
         => Application.Current.Shutdown();
-
-    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-    {
-        // Tear down the wire cleanly so the peer gets a disconnect notification.
-        _hostingToken    = null;
-        _hostingRelayUri = null;
-        _hostingPort     = 0;
-        _client?.DisconnectAsync();
-        _listener?.DisconnectAsync();
-        _cts?.Cancel();
-        _cts      = null;
-        _client   = null;
-        _listener = null;
-    }
 
     private void View_ClearChat_Click(object sender, RoutedEventArgs e)
         => ClearChatPanels();
@@ -688,6 +676,35 @@ public partial class MainWindow : Window
             InputBox.Text = string.Empty;
             _previousInputText = string.Empty;
             e.Handled = true;
+        }
+    }
+
+    private static bool IsChatCharAllowed(char c)
+        // Block Unicode format/zero-width characters (category Cf), but allow normal whitespace.
+        => char.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.Format;
+
+    private void InputBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        if (e.Text.Any(c => !IsChatCharAllowed(c)))
+            e.Handled = true;
+    }
+
+    private void InputBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (e.DataObject.GetDataPresent(DataFormats.UnicodeText))
+        {
+            var text      = (string)e.DataObject.GetData(DataFormats.UnicodeText);
+            var sanitized = new string(text.Where(IsChatCharAllowed).ToArray());
+            if (sanitized != text)
+            {
+                var newData = new DataObject();
+                newData.SetData(DataFormats.UnicodeText, sanitized);
+                e.DataObject = newData;
+            }
+        }
+        else
+        {
+            e.CancelCommand();
         }
     }
 
@@ -887,178 +904,17 @@ public partial class MainWindow : Window
         var msg = InputBox.Text;
         if (string.IsNullOrEmpty(msg)) return;
 
-        // /buzz — trigger buzz then clear without sending a chat message
-        if (msg.Equals("/buzz", StringComparison.OrdinalIgnoreCase))
-        {
-            _previousInputText = string.Empty;
-            InputBox.Text      = string.Empty;
-            SendButton.IsEnabled = false;
-            if (_client   != null) _ = _client.SendBuzzAsync();
-            if (_listener != null) _ = _listener.SendBuzzAsync();
-            PlayBuzzSound();
-            BuzzIndicator.MaxBurst();
-            InputBox.Focus();
-            return;
-        }
-
-        // /clear — clear both chat panes
-        if (msg.Equals("/clear", StringComparison.OrdinalIgnoreCase))
-        {
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            ClearChatPanels();
-            return;
-        }
-
-        // /back — set status to Available (keeps status message)
-        if (msg.Equals("/back", StringComparison.OrdinalIgnoreCase))
-        {
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            _localStatus                = SemaBuzz.Protocol.SemaBuzzStatus.Available;
-            App.Settings.Status         = _localStatus;
-            App.Settings.Save();
-            ApplyLocalStatusUI();
-            if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
-            if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
-            InputBox.Focus();
-            return;
-        }
-
-        // /away [message] — set Away; optionally update status message
-        if (msg.Equals("/away", StringComparison.OrdinalIgnoreCase) ||
-            msg.StartsWith("/away ", StringComparison.OrdinalIgnoreCase))
-        {
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            if (msg.StartsWith("/away ", StringComparison.OrdinalIgnoreCase))
-                _localStatusMessage = msg[6..].Trim();
-            _localStatus                = SemaBuzz.Protocol.SemaBuzzStatus.Away;
-            App.Settings.Status         = _localStatus;
-            App.Settings.StatusMessage  = _localStatusMessage;
-            App.Settings.Save();
-            ApplyLocalStatusUI();
-            if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
-            if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
-            InputBox.Focus();
-            return;
-        }
-
-        // /status [message] — update status message, keep current availability; blank clears it
-        if (msg.Equals("/status", StringComparison.OrdinalIgnoreCase) ||
-            msg.StartsWith("/status ", StringComparison.OrdinalIgnoreCase))
-        {
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            _localStatusMessage         = msg.StartsWith("/status ", StringComparison.OrdinalIgnoreCase)
-                                            ? msg[8..].Trim()
-                                            : string.Empty;
-            App.Settings.StatusMessage  = _localStatusMessage;
-            App.Settings.Save();
-            ApplyLocalStatusUI();
-            if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
-            if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
-            InputBox.Focus();
-            return;
-        }
-
-        // /walk [url] — push a URL; opens dialog if no URL supplied
-        if (msg.Equals("/walk", StringComparison.OrdinalIgnoreCase) ||
-            msg.StartsWith("/walk ", StringComparison.OrdinalIgnoreCase))
-        {
-            string walkUrl = string.Empty;
-            if (msg.StartsWith("/walk ", StringComparison.OrdinalIgnoreCase))
-            {
-                var candidate = msg[6..].Trim();
-                if (Uri.TryCreate(candidate, UriKind.Absolute, out var wu) &&
-                    (wu.Scheme == Uri.UriSchemeHttp || wu.Scheme == Uri.UriSchemeHttps))
-                    walkUrl = candidate;
-            }
-            if (string.IsNullOrEmpty(walkUrl))
-            {
-                var wDlg = new WalkUrlDialog { Owner = this };
-                if (wDlg.ShowDialog() != true || string.IsNullOrEmpty(wDlg.Url)) { InputBox.Focus(); return; }
-                walkUrl = wDlg.Url;
-            }
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            if (_client   != null) _ = _client.SendUrlPushAsync(walkUrl);
-            if (_listener != null) _ = _listener.SendUrlPushAsync(walkUrl);
-            AppendUrlCard(walkUrl, isSent: true, LocalPanel, LocalScrollViewer);
-            InputBox.Focus();
-            return;
-        }
-
-        // /shrug — sends ¯\_(ツ)_/¯ as a chat message
-        if (msg.Equals("/shrug", StringComparison.OrdinalIgnoreCase))
-        {
-            const string shrug = @"¯\_(ツ)_/¯";
-            if (App.Settings.LivePreview)
-                for (var i = 0; i < msg.Length; i++) _streamer.Feed('\b');
-            foreach (var c in shrug) _streamer.Feed(c);
-            var (shrugRow, shrugTb, shrugTs) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
-            shrugTb.Text = (string)shrugTb.Tag + shrug;
-            shrugTs.Text = DateTime.Now.ToString("h:mm tt");
-            LocalPanel.Children.Add(shrugRow);
-            LocalScrollViewer.ScrollToEnd();
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            var shrugNl = new SemaBuzzPacket('\n', 0, SemaBuzzPacketType.Char, _streamer.NextSequence());
-            if (_client   != null) _ = _client.SendAsync(shrugNl);
-            if (_listener != null) _ = _listener.SendAsync(shrugNl);
-            InputBox.Focus();
-            return;
-        }
-
-        // /flip — sends (╯°□°）╯︵ ┻━┻ as a chat message
-        if (msg.Equals("/flip", StringComparison.OrdinalIgnoreCase))
-        {
-            const string flip = "(╯°□°）╯︵ ┻━┻";
-            if (App.Settings.LivePreview)
-                for (var i = 0; i < msg.Length; i++) _streamer.Feed('\b');
-            foreach (var c in flip) _streamer.Feed(c);
-            var (flipRow, flipTb, flipTs) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
-            flipTb.Text = (string)flipTb.Tag + flip;
-            flipTs.Text = DateTime.Now.ToString("h:mm tt");
-            LocalPanel.Children.Add(flipRow);
-            LocalScrollViewer.ScrollToEnd();
-            _previousInputText   = string.Empty;
-            InputBox.Text        = string.Empty;
-            SendButton.IsEnabled = false;
-            var flipNl = new SemaBuzzPacket('\n', 0, SemaBuzzPacketType.Char, _streamer.NextSequence());
-            if (_client   != null) _ = _client.SendAsync(flipNl);
-            if (_listener != null) _ = _listener.SendAsync(flipNl);
-            InputBox.Focus();
-            return;
-        }
-
         // When LivePreview is off the streamer hasn't seen the chars yet — feed them now.
         if (!App.Settings.LivePreview)
             foreach (var c in msg)
                 _streamer.Feed(c);
 
-        // /me action message
-        if (msg.StartsWith("/me ", StringComparison.OrdinalIgnoreCase) && msg.Length > 4)
-        {
-            var action = msg[4..];
-            LocalPanel.Children.Add(MakeActionRow(_localHandle, action));
-            LocalScrollViewer.ScrollToEnd();
-        }
-        else
-        {
-            // Add the committed row to the local pane
-            var (row, tb, ts) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
-            tb.Text = (string)tb.Tag + msg;
-            ts.Text = DateTime.Now.ToString("h:mm tt");
-            HyperlinkifyTextBlock(tb);
-            LocalPanel.Children.Add(row);
-        }
+        // Add the committed row to the local pane
+        var (row, tb, ts) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
+        tb.Text = (string)tb.Tag + msg;
+        ts.Text = DateTime.Now.ToString("h:mm tt");
+        HyperlinkifyTextBlock(tb);
+        LocalPanel.Children.Add(row);
         LocalScrollViewer.ScrollToEnd();
 
         // Clear the box.
@@ -1068,11 +924,13 @@ public partial class MainWindow : Window
         InputBox.Text = string.Empty;
         SendButton.IsEnabled = false;
 
-        // Send a newline packet with the next outbound sequence number so the
-        // peer's duplicate filter does not drop the sentence commit.
+        // Queue the newline through the batch pipeline so it is ordered after any
+        // pending live-preview chars. Flush immediately so the commit is not delayed
+        // by the 50 ms timer — this preserves sequence ordering across all transports.
         var nlPacket = new SemaBuzzPacket('\n', 0, SemaBuzzPacketType.Char, _streamer.NextSequence());
-        if (_client   != null) _ = _client.SendAsync(nlPacket);
-        if (_listener != null) _ = _listener.SendAsync(nlPacket);
+        _pendingPackets.Add(nlPacket);
+        _batchTimer!.Stop();
+        _ = FlushPacketBatchAsync();
     }
 
     private void InputBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -1124,6 +982,11 @@ public partial class MainWindow : Window
     private async void FlushPacketBatch(object? sender, EventArgs e)
     {
         _batchTimer!.Stop();
+        await FlushPacketBatchAsync();
+    }
+
+    private async Task FlushPacketBatchAsync()
+    {
         if (_pendingPackets.Count == 0) return;
         var batch = _pendingPackets.ToArray();
         _pendingPackets.Clear();
@@ -1291,7 +1154,6 @@ public partial class MainWindow : Window
     private void ResetToIdle()
     {
         SetStatus("› wire is cold");
-        TitleSessionLabel.Text         = "NO WIRE";
         DisconnectMenuItem.IsEnabled   = false;
         InputBox.IsEnabled             = false;
         SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        _peerLiveRow                   = null;
@@ -1331,7 +1193,6 @@ public partial class MainWindow : Window
                 {
                     // We were in a live chat — peer disconnected. Tear down and go to idle.
                     PlayErrorSound();
-                    TitleSessionLabel.Text       = "NO WIRE";
                     InputBox.IsEnabled           = false;
                     SendButton.IsEnabled         = false;
                     BuzzButton.IsEnabled         = false;
@@ -1368,12 +1229,6 @@ public partial class MainWindow : Window
                 if (_warmingCts != null)
                     _warmingCts.Cancel();
                 _warmingCts = null;
-                string stateTag;
-                if (e.State == SemaBuzzWireState.Secured)
-                    stateTag = "[ENC] ";
-                else
-                    stateTag = "";
-                TitleSessionLabel.Text = $"{stateTag}WIRE LIVE";
                 InputBox.IsEnabled   = true;
                 SendButton.IsEnabled = false; // no text yet
                 InputPlaceholder.Visibility = Visibility.Visible;
@@ -1403,11 +1258,15 @@ public partial class MainWindow : Window
                 _approvalTcs?.TrySetResult(false);
                 _approvalTcs = null;
 
-                PlayErrorSound();
+                // Only alert when the peer ended an established connection;
+                // suppress sound when we closed/disconnected the window ourselves.
+                bool wasConnected = InputBox.IsEnabled;
+                if (wasConnected && !_suppressNextDeadSound)
+                    PlayErrorSound();
+                _suppressNextDeadSound = false;
                 if (_warmingCts != null)
                     _warmingCts.Cancel();
                 _warmingCts = null;
-                TitleSessionLabel.Text       = "NO WIRE";
                 InputBox.IsEnabled           = false;
                 SendButton.IsEnabled         = false;
                 BuzzButton.IsEnabled         = false;
@@ -1566,9 +1425,12 @@ public partial class MainWindow : Window
         if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
     }
 
+    private static readonly System.Text.RegularExpressions.Regex StatusAllowedChars =
+        new(@"^[a-zA-Z0-9 !.,'""_-]$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
     private void StatusMessage_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new SemaBuzzInputDialog("Status message", "Enter a short status message (or leave blank to clear):", _localStatusMessage)
+        var dlg = new SemaBuzzInputDialog("Status message", "Enter a short status message (or leave blank to clear):", _localStatusMessage, StatusAllowedChars)
         {
             Owner = this
         };
@@ -2008,9 +1870,10 @@ public partial class MainWindow : Window
             _hostingToken    = null;
             _hostingRelayUri = null;
             _hostingPort     = 0;
-            _cts?.Cancel();
+            _suppressNextDeadSound = true;
             if (_client   != null) await _client.DisconnectAsync();
             if (_listener != null) await _listener.DisconnectAsync();
+            _cts?.Cancel();
             _trayIcon.Visible = false;
             _trayIcon.Dispose();
             _client?.Dispose();

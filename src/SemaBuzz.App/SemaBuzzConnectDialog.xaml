@@ -73,7 +73,7 @@
         </Style>
     </Window.Resources>
 
-    <Border BorderBrush="{DynamicResource WindowHeaderBrush}" BorderThickness="1">
+    <Border x:Name="OuterBorder" BorderBrush="{DynamicResource WindowHeaderBrush}" BorderThickness="1">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="44"/>
@@ -175,6 +175,17 @@
                     MinWidth="200"
                     Padding="0 10"
                     Click="StartBuzz_Click"/>
+
+            <!-- Inline error (e.g. localhost relay warning) -->
+            <TextBlock x:Name="ConnectErrorText"
+                       Text=""
+                       Foreground="#FF5252"
+                       FontSize="10"
+                       TextWrapping="Wrap"
+                       MaxWidth="300"
+                       HorizontalAlignment="Center"
+                       Visibility="Collapsed"
+                       Margin="0 14 0 0"/>
 
         </StackPanel>
 

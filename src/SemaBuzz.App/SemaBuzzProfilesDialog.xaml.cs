@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -221,10 +222,47 @@ public partial class SemaBuzzProfilesDialog : Window
         ProfileHandleBox.Focus();
     }
 
+    private static readonly System.Text.RegularExpressions.Regex HandleAllowedChars =
+        new(@"^[a-zA-Z0-9_-]+$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private void ProfileHandleBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
+    {
+        // Block any character that isn't a letter, digit, underscore, or hyphen.
+        e.Handled = !System.Text.RegularExpressions.Regex.IsMatch(e.Text, @"^[a-zA-Z0-9_-]+$");
+    }
+
+    private void ProfileHandleBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (e.DataObject.GetDataPresent(typeof(string)))
+        {
+            var text = (string)e.DataObject.GetData(typeof(string));
+            var sanitized = new string(text.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '-').ToArray());
+            if (sanitized.Length == 0) { e.CancelCommand(); return; }
+            if (sanitized != text)
+            {
+                e.CancelCommand();
+                var tb = (System.Windows.Controls.TextBox)sender;
+                var caret = tb.CaretIndex;
+                var current = tb.Text;
+                var remaining = 16 - (current.Length - (tb.SelectionLength));
+                sanitized = sanitized[..Math.Min(sanitized.Length, remaining)];
+                tb.Text = current[..tb.SelectionStart] + sanitized + current[(tb.SelectionStart + tb.SelectionLength)..];
+                tb.CaretIndex = caret + sanitized.Length;
+            }
+        }
+        else
+        {
+            e.CancelCommand();
+        }
+    }
+
     private void ProfileHandleBox_TextChanged(object sender, TextChangedEventArgs e)
     {
         if (HandleErrorText != null)
+        {
             HandleErrorText.Visibility = Visibility.Collapsed;
+            ProfileHandleBox.ClearValue(System.Windows.Controls.TextBox.BorderBrushProperty);
+        }
     }
 
     private void ProfileSave_Click(object sender, RoutedEventArgs e)
@@ -232,7 +270,17 @@ public partial class SemaBuzzProfilesDialog : Window
         var handle = ProfileHandleBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(handle))
         {
+            HandleErrorText.Text       = "A handle is required.";
             HandleErrorText.Visibility = Visibility.Visible;
+            ProfileHandleBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
+            ProfileHandleBox.Focus();
+            return;
+        }
+        if (!HandleAllowedChars.IsMatch(handle))
+        {
+            HandleErrorText.Text       = "Only letters, numbers, - and _ are allowed.";
+            HandleErrorText.Visibility = Visibility.Visible;
+            ProfileHandleBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
             ProfileHandleBox.Focus();
             return;
         }
