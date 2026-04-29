@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace SemaBuzz.App;
 
@@ -11,6 +12,7 @@ public partial class WalkUrlDialog : Window
     {
         InitializeComponent();
         Loaded += (_, _) => UrlBox.Focus();
+        UrlBox.TextChanged += (_, _) => ClearError();
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -42,13 +44,25 @@ public partial class WalkUrlDialog : Window
         if (!Uri.TryCreate(text, UriKind.Absolute, out var uri) ||
             (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
         {
-            MessageBox.Show(this, "Please enter a valid http:// or https:// URL.", "SemaBuzz",
-                MessageBoxButton.OK, MessageBoxImage.Warning);
+            ShowError("Enter a valid http:// or https:// URL.");
             UrlBox.Focus();
             return;
         }
         Url = uri.AbsoluteUri;
         DialogResult = true;
         Close();
+    }
+
+    private void ShowError(string message)
+    {
+        UrlErrorText.Text       = message;
+        UrlErrorText.Visibility = Visibility.Visible;
+        OuterBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
+    }
+
+    private void ClearError()
+    {
+        UrlErrorText.Visibility = Visibility.Collapsed;
+        OuterBorder.ClearValue(System.Windows.Controls.Border.BorderBrushProperty);
     }
 }

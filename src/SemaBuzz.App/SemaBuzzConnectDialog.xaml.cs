@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using SemaBuzz.Protocol;
 
 namespace SemaBuzz.App;
@@ -175,16 +176,27 @@ public partial class SemaBuzzConnectDialog : Window
         if (Uri.TryCreate(RelayUri, UriKind.Absolute, out var u)
             && (u.Host is "localhost" or "127.0.0.1" or "::1"))
         {
-            MessageBox.Show(
-                "Your relay is set to " + RelayUri + ", which is your local machine.\n\n" +
-                "The peer will receive your Buzz Code and try to connect to their own localhost " +
-                "— it won't work.\n\nIn Settings, Relay Server, enter the public address of your relay.",
-                "Relay address is localhost",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
+            ShowError(
+                "Relay is set to " + RelayUri + " (your local machine). " +
+                "The peer will try to connect to their own localhost — it won’t work. " +
+                "Go to Settings → Relay Server and enter the public address.");
+            return;
         }
 
         DialogResult = true;
+    }
+
+    private void ShowError(string message)
+    {
+        ConnectErrorText.Text       = message;
+        ConnectErrorText.Visibility = Visibility.Visible;
+        OuterBorder.BorderBrush     = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
+    }
+
+    private void ClearError()
+    {
+        ConnectErrorText.Visibility = Visibility.Collapsed;
+        OuterBorder.ClearValue(Border.BorderBrushProperty);
     }
 
     private void Cancel_Click(object sender, RoutedEventArgs e) => DialogResult = false;

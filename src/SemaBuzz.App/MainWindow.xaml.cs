@@ -679,6 +679,35 @@ public partial class MainWindow : Window
         }
     }
 
+    private static bool IsChatCharAllowed(char c)
+        // Block Unicode format/zero-width characters (category Cf), but allow normal whitespace.
+        => char.GetUnicodeCategory(c) != System.Globalization.UnicodeCategory.Format;
+
+    private void InputBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+    {
+        if (e.Text.Any(c => !IsChatCharAllowed(c)))
+            e.Handled = true;
+    }
+
+    private void InputBox_Pasting(object sender, DataObjectPastingEventArgs e)
+    {
+        if (e.DataObject.GetDataPresent(DataFormats.UnicodeText))
+        {
+            var text      = (string)e.DataObject.GetData(DataFormats.UnicodeText);
+            var sanitized = new string(text.Where(IsChatCharAllowed).ToArray());
+            if (sanitized != text)
+            {
+                var newData = new DataObject();
+                newData.SetData(DataFormats.UnicodeText, sanitized);
+                e.DataObject = newData;
+            }
+        }
+        else
+        {
+            e.CancelCommand();
+        }
+    }
+
     private void SendButton_Click(object sender, RoutedEventArgs e)
     {
         if (InputBox.IsEnabled && !string.IsNullOrEmpty(InputBox.Text))
@@ -1396,9 +1425,12 @@ public partial class MainWindow : Window
         if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
     }
 
+    private static readonly System.Text.RegularExpressions.Regex StatusAllowedChars =
+        new(@"^[a-zA-Z0-9 !.,'""_-]$", System.Text.RegularExpressions.RegexOptions.Compiled);
+
     private void StatusMessage_Click(object sender, RoutedEventArgs e)
     {
-        var dlg = new SemaBuzzInputDialog("Status message", "Enter a short status message (or leave blank to clear):", _localStatusMessage)
+        var dlg = new SemaBuzzInputDialog("Status message", "Enter a short status message (or leave blank to clear):", _localStatusMessage, StatusAllowedChars)
         {
             Owner = this
         };

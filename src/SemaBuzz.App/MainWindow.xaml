@@ -612,8 +612,10 @@
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
                      IsEnabled="False"
+                     PreviewTextInput="InputBox_PreviewTextInput"
                      PreviewKeyDown="InputBox_PreviewKeyDown"
-                     TextChanged="InputBox_TextChanged"/>
+                     TextChanged="InputBox_TextChanged"
+                     DataObject.Pasting="InputBox_Pasting"/>
             <TextBlock x:Name="InputPlaceholder"
                        Text="Say something…"
                        IsHitTestVisible="False"

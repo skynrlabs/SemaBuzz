@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Input;
 
@@ -7,12 +9,54 @@ public partial class SemaBuzzInputDialog : Window
 {
     public string InputText { get; private set; } = string.Empty;
 
-    public SemaBuzzInputDialog(string title, string prompt, string initial = "")
+    private readonly Regex? _allowedChars;
+
+    public SemaBuzzInputDialog(string title, string prompt, string initial = "", Regex? allowedChars = null)
     {
         InitializeComponent();
+        _allowedChars    = allowedChars;
         TitleLabel.Text  = title.ToUpperInvariant();
         PromptLabel.Text = prompt.ToUpperInvariant();
-        InputBox.Text    = initial;
+
+        // Strip disallowed chars from any pre-populated value (e.g. saved before validation existed)
+        InputBox.Text = allowedChars is not null
+            ? new string(initial.Where(c => allowedChars.IsMatch(c.ToString())).ToArray())
+            : initial;
+
+        if (allowedChars is not null)
+        {
+            InputBox.PreviewTextInput += (_, e) =>
+            {
+                e.Handled = !e.Text.All(c => allowedChars.IsMatch(c.ToString()));
+            };
+            DataObject.AddPastingHandler(InputBox, (object _, DataObjectPastingEventArgs e) =>
+            {
+                if (e.DataObject.GetDataPresent(typeof(string)))
+                {
+                    var text      = (string)e.DataObject.GetData(typeof(string));
+                    var sanitized = new string(text.Where(c => allowedChars.IsMatch(c.ToString())).ToArray());
+                    if (sanitized != text)
+                    {
+                        e.CancelCommand();
+                        if (sanitized.Length > 0)
+                        {
+                            var tb        = InputBox;
+                            var start     = tb.SelectionStart;
+                            var current   = tb.Text;
+                            var remaining = tb.MaxLength - (current.Length - tb.SelectionLength);
+                            sanitized     = sanitized[..Math.Min(sanitized.Length, remaining)];
+                            tb.Text       = current[..tb.SelectionStart] + sanitized + current[(tb.SelectionStart + tb.SelectionLength)..];
+                            tb.CaretIndex = start + sanitized.Length;
+                        }
+                    }
+                }
+                else
+                {
+                    e.CancelCommand();
+                }
+            });
+        }
+
         Loaded += (_, _) =>
         {
             InputBox.Focus();
@@ -48,7 +92,10 @@ public partial class SemaBuzzInputDialog : Window
 
     private void Commit()
     {
-        InputText    = InputBox.Text;
+        var text  = InputBox.Text;
+        InputText = _allowedChars is not null
+            ? new string(text.Where(c => _allowedChars.IsMatch(c.ToString())).ToArray())
+            : text;
         DialogResult = true;
         Close();
     }
