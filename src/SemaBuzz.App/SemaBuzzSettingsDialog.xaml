@@ -284,7 +284,6 @@
                         Click="BuyNow_Click"/>
             </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Button Style="{StaticResource SemaBuzzButton}" Content="CLOSE"
                         Margin="0 0 10 0" Click="Cancel_Click"/>
                 <Button Style="{StaticResource SemaBuzzButton}" Content="SAVE"
                         Click="Apply_Click"/>

@@ -51,24 +51,9 @@ public partial class App : Application
         Settings = SemaBuzzSettings.Load();
         SemaBuzzThemeManager.Apply(Settings.Theme);
 
-        // Validate the stored license key synchronously — it's a fast local file read.
+        // Kick off the async Store license check in the background.
+        // Result is cached in SemaBuzzLicense.IsProUnlocked; dialogs gate on it when opened.
         SemaBuzzLicense.Check();
-        if (!SemaBuzzLicense.IsProUnlocked)
-        {
-            var changed = false;
-            if (Settings.Theme != SemaBuzzThemeId.Obsidian)
-            {
-                Settings.Theme = SemaBuzzThemeId.Obsidian;
-                SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
-                changed = true;
-            }
-            if (Settings.RelayUri != SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri)
-            {
-                Settings.RelayUri = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
-                changed = true;
-            }
-            if (changed) Settings.Save();
-        }
 
         // Register for toast notification activation in the background  the COM
         // server registration and Start Menu shortcut creation it performs can take

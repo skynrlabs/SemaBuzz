@@ -887,6 +887,157 @@ public partial class MainWindow : Window
         var msg = InputBox.Text;
         if (string.IsNullOrEmpty(msg)) return;
 
+        // /buzz — trigger buzz then clear without sending a chat message
+        if (msg.Equals("/buzz", StringComparison.OrdinalIgnoreCase))
+        {
+            _previousInputText = string.Empty;
+            InputBox.Text      = string.Empty;
+            SendButton.IsEnabled = false;
+            if (_client   != null) _ = _client.SendBuzzAsync();
+            if (_listener != null) _ = _listener.SendBuzzAsync();
+            PlayBuzzSound();
+            BuzzIndicator.MaxBurst();
+            InputBox.Focus();
+            return;
+        }
+
+        // /clear — clear both chat panes
+        if (msg.Equals("/clear", StringComparison.OrdinalIgnoreCase))
+        {
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            ClearChatPanels();
+            return;
+        }
+
+        // /back — set status to Available (keeps status message)
+        if (msg.Equals("/back", StringComparison.OrdinalIgnoreCase))
+        {
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            _localStatus                = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+            App.Settings.Status         = _localStatus;
+            App.Settings.Save();
+            ApplyLocalStatusUI();
+            if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+            if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+            InputBox.Focus();
+            return;
+        }
+
+        // /away [message] — set Away; optionally update status message
+        if (msg.Equals("/away", StringComparison.OrdinalIgnoreCase) ||
+            msg.StartsWith("/away ", StringComparison.OrdinalIgnoreCase))
+        {
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            if (msg.StartsWith("/away ", StringComparison.OrdinalIgnoreCase))
+                _localStatusMessage = msg[6..].Trim();
+            _localStatus                = SemaBuzz.Protocol.SemaBuzzStatus.Away;
+            App.Settings.Status         = _localStatus;
+            App.Settings.StatusMessage  = _localStatusMessage;
+            App.Settings.Save();
+            ApplyLocalStatusUI();
+            if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+            if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+            InputBox.Focus();
+            return;
+        }
+
+        // /status [message] — update status message, keep current availability; blank clears it
+        if (msg.Equals("/status", StringComparison.OrdinalIgnoreCase) ||
+            msg.StartsWith("/status ", StringComparison.OrdinalIgnoreCase))
+        {
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            _localStatusMessage         = msg.StartsWith("/status ", StringComparison.OrdinalIgnoreCase)
+                                            ? msg[8..].Trim()
+                                            : string.Empty;
+            App.Settings.StatusMessage  = _localStatusMessage;
+            App.Settings.Save();
+            ApplyLocalStatusUI();
+            if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+            if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+            InputBox.Focus();
+            return;
+        }
+
+        // /walk [url] — push a URL; opens dialog if no URL supplied
+        if (msg.Equals("/walk", StringComparison.OrdinalIgnoreCase) ||
+            msg.StartsWith("/walk ", StringComparison.OrdinalIgnoreCase))
+        {
+            string walkUrl = string.Empty;
+            if (msg.StartsWith("/walk ", StringComparison.OrdinalIgnoreCase))
+            {
+                var candidate = msg[6..].Trim();
+                if (Uri.TryCreate(candidate, UriKind.Absolute, out var wu) &&
+                    (wu.Scheme == Uri.UriSchemeHttp || wu.Scheme == Uri.UriSchemeHttps))
+                    walkUrl = candidate;
+            }
+            if (string.IsNullOrEmpty(walkUrl))
+            {
+                var wDlg = new WalkUrlDialog { Owner = this };
+                if (wDlg.ShowDialog() != true || string.IsNullOrEmpty(wDlg.Url)) { InputBox.Focus(); return; }
+                walkUrl = wDlg.Url;
+            }
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            if (_client   != null) _ = _client.SendUrlPushAsync(walkUrl);
+            if (_listener != null) _ = _listener.SendUrlPushAsync(walkUrl);
+            AppendUrlCard(walkUrl, isSent: true, LocalPanel, LocalScrollViewer);
+            InputBox.Focus();
+            return;
+        }
+
+        // /shrug — sends ¯\_(ツ)_/¯ as a chat message
+        if (msg.Equals("/shrug", StringComparison.OrdinalIgnoreCase))
+        {
+            const string shrug = @"¯\_(ツ)_/¯";
+            if (App.Settings.LivePreview)
+                for (var i = 0; i < msg.Length; i++) _streamer.Feed('\b');
+            foreach (var c in shrug) _streamer.Feed(c);
+            var (shrugRow, shrugTb, shrugTs) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
+            shrugTb.Text = (string)shrugTb.Tag + shrug;
+            shrugTs.Text = DateTime.Now.ToString("h:mm tt");
+            LocalPanel.Children.Add(shrugRow);
+            LocalScrollViewer.ScrollToEnd();
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            var shrugNl = new SemaBuzzPacket('\n', 0, SemaBuzzPacketType.Char, _streamer.NextSequence());
+            if (_client   != null) _ = _client.SendAsync(shrugNl);
+            if (_listener != null) _ = _listener.SendAsync(shrugNl);
+            InputBox.Focus();
+            return;
+        }
+
+        // /flip — sends (╯°□°）╯︵ ┻━┻ as a chat message
+        if (msg.Equals("/flip", StringComparison.OrdinalIgnoreCase))
+        {
+            const string flip = "(╯°□°）╯︵ ┻━┻";
+            if (App.Settings.LivePreview)
+                for (var i = 0; i < msg.Length; i++) _streamer.Feed('\b');
+            foreach (var c in flip) _streamer.Feed(c);
+            var (flipRow, flipTb, flipTs) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
+            flipTb.Text = (string)flipTb.Tag + flip;
+            flipTs.Text = DateTime.Now.ToString("h:mm tt");
+            LocalPanel.Children.Add(flipRow);
+            LocalScrollViewer.ScrollToEnd();
+            _previousInputText   = string.Empty;
+            InputBox.Text        = string.Empty;
+            SendButton.IsEnabled = false;
+            var flipNl = new SemaBuzzPacket('\n', 0, SemaBuzzPacketType.Char, _streamer.NextSequence());
+            if (_client   != null) _ = _client.SendAsync(flipNl);
+            if (_listener != null) _ = _listener.SendAsync(flipNl);
+            InputBox.Focus();
+            return;
+        }
+
         // When LivePreview is off the streamer hasn't seen the chars yet — feed them now.
         if (!App.Settings.LivePreview)
             foreach (var c in msg)
