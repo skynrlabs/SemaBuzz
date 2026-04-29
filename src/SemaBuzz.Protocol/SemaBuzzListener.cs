@@ -412,7 +412,13 @@ public sealed class SemaBuzzListener : IDisposable
                     await SendEncryptedControlToAsync(SemaBuzzPacketType.ConnectRejected, result.RemoteEndPoint);
                     PeerEndPoint = null;
                     Shield = null;
-                    SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
+                    if (_isRelayMode)
+                    {
+                        _pendingDeadMessage = "connection declined";
+                        _cts?.Cancel();
+                    }
+                    else
+                        SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
                     return;
                 }
             }
@@ -494,7 +500,13 @@ public sealed class SemaBuzzListener : IDisposable
                         {
                             await SendControlToAsync(SemaBuzzPacketType.ConnectRejected, result.RemoteEndPoint);
                             PeerEndPoint = null;
-                            SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
+                            if (_isRelayMode)
+                            {
+                                _pendingDeadMessage = "connection declined";
+                                _cts?.Cancel();
+                            }
+                            else
+                                SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
                             return;
                         }
                     }
