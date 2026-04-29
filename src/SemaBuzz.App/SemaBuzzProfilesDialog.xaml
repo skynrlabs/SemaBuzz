@@ -72,7 +72,7 @@
                 <TextBlock Text="Handle *" Foreground="#9E9E9E" FontSize="11" Margin="0 0 0 4"/>
                 <TextBox x:Name="ProfileHandleBox"
                          Style="{StaticResource SemaBuzzInput}"
-                         MaxLength="32"
+                         MaxLength="16"
                          Margin="0 0 0 4"
                          TextChanged="ProfileHandleBox_TextChanged"/>
                 <TextBlock x:Name="HandleErrorText"

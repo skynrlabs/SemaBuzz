@@ -1,5 +1,6 @@
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
@@ -36,6 +37,7 @@ public sealed class SemaBuzzClient : IDisposable
     public SemaBuzzShield? Shield { get; private set; }
 
     private volatile bool _waitingForApproval;
+    private NetworkAddressChangedEventHandler? _networkChangeHandler;
 
     public async Task ConnectAsync(string host, int port, CancellationToken cancellationToken = default)
     {
@@ -67,6 +69,7 @@ public sealed class SemaBuzzClient : IDisposable
         _udp = new UdpClient();
         _udp.Connect(_peer);
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        SubscribeNetworkChange();
 
         SetState(SemaBuzzWireState.Warming, $"Dialing {host}:{port}...");
 
@@ -97,6 +100,7 @@ public sealed class SemaBuzzClient : IDisposable
 
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _wsClient = new ClientWebSocket();
+        SubscribeNetworkChange();
 
         try { await _wsClient.ConnectAsync(new Uri(relayUri), _cts.Token); }
         catch (Exception ex)
@@ -161,7 +165,10 @@ public sealed class SemaBuzzClient : IDisposable
                     {
                         var r2 = await _wsClient.ReceiveAsync(ctrlBuf2, peerAddrCts.Token);
                         if (r2.MessageType == WebSocketMessageType.Close) break;
+                        // Only consider complete relay control frames -- skip any partial
+                        // reads or non-relay application data that arrived early.
                         if (r2.Count < SemaBuzzRelayPacket.PunchPacketSize) continue;
+                        if (!r2.EndOfMessage) continue;
                         if (SemaBuzzRelayPacket.IsRelayPacket(ctrlBuf2)
                             && (SemaBuzzRelayPacketType)ctrlBuf2[3] == SemaBuzzRelayPacketType.PeerAddress)
                         {
@@ -274,7 +281,17 @@ public sealed class SemaBuzzClient : IDisposable
                 if (Shield != null)
                 {
                     var dec = Shield.Decrypt(data);
-                    if (dec == null) continue;
+                    if (dec == null)
+                    {
+                        // Decryption failure after handshake means a session key
+                        // mismatch -- surface it rather than silently dropping.
+                        if (State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
+                        {
+                            SetState(SemaBuzzWireState.Dead, "session key mismatch");
+                            _cts?.Cancel();
+                        }
+                        return;
+                    }
                     data = dec;
                 }
 
@@ -354,7 +371,14 @@ public sealed class SemaBuzzClient : IDisposable
         }
         catch (OperationCanceledException) { }
         catch (WebSocketException) { SetState(SemaBuzzWireState.Dead, "Connection error."); }
-        finally { _wsSend = null; }
+        finally
+        {
+            _wsSend = null;
+            // If the relay loop exited for any reason other than explicit cancellation,
+            // transition to Dead so the UI reflects the loss of connection.
+            if (!ct.IsCancellationRequested && State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
+                SetState(SemaBuzzWireState.Dead, "relay connection closed");
+        }
     }
 
     private async Task HandshakeTimeoutAsync(CancellationToken ct)
@@ -665,10 +689,31 @@ public sealed class SemaBuzzClient : IDisposable
         }
     }
 
+    private void SubscribeNetworkChange()
+    {
+        UnsubscribeNetworkChange();
+        _networkChangeHandler = (_, _) =>
+        {
+            if (_cts != null && !_cts.IsCancellationRequested)
+                _cts.Cancel();
+        };
+        NetworkChange.NetworkAddressChanged += _networkChangeHandler;
+    }
+
+    private void UnsubscribeNetworkChange()
+    {
+        if (_networkChangeHandler != null)
+        {
+            NetworkChange.NetworkAddressChanged -= _networkChangeHandler;
+            _networkChangeHandler = null;
+        }
+    }
+
     public void Dispose()
     {
         if (!_disposed)
         {
+            UnsubscribeNetworkChange();
             if (_cts != null)
                 _cts.Cancel();
             if (_udp != null)

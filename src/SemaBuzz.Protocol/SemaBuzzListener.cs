@@ -1,5 +1,6 @@
 using System.IO;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Net.WebSockets;
 using System.Security.Cryptography;
@@ -39,6 +40,8 @@ public sealed class SemaBuzzListener : IDisposable
     /// </summary>
     public Func<IPEndPoint, Task<bool>>? ConnectionApprovalCallback { get; set; }
 
+    private NetworkAddressChangedEventHandler? _networkChangeHandler;
+
     public SemaBuzzWireState State { get; private set; } = SemaBuzzWireState.Cold;
     public IPEndPoint? PeerEndPoint { get; private set; }
 
@@ -58,6 +61,7 @@ public sealed class SemaBuzzListener : IDisposable
         _wsClient = new ClientWebSocket();
         _isRelayMode = true;
         _pendingDeadMessage = "Wire closed.";
+        SubscribeNetworkChange();
 
         try { await _wsClient.ConnectAsync(new Uri(relayUri), _cts.Token); }
         catch (Exception ex)
@@ -121,7 +125,11 @@ public sealed class SemaBuzzListener : IDisposable
                     {
                         var r2 = await _wsClient.ReceiveAsync(ctrlBuf2, peerAddrCts.Token);
                         if (r2.MessageType == WebSocketMessageType.Close) break;
+                        // Only consider complete relay control frames -- skip any partial
+                        // reads or non-relay application data (e.g. KE packets from the
+                        // peer that arrived before we entered WsReceiveLoopAsync).
                         if (r2.Count < SemaBuzzRelayPacket.PunchPacketSize) continue;
+                        if (!r2.EndOfMessage) continue;
                         if (SemaBuzzRelayPacket.IsRelayPacket(ctrlBuf2)
                             && (SemaBuzzRelayPacketType)ctrlBuf2[3] == SemaBuzzRelayPacketType.PeerAddress)
                         {
@@ -150,6 +158,7 @@ public sealed class SemaBuzzListener : IDisposable
                         try { await _wsClient.CloseAsync(WebSocketCloseStatus.NormalClosure, "direct", default); } catch { }
                         _wsClient.Dispose();
                         _wsClient = null;
+                        _wsSend = null; // must clear before switching to UDP so SendRawAsync uses the socket
 
                         SetState(SemaBuzzWireState.Warming, "Direct UDP -- completing handshake...");
 
@@ -204,6 +213,22 @@ public sealed class SemaBuzzListener : IDisposable
         _localPubKeyBytes = _pendingEcdh.PublicKey.ExportSubjectPublicKeyInfo();
         await _wsSend(SemaBuzzKeyExchange.Serialize(_localPubKeyBytes));
 
+        // Retransmit our KE every 2 s while the dialer hasn't responded.
+        // The dialer's punch-through wait loop may have consumed our initial KE
+        // before WsReceiveLoopAsync started, so this mirrors the client-side
+        // HandshakeRetransmitAsync to ensure the dialer eventually gets our key.
+        var keBytes = SemaBuzzKeyExchange.Serialize(_localPubKeyBytes);
+        _ = Task.Run(async () =>
+        {
+            while (!_cts.Token.IsCancellationRequested)
+            {
+                try { await Task.Delay(TimeSpan.FromSeconds(2), _cts.Token); }
+                catch (OperationCanceledException) { return; }
+                if (Shield != null || State != SemaBuzzWireState.Warming) return;
+                try { if (_wsSend != null) await _wsSend(keBytes); } catch { }
+            }
+        });
+
         SetState(SemaBuzzWireState.Warming, "Peer connected via relay -- completing handshake...");
 
         // Relay dummy endpoint: used as the stand-in remote address in HandleIncomingAsync.
@@ -241,6 +266,7 @@ public sealed class SemaBuzzListener : IDisposable
         _port = port;
         _udp = new UdpClient(port);
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        SubscribeNetworkChange();
 
         SetState(SemaBuzzWireState.Warming, $"Listening on port {port}...");
 
@@ -628,10 +654,31 @@ public sealed class SemaBuzzListener : IDisposable
             wireHandler(this, new SemaBuzzWireStateEventArgs(state, message));
     }
 
+    private void SubscribeNetworkChange()
+    {
+        UnsubscribeNetworkChange();
+        _networkChangeHandler = (_, _) =>
+        {
+            if (_cts != null && !_cts.IsCancellationRequested)
+                _cts.Cancel();
+        };
+        NetworkChange.NetworkAddressChanged += _networkChangeHandler;
+    }
+
+    private void UnsubscribeNetworkChange()
+    {
+        if (_networkChangeHandler != null)
+        {
+            NetworkChange.NetworkAddressChanged -= _networkChangeHandler;
+            _networkChangeHandler = null;
+        }
+    }
+
     public void Dispose()
     {
         if (!_disposed)
         {
+            UnsubscribeNetworkChange();
             if (_cts != null)
                 _cts.Cancel();
             if (_udp != null)

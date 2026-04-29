@@ -204,55 +204,37 @@ public partial class SemaBuzzThemeDialog : Window
 
     private static Border MakeProBadge()
     {
-        var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
         var badge = new Border
         {
             CornerRadius      = new CornerRadius(3),
-            BorderBrush       = accentBrush,
             BorderThickness   = new Thickness(1),
             Background        = Brushes.Transparent,
             Padding           = new Thickness(5, 1, 5, 1),
             Margin            = new Thickness(8, 0, 0, 0),
             VerticalAlignment = VerticalAlignment.Center,
         };
-        badge.Child = new TextBlock
+        badge.SetResourceReference(Border.BorderBrushProperty, "AmberBrush");
+        var tb = new TextBlock
         {
             Text       = "PRO",
-            Foreground = accentBrush,
             FontSize   = 9,
             FontWeight = FontWeights.Bold,
             FontFamily = new FontFamily("Cascadia Code, Consolas"),
         };
+        tb.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+        badge.Child = tb;
         return badge;
     }
 
     private static StackPanel BuildProPanel(string label)
     {
-        var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
         var panel = new StackPanel { Orientation = Orientation.Horizontal };
         panel.Children.Add(new TextBlock
         {
             Text              = label,
             VerticalAlignment = VerticalAlignment.Center,
         });
-        panel.Children.Add(new Border
-        {
-            CornerRadius      = new CornerRadius(3),
-            BorderBrush       = accentBrush,
-            BorderThickness   = new Thickness(1),
-            Background        = Brushes.Transparent,
-            Padding           = new Thickness(5, 1, 5, 1),
-            Margin            = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-            Child             = new TextBlock
-            {
-                Text       = "PRO",
-                Foreground = accentBrush,
-                FontSize   = 9,
-                FontWeight = FontWeights.Bold,
-                FontFamily = new FontFamily("Cascadia Code, Consolas"),
-            },
-        });
+        panel.Children.Add(MakeProBadge());
         return panel;
     }
 

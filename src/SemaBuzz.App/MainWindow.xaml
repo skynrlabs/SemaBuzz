@@ -4,15 +4,14 @@
         xmlns:controls="clr-namespace:SemaBuzz.App.Controls"
         xmlns:emoji="clr-namespace:Emoji.Wpf;assembly=Emoji.Wpf"
         Title="SemaBuzz" Height="560" Width="820"
-        MinHeight="480" MinWidth="640"
+        MinHeight="560" MinWidth="820"
         Icon="Assets/icon.ico"
         Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource AmberBrush}"
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
         FontSize="13"
         WindowStyle="SingleBorderWindow"
-        ResizeMode="CanResize"
-        Closing="Window_Closing">
+        ResizeMode="CanResize">
 
     <!-- Extend client area into the title bar so DWM stops drawing its own
          title text and icon. CaptionHeight=52 matches the unified header row.
@@ -266,13 +265,15 @@
                                     Visibility="Collapsed">
                             <TextBlock Text="›"
                                        FontSize="10"
-                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       Foreground="{DynamicResource AmberBrush}"
+                                       Opacity="0.55"
                                        Margin="0 0 4 0"
                                        VerticalAlignment="Center"/>
                             <TextBlock x:Name="LocalStatusMsg"
                                        Text=""
                                        FontSize="10"
-                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       Foreground="{DynamicResource AmberBrush}"
+                                       Opacity="0.55"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Grid>
@@ -322,13 +323,15 @@
                                     Visibility="Collapsed">
                             <TextBlock Text="›"
                                        FontSize="10"
-                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       Foreground="{DynamicResource AmberBrush}"
+                                       Opacity="0.55"
                                        Margin="0 0 4 0"
                                        VerticalAlignment="Center"/>
                             <TextBlock x:Name="PeerStatusMsg"
                                        Text=""
                                        FontSize="10"
-                                       Foreground="{DynamicResource WireDeadBrush}"
+                                       Foreground="{DynamicResource AmberBrush}"
+                                       Opacity="0.55"
                                        TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                     </Grid>
@@ -617,8 +620,7 @@
                        Focusable="False"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Center"
-                       Margin="21 0 0 0"
-                       FontFamily="Cascadia Code, JetBrains Mono, Consolas"
+                       Margin="16 0 0 0"
                        FontSize="13"
                        Foreground="{DynamicResource WireDeadBrush}"
                        Opacity="0.45"
@@ -886,9 +888,7 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 0 0">
                 <Ellipse x:Name="WireStateDot"
                          Width="10" Height="10" Fill="#9E9E9E"
-                         VerticalAlignment="Center" Margin="0 0 8 0"/>
-                <TextBlock x:Name="TitleSessionLabel" Text="NO WIRE"
-                           Foreground="{DynamicResource WireDeadBrush}" FontSize="12" VerticalAlignment="Center"/>
+                         VerticalAlignment="Center"/>
             </StackPanel>
             <!-- Divider -->
             <Rectangle Grid.Column="1" Fill="{DynamicResource ObsidianBorderBrush}" Width="1" Margin="14 8"/>
