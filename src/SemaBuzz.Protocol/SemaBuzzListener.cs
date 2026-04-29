@@ -247,6 +247,8 @@ public sealed class SemaBuzzListener : IDisposable
             }
         }
         catch (OperationCanceledException) { }
+        catch (WebSocketException) { }
+        catch (SocketException) { }
         finally
         {
             _wsSend = null;
@@ -279,7 +281,7 @@ public sealed class SemaBuzzListener : IDisposable
             }
         }
         catch (OperationCanceledException) { /* Clean shutdown */ }
-        catch (SocketException ex) when (ex.SocketErrorCode == SocketError.Interrupted) { /* Disposed */ }
+        catch (SocketException) { /* Socket invalidated by network change or disposal */ }
         finally
         {
             SetState(SemaBuzzWireState.Dead, "Wire closed.");
@@ -654,12 +656,24 @@ public sealed class SemaBuzzListener : IDisposable
             wireHandler(this, new SemaBuzzWireStateEventArgs(state, message));
     }
 
+    private static string GetOutboundLocalIp()
+    {
+        try
+        {
+            using var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            s.Connect("8.8.8.8", 80);
+            return ((IPEndPoint)s.LocalEndPoint!).Address.ToString();
+        }
+        catch { return string.Empty; }
+    }
+
     private void SubscribeNetworkChange()
     {
         UnsubscribeNetworkChange();
+        var baseline = GetOutboundLocalIp();
         _networkChangeHandler = (_, _) =>
         {
-            if (_cts != null && !_cts.IsCancellationRequested)
+            if (_cts != null && !_cts.IsCancellationRequested && GetOutboundLocalIp() != baseline)
                 _cts.Cancel();
         };
         NetworkChange.NetworkAddressChanged += _networkChangeHandler;
