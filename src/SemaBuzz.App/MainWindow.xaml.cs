@@ -1022,7 +1022,7 @@ public partial class MainWindow : Window
                 WindowState = WindowState.Normal;
             Activate();
 
-            BuzzRequestFromLabel.Text = $"{peerIdentifier}  wants to open a wire.";
+            BuzzRequestFromLabel.Text = $"{peerIdentifier} wants to open a wire.";
             _approvalSecondsLeft      = 30;
             BuzzRequestCountdown.Text = $"Auto-declining in {_approvalSecondsLeft}s...";
             BuzzWaitingState.Visibility  = Visibility.Collapsed;

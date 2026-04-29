@@ -378,6 +378,9 @@ public sealed class SemaBuzzClient : IDisposable
         finally
         {
             _wsSend = null;
+            // Close the WebSocket cleanly so the relay detects the disconnect immediately
+            // instead of waiting for the TCP connection to time out (~15-20 seconds).
+            try { await ws.CloseAsync(WebSocketCloseStatus.NormalClosure, "done", CancellationToken.None); } catch { }
             // If the relay loop exited for any reason other than explicit cancellation,
             // transition to Dead so the UI reflects the loss of connection.
             if (!ct.IsCancellationRequested && State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
