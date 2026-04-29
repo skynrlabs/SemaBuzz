@@ -188,7 +188,6 @@ public partial class SemaBuzzSettingsDialog : Window
         BuzzVolumeSlider.IsEnabled = enabled;
         BuzzVolumeLabel.IsEnabled  = enabled;
     }
-
     private async void BuyNow_Click(object sender, RoutedEventArgs e)
     {
         var purchased = await SemaBuzzLicense.PurchaseAsync(this);
@@ -212,13 +211,6 @@ public partial class SemaBuzzSettingsDialog : Window
             BuyNowSettingsButton.Content   = "\u2713 SemaBuzz Pro";
         }
     }
-
-    /// <summary>
-    /// Builds a StackPanel containing the label text and a rounded PRO badge
-    /// whose border and text colour match the current theme accent.
-    /// </summary>
-    private static StackPanel MakeProContent(string label)
-        => BuildProPanel(label);
 
     /// <summary>Standalone PRO badge — appended to an existing label panel.</summary>
     private static Border MakeProBadge()
@@ -244,6 +236,9 @@ public partial class SemaBuzzSettingsDialog : Window
         };
         return badge;
     }
+
+    private static StackPanel MakeProContent(string label)
+        => BuildProPanel(label);
 
     private static StackPanel BuildProPanel(string label)
     {
@@ -274,4 +269,5 @@ public partial class SemaBuzzSettingsDialog : Window
         });
         return panel;
     }
+
 }

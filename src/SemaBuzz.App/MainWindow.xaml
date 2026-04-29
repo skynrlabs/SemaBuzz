@@ -83,8 +83,6 @@
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="*"/>     <!-- Menu -->
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
-                <ColumnDefinition Width="Auto"/>  <!-- Wire status -->
-                <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="Auto"/>  <!-- Profile badge -->
                 <ColumnDefinition Width="1"/>     <!-- Divider -->
                 <ColumnDefinition Width="Auto"/>  <!-- Window controls -->
@@ -131,20 +129,8 @@
             <!-- Vertical divider -->
             <Rectangle Grid.Column="3" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
 
-            <!-- Wire status -->
-            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" Margin="18 0 18 0">
-                <TextBlock x:Name="TitleSessionLabel" Text="NO WIRE"
-                           Foreground="{DynamicResource WireDeadBrush}" FontSize="12" VerticalAlignment="Center"/>
-                <Ellipse x:Name="WireStateDot"
-                         Width="10" Height="10" Fill="#9E9E9E"
-                         VerticalAlignment="Center" Margin="12 0 0 0"/>
-            </StackPanel>
-
-            <!-- Vertical divider -->
-            <Rectangle Grid.Column="5" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
-
             <!-- Profile badge -->
-            <Button Grid.Column="6"
+            <Button Grid.Column="4"
                     x:Name="ProfileBadgeBtn"
                     Style="{StaticResource SemaBuzzWinButton}"
                     Width="Auto"
@@ -163,7 +149,7 @@
                                Text="ANONYMOUS"
                                VerticalAlignment="Center"
                                FontSize="11"
-                               MaxWidth="120"
+                               MaxWidth="200"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource AmberHeaderBrush}"/>
                     <Ellipse x:Name="ProfileStatusDot"
@@ -184,10 +170,10 @@
             </Button>
 
             <!-- Vertical divider -->
-            <Rectangle Grid.Column="7" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
+            <Rectangle Grid.Column="5" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 12"/>
 
             <!-- Window controls: minimize · maximize/restore · close -->
-            <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Stretch"
+            <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Stretch"
                         WindowChrome.IsHitTestVisibleInChrome="True">
                 <Button x:Name="MinimizeButton"
                         Style="{StaticResource SemaBuzzWinButton}"
@@ -623,7 +609,6 @@
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
                      IsEnabled="False"
-                     ToolTip="Type a message, or /me [action] for an action"
                      PreviewKeyDown="InputBox_PreviewKeyDown"
                      TextChanged="InputBox_TextChanged"/>
             <TextBlock x:Name="InputPlaceholder"
@@ -632,7 +617,7 @@
                        Focusable="False"
                        HorizontalAlignment="Left"
                        VerticalAlignment="Center"
-                       Margin="16 0 0 0"
+                       Margin="21 0 0 0"
                        FontFamily="Cascadia Code, JetBrains Mono, Consolas"
                        FontSize="13"
                        Foreground="{DynamicResource WireDeadBrush}"
@@ -892,20 +877,32 @@
         <!-- Status Bar -->
         <Grid Grid.Row="8" Margin="20 0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>  <!-- Wire state indicator -->
+                <ColumnDefinition Width="Auto"/>  <!-- Divider -->
+                <ColumnDefinition Width="*"/>     <!-- Status messages -->
+                <ColumnDefinition Width="Auto"/>  <!-- Peer label -->
             </Grid.ColumnDefinitions>
+            <!-- Wire state indicator -->
+            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" Margin="0 0 0 0">
+                <Ellipse x:Name="WireStateDot"
+                         Width="10" Height="10" Fill="#9E9E9E"
+                         VerticalAlignment="Center" Margin="0 0 8 0"/>
+                <TextBlock x:Name="TitleSessionLabel" Text="NO WIRE"
+                           Foreground="{DynamicResource WireDeadBrush}" FontSize="12" VerticalAlignment="Center"/>
+            </StackPanel>
+            <!-- Divider -->
+            <Rectangle Grid.Column="1" Fill="{DynamicResource ObsidianBorderBrush}" Width="1" Margin="14 8"/>
+            <!-- Status messages -->
             <TextBlock x:Name="StatusLabel"
-                       Grid.Column="0"
+                       Grid.Column="2"
                        Style="{StaticResource SemaBuzzStatusLabel}"
                        Text="› wire is cold"
                        VerticalAlignment="Center"/>
             <!-- Peer handle — visible when connected as dialer -->
             <TextBlock x:Name="PeerLabel"
-                       Grid.Column="1"
+                       Grid.Column="3"
                        Style="{StaticResource SemaBuzzStatusLabel}"
                        VerticalAlignment="Center"/>
-
         </Grid>
 
         <!-- Amber border overlay — follows Win11 rounded corners natively -->
