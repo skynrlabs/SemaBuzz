@@ -634,11 +634,12 @@ public partial class MainWindow : Window
     {
         ClearChatPanels();
         _client = new SemaBuzzClient();
-        _client.PacketReceived      += OnRemotePacketReceived;
-        _client.WireStateChanged    += OnWireStateChanged;
-        _client.MetadataReceived    += OnMetadataReceived;
-        _client.UrlPushReceived     += OnUrlPushReceived;
-        _client.DrawReceived        += OnDrawReceived;
+        _client.PacketReceived          += OnRemotePacketReceived;
+        _client.WireStateChanged        += OnWireStateChanged;
+        _client.MetadataReceived        += OnMetadataReceived;
+        _client.UrlPushReceived         += OnUrlPushReceived;
+        _client.DrawReceived            += OnDrawReceived;
+        _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
 
         SetStatus($"› dialing {host}:{port}...");
         _ = _client.ConnectAsync(host, port, ct);
@@ -648,11 +649,12 @@ public partial class MainWindow : Window
     {
         ClearChatPanels();
         _client = new SemaBuzzClient();
-        _client.PacketReceived      += OnRemotePacketReceived;
-        _client.WireStateChanged    += OnWireStateChanged;
-        _client.MetadataReceived    += OnMetadataReceived;
-        _client.UrlPushReceived     += OnUrlPushReceived;
-        _client.DrawReceived        += OnDrawReceived;
+        _client.PacketReceived          += OnRemotePacketReceived;
+        _client.WireStateChanged        += OnWireStateChanged;
+        _client.MetadataReceived        += OnMetadataReceived;
+        _client.UrlPushReceived         += OnUrlPushReceived;
+        _client.DrawReceived            += OnDrawReceived;
+        _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
 
         SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
@@ -998,7 +1000,14 @@ public partial class MainWindow : Window
     // Connection approval (host must accept dial-in)
     // ---------------------------------------------
 
-    private async Task<bool> OnConnectionApprovalRequested(System.Net.IPEndPoint remote)
+    private void OnHandshakeHoldReceived(object? sender, EventArgs e)
+    {
+        // Send compact metadata so the host can show our handle in the approval dialog.
+        if (_client != null)
+            _ = _client.SendPreApprovalMetadataAsync(_localHandle);
+    }
+
+    private async Task<bool> OnConnectionApprovalRequested(string peerIdentifier)
     {
         if (App.Settings.AutoApprove)
             return true;
@@ -1013,7 +1022,7 @@ public partial class MainWindow : Window
                 WindowState = WindowState.Normal;
             Activate();
 
-            BuzzRequestFromLabel.Text = $"Peer at  {remote}  wants to open a wire.";
+            BuzzRequestFromLabel.Text = $"{peerIdentifier}  wants to open a wire.";
             _approvalSecondsLeft      = 30;
             BuzzRequestCountdown.Text = $"Auto-declining in {_approvalSecondsLeft}s...";
             BuzzWaitingState.Visibility  = Visibility.Collapsed;

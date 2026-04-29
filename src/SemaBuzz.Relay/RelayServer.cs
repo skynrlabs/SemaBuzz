@@ -208,6 +208,11 @@ internal sealed class RelayServer
         finally
         {
             await CloseAsync(ws, WebSocketCloseStatus.NormalClosure, "Session ended", ct);
+            // Notify the paired peer that this side has disconnected so it
+            // does not hang indefinitely waiting for data.
+            var otherWs = ReferenceEquals(ws, room.HostWs) ? room.DialerWs : room.HostWs;
+            if (otherWs != null)
+                await CloseAsync(otherWs, WebSocketCloseStatus.NormalClosure, "Peer disconnected", ct);
         }
     }
 
