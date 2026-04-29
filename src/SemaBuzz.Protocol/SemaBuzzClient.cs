@@ -689,12 +689,24 @@ public sealed class SemaBuzzClient : IDisposable
         }
     }
 
+    private static string GetOutboundLocalIp()
+    {
+        try
+        {
+            using var s = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            s.Connect("8.8.8.8", 80);
+            return ((IPEndPoint)s.LocalEndPoint!).Address.ToString();
+        }
+        catch { return string.Empty; }
+    }
+
     private void SubscribeNetworkChange()
     {
         UnsubscribeNetworkChange();
+        var baseline = GetOutboundLocalIp();
         _networkChangeHandler = (_, _) =>
         {
-            if (_cts != null && !_cts.IsCancellationRequested)
+            if (_cts != null && !_cts.IsCancellationRequested && GetOutboundLocalIp() != baseline)
                 _cts.Cancel();
         };
         NetworkChange.NetworkAddressChanged += _networkChangeHandler;
