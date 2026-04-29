@@ -223,7 +223,6 @@ public partial class MainWindow : Window
         // Allow disconnect while waiting for a peer
         DisconnectMenuItem.IsEnabled    = true;
         ProfilesMenuItem.IsEnabled      = false;
-        ProfileBadgeBtn.IsEnabled       = false;
 
         if (_hostingRelayUri != null && _hostingRelayUri != SemaBuzzRelayPacket.DefaultRelayUri)
         {
@@ -506,6 +505,20 @@ public partial class MainWindow : Window
     private void Wire_Exit_Click(object sender, RoutedEventArgs e)
         => Application.Current.Shutdown();
 
+    private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    {
+        // Tear down the wire cleanly so the peer gets a disconnect notification.
+        _hostingToken    = null;
+        _hostingRelayUri = null;
+        _hostingPort     = 0;
+        _client?.DisconnectAsync();
+        _listener?.DisconnectAsync();
+        _cts?.Cancel();
+        _cts      = null;
+        _client   = null;
+        _listener = null;
+    }
+
     private void View_ClearChat_Click(object sender, RoutedEventArgs e)
         => ClearChatPanels();
 
@@ -545,7 +558,6 @@ public partial class MainWindow : Window
 
     private void ProfileBadge_Click(object sender, RoutedEventArgs e)
     {
-        if (!ProfileBadgeBtn.IsEnabled) return;
         ProfileBadgeBtn.ContextMenu.PlacementTarget = ProfileBadgeBtn;
         ProfileBadgeBtn.ContextMenu.Placement       = System.Windows.Controls.Primitives.PlacementMode.Bottom;
         ProfileBadgeBtn.ContextMenu.IsOpen          = true;
@@ -925,6 +937,10 @@ public partial class MainWindow : Window
         // Enable the send button only when there is something to send
         SendButton.IsEnabled = InputBox.IsEnabled && text.Length > 0;
 
+        // Show placeholder when connected and empty
+        InputPlaceholder.Visibility = (InputBox.IsEnabled && text.Length == 0)
+            ? Visibility.Visible : Visibility.Collapsed;
+
         var prev = _previousInputText;
         _previousInputText = text;
 
@@ -1136,8 +1152,8 @@ public partial class MainWindow : Window
         _peerStatusMessage             = string.Empty;
         PeerLabel.Text                 = string.Empty;
         PeerStatusDot.Fill             = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x61, 0x61, 0x61));
-        PeerStatusMsg.Text             = string.Empty;
-        PeerStatusMsg.Visibility       = Visibility.Collapsed;
+        PeerStatusMsg.Text              = string.Empty;
+        PeerStatusMsgRow.Visibility     = Visibility.Collapsed;
         UpdateWireStateDot(SemaBuzzWireState.Cold);
         BuzzIndicator.Flatline();
         ClearChatMenuItem.IsEnabled    = false;
@@ -1209,6 +1225,7 @@ public partial class MainWindow : Window
                 TitleSessionLabel.Text = $"{stateTag}WIRE LIVE";
                 InputBox.IsEnabled   = true;
                 SendButton.IsEnabled = false; // no text yet
+                InputPlaceholder.Visibility = Visibility.Visible;
                 BuzzButton.IsEnabled = true;
                 WalkButton.IsEnabled = true;
                 BoardButton.IsEnabled = true;
@@ -1216,7 +1233,6 @@ public partial class MainWindow : Window
                 DisconnectMenuItem.IsEnabled = true;
                 ClearChatMenuItem.IsEnabled  = true;
                 ProfilesMenuItem.IsEnabled   = false;
-                ProfileBadgeBtn.IsEnabled    = false;
                 string wireDivider;
                 if (e.State == SemaBuzzWireState.Secured)
                     wireDivider = "› sema secured · wire is live";
@@ -1351,13 +1367,13 @@ public partial class MainWindow : Window
         ProfileStatusDot.Fill  = new SolidColorBrush(c);
         if (!string.IsNullOrWhiteSpace(_localStatusMessage))
         {
-            LocalStatusMsg.Text       = _localStatusMessage;
-            LocalStatusMsg.Visibility = Visibility.Visible;
+            LocalStatusMsg.Text          = _localStatusMessage;
+            LocalStatusMsgRow.Visibility = Visibility.Visible;
         }
         else
         {
-            LocalStatusMsg.Text       = string.Empty;
-            LocalStatusMsg.Visibility = Visibility.Collapsed;
+            LocalStatusMsg.Text          = string.Empty;
+            LocalStatusMsgRow.Visibility = Visibility.Collapsed;
         }
     }
 
@@ -1373,13 +1389,13 @@ public partial class MainWindow : Window
             PeerStatusDot.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50));
         if (!string.IsNullOrWhiteSpace(_peerStatusMessage))
         {
-            PeerStatusMsg.Text       = _peerStatusMessage;
-            PeerStatusMsg.Visibility = Visibility.Visible;
+            PeerStatusMsg.Text          = _peerStatusMessage;
+            PeerStatusMsgRow.Visibility = Visibility.Visible;
         }
         else
         {
-            PeerStatusMsg.Text       = string.Empty;
-            PeerStatusMsg.Visibility = Visibility.Collapsed;
+            PeerStatusMsg.Text          = string.Empty;
+            PeerStatusMsgRow.Visibility = Visibility.Collapsed;
         }
     }
 
