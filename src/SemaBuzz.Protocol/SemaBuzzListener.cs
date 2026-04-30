@@ -23,6 +23,7 @@ public sealed class SemaBuzzListener : IDisposable
     private bool _disposed;
     private string? _lastStateMessage;
     private string _pendingDeadMessage = "Wire closed."; // overridden to "peer-disconnect" when peer sends Disconnect
+    private DateTime _lastPeerActivity;                  // updated on every received packet in relay mode; used by liveness watchdog
     private byte[]? _localPubKeyBytes; // saved so we can resend on client retransmit
     private ECDiffieHellman? _pendingEcdh;  // set in relay mode so we reuse the initiated key pair
 
@@ -237,6 +238,8 @@ public sealed class SemaBuzzListener : IDisposable
         // Relay dummy endpoint: used as the stand-in remote address in HandleIncomingAsync.
         var relayPeer = new IPEndPoint(IPAddress.Loopback, 0);
         var dataBuf = new byte[65_536];
+        _lastPeerActivity = DateTime.UtcNow;
+        _ = LivenessWatchdogAsync(_cts.Token);
         try
         {
             while (!_cts.Token.IsCancellationRequested && _wsClient!.State == WebSocketState.Open)
@@ -246,6 +249,7 @@ public sealed class SemaBuzzListener : IDisposable
                 if (data.Length < SemaBuzzPacket.WireSize) continue;
                 // Skip stray relay control frames.
                 if (data.Length == SemaBuzzRelayPacket.Size && SemaBuzzRelayPacket.IsRelayPacket(data)) continue;
+                _lastPeerActivity = DateTime.UtcNow;
                 await HandleIncomingAsync(new UdpReceiveResult(data, relayPeer));
             }
         }
@@ -553,6 +557,25 @@ public sealed class SemaBuzzListener : IDisposable
                     break;
             }
         }
+    }
+
+    private async Task LivenessWatchdogAsync(CancellationToken ct)
+    {
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2), ct);
+                if (State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured &&
+                    (DateTime.UtcNow - _lastPeerActivity).TotalSeconds > 9)
+                {
+                    _pendingDeadMessage = "peer-disconnect";
+                    _cts?.Cancel();
+                    return;
+                }
+            }
+        }
+        catch (OperationCanceledException) { }
     }
 
     private async Task SendAckAsync(IPEndPoint peer)
