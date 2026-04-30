@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -92,6 +93,27 @@ public partial class MainWindow : Window
     private string                           _peerStatusMessage  = string.Empty;
     private readonly Forms.NotifyIcon _trayIcon;
     private bool _trayTipShown;
+
+    // -- File transfer --------------------------------------------------------
+
+    private byte _nextTransferId;
+
+    // Outbound state
+    private CancellationTokenSource? _outboundFileCts;
+    private TaskCompletionSource<bool>? _fileAcceptTcs;
+    private TextBlock? _outboundStatusText;
+
+    // Inbound assembly state
+    private byte[][]? _inboundChunks;
+    private ushort    _inboundExpectedTotal;
+    private byte      _inboundTransferId;
+    private string    _inboundFilename   = string.Empty;
+    private byte[]?   _inboundSha256;
+    private ushort    _inboundReceivedCount;
+    private string?   _inboundSavePath;
+    private TextBlock? _inboundStatusText;
+    private Button?    _inboundAcceptBtn;
+    private Button?    _inboundDeclineBtn;
 
     public MainWindow()
     {
@@ -411,6 +433,7 @@ public partial class MainWindow : Window
         ProfilesMenuItem.IsEnabled   = true;
         ProfileBadgeBtn.IsEnabled    = true;
         BoardButton.IsEnabled        = false;
+        FileButton.IsEnabled         = false;
         _whiteboard?.Close();
         _whiteboard = null;
         InputBox.Document.Blocks.Clear();
@@ -607,6 +630,12 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.UrlPushReceived            += OnUrlPushReceived;
         _listener.DrawReceived               += OnDrawReceived;
+        _listener.FileOfferReceived          += OnFileOfferReceived;
+        _listener.FileChunkReceived          += OnFileChunkReceived;
+        _listener.FileAcceptReceived         += OnFileAcceptReceived;
+        _listener.FileRejectReceived         += OnFileRejectReceived;
+        _listener.FileCompleteReceived       += OnFileCompleteReceived;
+        _listener.FileCancelReceived         += OnFileCancelReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› listening on port {port}...");
@@ -625,6 +654,12 @@ public partial class MainWindow : Window
         _listener.MetadataReceived           += OnMetadataReceived;
         _listener.UrlPushReceived            += OnUrlPushReceived;
         _listener.DrawReceived               += OnDrawReceived;
+        _listener.FileOfferReceived          += OnFileOfferReceived;
+        _listener.FileChunkReceived          += OnFileChunkReceived;
+        _listener.FileAcceptReceived         += OnFileAcceptReceived;
+        _listener.FileRejectReceived         += OnFileRejectReceived;
+        _listener.FileCompleteReceived       += OnFileCompleteReceived;
+        _listener.FileCancelReceived         += OnFileCancelReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› waiting via relay (token: {token}) via {relayUri}...");
@@ -643,6 +678,12 @@ public partial class MainWindow : Window
         _client.UrlPushReceived         += OnUrlPushReceived;
         _client.DrawReceived            += OnDrawReceived;
         _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
+        _client.FileOfferReceived       += OnFileOfferReceived;
+        _client.FileChunkReceived       += OnFileChunkReceived;
+        _client.FileAcceptReceived      += OnFileAcceptReceived;
+        _client.FileRejectReceived      += OnFileRejectReceived;
+        _client.FileCompleteReceived    += OnFileCompleteReceived;
+        _client.FileCancelReceived      += OnFileCancelReceived;
 
         SetStatus($"› dialing {host}:{port}...");
         _ = _client.ConnectAsync(host, port, ct);
@@ -658,6 +699,12 @@ public partial class MainWindow : Window
         _client.UrlPushReceived         += OnUrlPushReceived;
         _client.DrawReceived            += OnDrawReceived;
         _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
+        _client.FileOfferReceived       += OnFileOfferReceived;
+        _client.FileChunkReceived       += OnFileChunkReceived;
+        _client.FileAcceptReceived      += OnFileAcceptReceived;
+        _client.FileRejectReceived      += OnFileRejectReceived;
+        _client.FileCompleteReceived    += OnFileCompleteReceived;
+        _client.FileCancelReceived      += OnFileCancelReceived;
 
         SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
@@ -794,6 +841,389 @@ public partial class MainWindow : Window
         {
             _whiteboard.Activate();
         }
+    }
+
+    // ---------------------------------------------
+    // File transfer
+    // ---------------------------------------------
+
+    private async void FileButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (_outboundFileCts != null)
+        {
+            SetStatus("› a file transfer is already in progress");
+            return;
+        }
+        var openDlg = new Microsoft.Win32.OpenFileDialog { Title = "Send a File" };
+        if (openDlg.ShowDialog(this) != true) return;
+        var sendDlg = new SendFileDialog(openDlg.FileName) { Owner = this };
+        if (sendDlg.ShowDialog() != true) return;
+        await SendFileAsync(sendDlg.FileName, sendDlg.FileBytes);
+    }
+
+    private void Window_DragOver(object sender, DragEventArgs e)
+    {
+        e.Effects = (FileButton.IsEnabled && _outboundFileCts == null &&
+                     e.Data.GetDataPresent(DataFormats.FileDrop))
+            ? DragDropEffects.Copy
+            : DragDropEffects.None;
+        e.Handled = true;
+    }
+
+    private async void Window_Drop(object sender, DragEventArgs e)
+    {
+        if (!FileButton.IsEnabled || _outboundFileCts != null) return;
+        if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
+        var files = e.Data.GetData(DataFormats.FileDrop) as string[];
+        if (files == null || files.Length == 0) return;
+        var sendDlg = new SendFileDialog(files[0]) { Owner = this };
+        if (sendDlg.ShowDialog() != true) return;
+        await SendFileAsync(sendDlg.FileName, sendDlg.FileBytes);
+    }
+
+    private async Task SendFileAsync(string filename, byte[] fileBytes)
+    {
+        var totalChunks = (ushort)((fileBytes.Length + SemaBuzzFileTransfer.ChunkSize - 1) / SemaBuzzFileTransfer.ChunkSize);
+        var transferId  = _nextTransferId++;
+        var sha256      = SHA256.HashData(fileBytes);
+
+        // Show outbound card
+        AppendOutboundFileCard(filename, fileBytes.Length, out var statusText);
+        _outboundStatusText = statusText;
+
+        // Send offer and wait for peer response
+        _fileAcceptTcs  = new TaskCompletionSource<bool>();
+        _outboundFileCts = new CancellationTokenSource();
+
+        if (_client   != null) await _client.SendFileOfferAsync(transferId, filename, fileBytes.Length, totalChunks, sha256);
+        if (_listener != null) await _listener.SendFileOfferAsync(transferId, filename, fileBytes.Length, totalChunks, sha256);
+
+        bool accepted;
+        try
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            using var linked  = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _outboundFileCts.Token);
+            accepted = await _fileAcceptTcs.Task.WaitAsync(linked.Token);
+        }
+        catch { accepted = false; }
+
+        if (!accepted)
+        {
+            if (_outboundStatusText != null) _outboundStatusText.Text = "× declined";
+            _fileAcceptTcs   = null;
+            _outboundFileCts.Dispose();
+            _outboundFileCts  = null;
+            _outboundStatusText = null;
+            return;
+        }
+
+        // Stream chunks
+        for (ushort i = 0; i < totalChunks; i++)
+        {
+            if (_outboundFileCts.IsCancellationRequested) break;
+            var offset = i * SemaBuzzFileTransfer.ChunkSize;
+            var length = Math.Min(SemaBuzzFileTransfer.ChunkSize, fileBytes.Length - offset);
+            var chunk  = fileBytes[offset..(offset + length)];
+
+            if (_client   != null) await _client.SendFileChunkAsync(transferId, i, chunk);
+            if (_listener != null) await _listener.SendFileChunkAsync(transferId, i, chunk);
+
+            var sent = i + 1;
+            if (_outboundStatusText != null)
+                _outboundStatusText.Text = $"Sending {sent} / {totalChunks}...";
+        }
+
+        if (!_outboundFileCts.IsCancellationRequested)
+        {
+            if (_client   != null) await _client.SendFileCompleteAsync(transferId);
+            if (_listener != null) await _listener.SendFileCompleteAsync(transferId);
+            if (_outboundStatusText != null)
+                _outboundStatusText.Text = $"✓ Sent ({fileBytes.Length / 1024} KB)";
+        }
+        else
+        {
+            if (_client   != null) await _client.SendFileCancelAsync(transferId);
+            if (_listener != null) await _listener.SendFileCancelAsync(transferId);
+            if (_outboundStatusText != null) _outboundStatusText.Text = "× cancelled";
+        }
+
+        _fileAcceptTcs   = null;
+        _outboundFileCts.Dispose();
+        _outboundFileCts  = null;
+        _outboundStatusText = null;
+    }
+
+    private void AppendOutboundFileCard(string filename, long fileSize, out TextBlock statusText)
+    {
+        var (headerRow, headerTb, headerTs) = MakeChatLine(
+            _localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
+        headerTb.Text = (string)headerTb.Tag + "offered a file";
+        headerTs.Text = DateTime.Now.ToString("h:mm tt");
+        LocalPanel.Children.Add(headerRow);
+
+        var card = MakeFileCard(filename, fileSize);
+        var cardStack = (StackPanel)card.Child;
+
+        var st = new TextBlock
+        {
+            Text       = "Waiting for peer to accept...",
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize   = App.Settings.ChatFontSize - 1,
+            Opacity    = 0.7,
+        };
+        st.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
+        cardStack.Children.Add(st);
+
+        LocalPanel.Children.Add(card);
+        LocalScrollViewer.ScrollToEnd();
+        statusText = st;
+    }
+
+    private void AppendInboundFileOfferCard(
+        byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256)
+    {
+        var (headerRow, headerTb, headerTs) = MakeChatLine(
+            _peerHandle, _peerAvatarPng, Color.FromRgb(0x9E, 0x9E, 0x9E), null);
+        headerTb.Text = (string)headerTb.Tag + "wants to send a file";
+        headerTs.Text = DateTime.Now.ToString("h:mm tt");
+        PeerPanel.Children.Add(headerRow);
+
+        var card = MakeFileCard(filename, fileSize);
+        var cardStack = (StackPanel)card.Child;
+
+        var btnRow = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 4, 0, 0) };
+        var acceptBtn = new Button { Content = "ACCEPT", Padding = new Thickness(14, 4, 14, 4), Margin = new Thickness(0, 0, 8, 0) };
+        acceptBtn.SetResourceReference(Button.StyleProperty, "SemaBuzzButton");
+        var declineBtn = new Button { Content = "DECLINE", Padding = new Thickness(14, 4, 14, 4) };
+        declineBtn.SetResourceReference(Button.StyleProperty, "SemaBuzzButton");
+        btnRow.Children.Add(acceptBtn);
+        btnRow.Children.Add(declineBtn);
+        cardStack.Children.Add(btnRow);
+
+        var statusTb = new TextBlock
+        {
+            Text       = string.Empty,
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize   = App.Settings.ChatFontSize - 1,
+            Margin     = new Thickness(0, 4, 0, 0),
+            Opacity    = 0.7,
+        };
+        statusTb.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
+        cardStack.Children.Add(statusTb);
+
+        _inboundAcceptBtn  = acceptBtn;
+        _inboundDeclineBtn = declineBtn;
+        _inboundStatusText = statusTb;
+
+        acceptBtn.Click += async (_, _) =>
+        {
+            acceptBtn.IsEnabled  = false;
+            declineBtn.IsEnabled = false;
+
+            var saveDlg = new Microsoft.Win32.SaveFileDialog
+            {
+                FileName = filename,
+                Title    = "Save Received File",
+            };
+            if (saveDlg.ShowDialog(this) != true)
+            {
+                acceptBtn.IsEnabled  = true;
+                declineBtn.IsEnabled = true;
+                return;
+            }
+
+            _inboundChunks        = new byte[totalChunks][];
+            _inboundExpectedTotal = totalChunks;
+            _inboundTransferId    = transferId;
+            _inboundFilename      = filename;
+            _inboundSha256        = sha256;
+            _inboundReceivedCount = 0;
+            _inboundSavePath      = saveDlg.FileName;
+
+            statusTb.Text = $"Receiving 0 / {totalChunks} chunks...";
+            if (_client   != null) await _client.SendFileAcceptAsync(transferId);
+            if (_listener != null) await _listener.SendFileAcceptAsync(transferId);
+        };
+
+        declineBtn.Click += async (_, _) =>
+        {
+            acceptBtn.IsEnabled  = false;
+            declineBtn.IsEnabled = false;
+            statusTb.Text        = "× declined";
+            if (_client   != null) await _client.SendFileRejectAsync(transferId);
+            if (_listener != null) await _listener.SendFileRejectAsync(transferId);
+        };
+
+        PeerPanel.Children.Add(card);
+        PeerScrollViewer.ScrollToEnd();
+    }
+
+    private Border MakeFileCard(string filename, long fileSize)
+    {
+        var card = new Border
+        {
+            Margin          = new Thickness(40, 2, 0, 6),
+            Padding         = new Thickness(12, 10, 12, 10),
+            BorderThickness = new Thickness(1),
+            CornerRadius    = new CornerRadius(4),
+        };
+        card.SetResourceReference(Border.BorderBrushProperty, "ObsidianBorderBrush");
+        card.SetResourceReference(Border.BackgroundProperty, "InputBackgroundBrush");
+
+        var cardStack = new StackPanel { Orientation = Orientation.Vertical };
+
+        var fileNameTb = new TextBlock
+        {
+            Text         = $"📎  {filename}",
+            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize     = App.Settings.ChatFontSize,
+            TextWrapping = TextWrapping.Wrap,
+            Margin       = new Thickness(0, 0, 0, 2),
+        };
+        fileNameTb.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+        cardStack.Children.Add(fileNameTb);
+
+        var sizeStr = fileSize >= 1024 * 1024
+            ? $"{fileSize / 1024.0 / 1024.0:F1} MB"
+            : $"{fileSize / 1024.0:F0} KB";
+        var sizeTb = new TextBlock
+        {
+            Text       = sizeStr,
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize   = App.Settings.ChatFontSize - 1,
+            Opacity    = 0.6,
+        };
+        sizeTb.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
+        cardStack.Children.Add(sizeTb);
+
+        card.Child = cardStack;
+        return card;
+    }
+
+    private void OnFileOfferReceived(object? sender, SemaBuzzFileOfferEventArgs e)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            if (_inboundChunks != null)
+            {
+                // Already receiving — auto-reject this second offer
+                if (_client   != null) _ = _client.SendFileRejectAsync(e.TransferId);
+                if (_listener != null) _ = _listener.SendFileRejectAsync(e.TransferId);
+                return;
+            }
+            AppendInboundFileOfferCard(e.TransferId, e.Filename, e.FileSize, e.TotalChunks, e.Sha256);
+            ShowToastIfUnfocused(_peerHandle, $"📎 {_peerHandle} wants to send {e.Filename}");
+        });
+    }
+
+    private void OnFileChunkReceived(object? sender, SemaBuzzFileChunkEventArgs e)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            if (_inboundChunks == null || e.TransferId != _inboundTransferId) return;
+            if (e.ChunkIdx >= _inboundChunks.Length) return;
+            if (_inboundChunks[e.ChunkIdx] != null) return; // duplicate
+            _inboundChunks[e.ChunkIdx] = e.Data;
+            _inboundReceivedCount++;
+            if (_inboundStatusText != null)
+                _inboundStatusText.Text = $"Receiving {_inboundReceivedCount} / {_inboundExpectedTotal}...";
+        });
+    }
+
+    private void OnFileAcceptReceived(object? sender, SemaBuzzFileControlEventArgs e)
+    {
+        _fileAcceptTcs?.TrySetResult(true);
+    }
+
+    private void OnFileRejectReceived(object? sender, SemaBuzzFileControlEventArgs e)
+    {
+        _fileAcceptTcs?.TrySetResult(false);
+    }
+
+    private void OnFileCompleteReceived(object? sender, SemaBuzzFileControlEventArgs e)
+    {
+        Dispatcher.Invoke(async () =>
+        {
+            if (_inboundChunks == null || e.TransferId != _inboundTransferId) return;
+
+            var chunks       = _inboundChunks;
+            var expectedHash = _inboundSha256!;
+            var savePath     = _inboundSavePath!;
+            var statusTb     = _inboundStatusText;
+            ResetInboundTransfer();
+
+            if (statusTb != null) statusTb.Text = "Verifying...";
+
+            string result;
+            try
+            {
+                result = await Task.Run(() =>
+                {
+                    // Assemble
+                    var totalSize = chunks.Sum(c => c?.Length ?? 0);
+                    var assembled = new byte[totalSize];
+                    var offset    = 0;
+                    for (var i = 0; i < chunks.Length; i++)
+                    {
+                        if (chunks[i] == null) return "× transfer incomplete — missing chunks";
+                        chunks[i].CopyTo(assembled, offset);
+                        offset += chunks[i].Length;
+                    }
+
+                    // Verify SHA-256
+                    if (!SHA256.HashData(assembled).SequenceEqual(expectedHash))
+                        return "× file integrity check failed";
+
+                    // Write to disk
+                    try
+                    {
+                        File.WriteAllBytes(savePath, assembled);
+                        return $"✓ Saved  ({assembled.Length / 1024} KB)";
+                    }
+                    catch (Exception ex) { return $"× could not save: {ex.Message}"; }
+                });
+            }
+            catch (Exception ex) { result = $"× error: {ex.Message}"; }
+
+            if (statusTb != null) statusTb.Text = result;
+        });
+    }
+
+    private void OnFileCancelReceived(object? sender, SemaBuzzFileControlEventArgs e)
+    {
+        if (_inboundChunks != null && e.TransferId == _inboundTransferId)
+        {
+            var statusTb = _inboundStatusText;
+            ResetInboundTransfer();
+            Dispatcher.Invoke(() =>
+            {
+                if (_inboundAcceptBtn  != null) _inboundAcceptBtn.IsEnabled  = false;
+                if (_inboundDeclineBtn != null) _inboundDeclineBtn.IsEnabled = false;
+                if (statusTb           != null) statusTb.Text = "× cancelled by peer";
+            });
+        }
+        else
+        {
+            // Peer cancelled our outbound offer
+            _outboundFileCts?.Cancel();
+            Dispatcher.Invoke(() =>
+            {
+                if (_outboundStatusText != null) _outboundStatusText.Text = "× cancelled by peer";
+            });
+        }
+    }
+
+    private void ResetInboundTransfer()
+    {
+        _inboundChunks        = null;
+        _inboundExpectedTotal = 0;
+        _inboundFilename      = string.Empty;
+        _inboundSha256        = null;
+        _inboundReceivedCount = 0;
+        _inboundSavePath      = null;
+        _inboundStatusText    = null;
+        _inboundAcceptBtn     = null;
+        _inboundDeclineBtn    = null;
     }
 
     private void AppendUrlCard(string url, bool isSent, Panel panel, ScrollViewer scrollViewer)
@@ -1168,7 +1598,7 @@ public partial class MainWindow : Window
         SetStatus("› wire is cold");
         DisconnectMenuItem.IsEnabled   = false;
         InputBox.IsEnabled             = false;
-        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        _peerLiveRow                   = null;
+        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        FileButton.IsEnabled           = false;        _peerLiveRow                   = null;
         _livePeerBlock                 = null;
         _livePeerTimestamp             = null;
         _peerHandle                    = "peer";
@@ -1210,6 +1640,7 @@ public partial class MainWindow : Window
                     BuzzButton.IsEnabled         = false;
                     WalkButton.IsEnabled         = false;
                     BoardButton.IsEnabled        = false;
+                    FileButton.IsEnabled         = false;
                     _whiteboard?.Close();
                     _whiteboard = null;
                     _peerLiveRow                 = null;
@@ -1247,6 +1678,7 @@ public partial class MainWindow : Window
                 BuzzButton.IsEnabled = true;
                 WalkButton.IsEnabled = true;
                 BoardButton.IsEnabled = true;
+                FileButton.IsEnabled = true;
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
                 ClearChatMenuItem.IsEnabled  = true;
@@ -1284,6 +1716,7 @@ public partial class MainWindow : Window
                 BuzzButton.IsEnabled         = false;
                 WalkButton.IsEnabled         = false;
                 BoardButton.IsEnabled        = false;
+                FileButton.IsEnabled         = false;
                 _whiteboard?.Close();
                 _whiteboard = null;
                 InputBox.Document.Blocks.Clear();

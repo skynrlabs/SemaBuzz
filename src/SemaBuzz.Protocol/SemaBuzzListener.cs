@@ -34,6 +34,14 @@ public sealed class SemaBuzzListener : IDisposable
     public event EventHandler<SemaBuzzUrlPushEventArgs>? UrlPushReceived;
     public event EventHandler<SemaBuzzDrawEventArgs>? DrawReceived;
 
+    // -- File transfer events --
+    public event EventHandler<SemaBuzzFileOfferEventArgs>?   FileOfferReceived;
+    public event EventHandler<SemaBuzzFileChunkEventArgs>?   FileChunkReceived;
+    public event EventHandler<SemaBuzzFileControlEventArgs>? FileAcceptReceived;
+    public event EventHandler<SemaBuzzFileControlEventArgs>? FileRejectReceived;
+    public event EventHandler<SemaBuzzFileControlEventArgs>? FileCompleteReceived;
+    public event EventHandler<SemaBuzzFileControlEventArgs>? FileCancelReceived;
+
     /// <summary>
     /// Optional async callback invoked when an incoming Handshake arrives.
     /// Return <c>true</c> to accept the connection, <c>false</c> to reject it.
@@ -485,6 +493,49 @@ public sealed class SemaBuzzListener : IDisposable
             return;
         }
 
+        // File transfer variable-length packets
+        if (SemaBuzzFileTransfer.IsFileOfferPacket(data))
+        {
+            var offer = SemaBuzzFileTransfer.DeserializeFileOffer(data);
+            if (offer.HasValue)
+                FileOfferReceived?.Invoke(this, new SemaBuzzFileOfferEventArgs(
+                    offer.Value.TransferId, offer.Value.Filename, offer.Value.FileSize,
+                    offer.Value.TotalChunks, offer.Value.Sha256));
+            return;
+        }
+        if (SemaBuzzFileTransfer.IsFileChunkPacket(data))
+        {
+            var chunk = SemaBuzzFileTransfer.DeserializeFileChunk(data);
+            if (chunk.HasValue)
+                FileChunkReceived?.Invoke(this, new SemaBuzzFileChunkEventArgs(
+                    chunk.Value.TransferId, chunk.Value.ChunkIdx, chunk.Value.Data));
+            return;
+        }
+        if (SemaBuzzFileTransfer.IsFileAcceptPacket(data))
+        {
+            var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
+            if (tid.HasValue) FileAcceptReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
+            return;
+        }
+        if (SemaBuzzFileTransfer.IsFileRejectPacket(data))
+        {
+            var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
+            if (tid.HasValue) FileRejectReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
+            return;
+        }
+        if (SemaBuzzFileTransfer.IsFileCompletePacket(data))
+        {
+            var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
+            if (tid.HasValue) FileCompleteReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
+            return;
+        }
+        if (SemaBuzzFileTransfer.IsFileCancelPacket(data))
+        {
+            var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
+            if (tid.HasValue) FileCancelReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
+            return;
+        }
+
         for (var offset = 0; offset + SemaBuzzPacket.WireSize <= data.Length; offset += SemaBuzzPacket.WireSize)
         {
             var packet = SemaBuzzPacket.FromWireBytes(data[offset..(offset + SemaBuzzPacket.WireSize)]);
@@ -692,6 +743,60 @@ public sealed class SemaBuzzListener : IDisposable
         if (_udp == null && _wsSend == null) return;
         if (PeerEndPoint == null && _wsSend == null) return;
         var bytes = SemaBuzzDraw.Serialize(drawEvent);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Send a file-transfer offer to the connected peer.</summary>
+    public async Task SendFileOfferAsync(byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256)
+    {
+        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
+        var bytes = SemaBuzzFileTransfer.SerializeFileOffer(transferId, filename, fileSize, totalChunks, sha256);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Send one chunk of a file transfer.</summary>
+    public async Task SendFileChunkAsync(byte transferId, ushort chunkIdx, byte[] chunkData)
+    {
+        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
+        var bytes = SemaBuzzFileTransfer.SerializeFileChunk(transferId, chunkIdx, chunkData);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Accept an incoming file offer.</summary>
+    public async Task SendFileAcceptAsync(byte transferId)
+    {
+        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
+        var bytes = SemaBuzzFileTransfer.SerializeFileAccept(transferId);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Decline an incoming file offer.</summary>
+    public async Task SendFileRejectAsync(byte transferId)
+    {
+        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
+        var bytes = SemaBuzzFileTransfer.SerializeFileReject(transferId);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Signal that all chunks have been transmitted.</summary>
+    public async Task SendFileCompleteAsync(byte transferId)
+    {
+        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
+        var bytes = SemaBuzzFileTransfer.SerializeFileComplete(transferId);
+        if (Shield != null) bytes = Shield.Encrypt(bytes);
+        await SendRawAsync(bytes, PeerEndPoint);
+    }
+
+    /// <summary>Cancel an in-progress transfer (either side may call this).</summary>
+    public async Task SendFileCancelAsync(byte transferId)
+    {
+        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
+        var bytes = SemaBuzzFileTransfer.SerializeFileCancel(transferId);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         await SendRawAsync(bytes, PeerEndPoint);
     }
