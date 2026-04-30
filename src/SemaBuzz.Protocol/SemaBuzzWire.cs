@@ -89,11 +89,11 @@ public sealed class SemaBuzzImageChunkEventArgs(
 public sealed class SemaBuzzFileOfferEventArgs(
     byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256) : EventArgs
 {
-    public byte   TransferId   { get; } = transferId;
-    public string Filename     { get; } = filename;
-    public long   FileSize     { get; } = fileSize;
-    public ushort TotalChunks  { get; } = totalChunks;
-    public byte[] Sha256       { get; } = sha256;
+    public byte TransferId { get; } = transferId;
+    public string Filename { get; } = filename;
+    public long FileSize { get; } = fileSize;
+    public ushort TotalChunks { get; } = totalChunks;
+    public byte[] Sha256 { get; } = sha256;
 }
 
 /// <summary>
@@ -102,9 +102,9 @@ public sealed class SemaBuzzFileOfferEventArgs(
 public sealed class SemaBuzzFileChunkEventArgs(
     byte transferId, ushort chunkIdx, byte[] data) : EventArgs
 {
-    public byte   TransferId { get; } = transferId;
-    public ushort ChunkIdx   { get; } = chunkIdx;
-    public byte[] Data       { get; } = data;
+    public byte TransferId { get; } = transferId;
+    public ushort ChunkIdx { get; } = chunkIdx;
+    public byte[] Data { get; } = data;
 }
 
 /// <summary>

@@ -18,15 +18,15 @@ namespace SemaBuzz.Protocol;
 /// </summary>
 public static class SemaBuzzFileTransfer
 {
-    public const byte FileOfferByte    = 0x0B;
-    public const byte FileChunkByte    = 0x0C;
-    public const byte FileAcceptByte   = 0x0D;
-    public const byte FileRejectByte   = 0x0E;
+    public const byte FileOfferByte = 0x0B;
+    public const byte FileChunkByte = 0x0C;
+    public const byte FileAcceptByte = 0x0D;
+    public const byte FileRejectByte = 0x0E;
     public const byte FileCompleteByte = 0x0F;
-    public const byte FileCancelByte   = 0x10;
+    public const byte FileCancelByte = 0x10;
 
     /// <summary>Maximum size of a single chunk's data payload.</summary>
-    public const int  ChunkSize    = 8192;
+    public const int ChunkSize = 8192;
 
     /// <summary>Maximum file size accepted by the protocol (10 MB).</summary>
     public const long MaxFileBytes = 10L * 1024 * 1024;
@@ -62,8 +62,8 @@ public static class SemaBuzzFileTransfer
         nameBytes.CopyTo(buf, 5);
 
         var o = 5 + nameBytes.Length;
-        buf[o]     = (byte)(fileSize & 0xFF);
-        buf[o + 1] = (byte)((fileSize >>  8) & 0xFF);
+        buf[o] = (byte)(fileSize & 0xFF);
+        buf[o + 1] = (byte)((fileSize >> 8) & 0xFF);
         buf[o + 2] = (byte)((fileSize >> 16) & 0xFF);
         buf[o + 3] = (byte)((fileSize >> 24) & 0xFF);
         buf[o + 4] = (byte)(totalChunks & 0xFF);
@@ -79,11 +79,11 @@ public static class SemaBuzzFileTransfer
         var nameLen = data[4];
         if (data.Length < 5 + nameLen + 4 + 2 + 32) return null;
 
-        var filename    = Encoding.UTF8.GetString(data, 5, nameLen);
-        var o           = 5 + nameLen;
-        var fileSize    = (long)(data[o] | (data[o + 1] << 8) | (data[o + 2] << 16) | (data[o + 3] << 24));
+        var filename = Encoding.UTF8.GetString(data, 5, nameLen);
+        var o = 5 + nameLen;
+        var fileSize = (long)(data[o] | (data[o + 1] << 8) | (data[o + 2] << 16) | (data[o + 3] << 24));
         var totalChunks = (ushort)(data[o + 4] | (data[o + 5] << 8));
-        var sha256      = data[(o + 6)..(o + 6 + 32)];
+        var sha256 = data[(o + 6)..(o + 6 + 32)];
         return (data[3], filename, fileSize, totalChunks, sha256);
     }
 
@@ -123,7 +123,7 @@ public static class SemaBuzzFileTransfer
     {
         if (!IsFileChunkPacket(data)) return null;
         var chunkIdx = (ushort)((data[4] << 8) | data[5]);
-        var dataLen  = (data[6] << 8) | data[7];
+        var dataLen = (data[6] << 8) | data[7];
         if (dataLen <= 0 || dataLen > ChunkSize) return null;
         if (data.Length < 8 + dataLen) return null;
         return (data[3], chunkIdx, data[8..(8 + dataLen)]);
@@ -145,15 +145,15 @@ public static class SemaBuzzFileTransfer
     private static byte[] SerializeControl(byte marker, byte transferId) =>
         [SemaBuzzPacket.MagicByte1, SemaBuzzPacket.MagicByte2, marker, transferId];
 
-    public static bool IsFileAcceptPacket(byte[] data)   => IsControlPacket(data, FileAcceptByte);
-    public static bool IsFileRejectPacket(byte[] data)   => IsControlPacket(data, FileRejectByte);
+    public static bool IsFileAcceptPacket(byte[] data) => IsControlPacket(data, FileAcceptByte);
+    public static bool IsFileRejectPacket(byte[] data) => IsControlPacket(data, FileRejectByte);
     public static bool IsFileCompletePacket(byte[] data) => IsControlPacket(data, FileCompleteByte);
-    public static bool IsFileCancelPacket(byte[] data)   => IsControlPacket(data, FileCancelByte);
+    public static bool IsFileCancelPacket(byte[] data) => IsControlPacket(data, FileCancelByte);
 
-    public static byte[] SerializeFileAccept(byte transferId)   => SerializeControl(FileAcceptByte,   transferId);
-    public static byte[] SerializeFileReject(byte transferId)   => SerializeControl(FileRejectByte,   transferId);
+    public static byte[] SerializeFileAccept(byte transferId) => SerializeControl(FileAcceptByte, transferId);
+    public static byte[] SerializeFileReject(byte transferId) => SerializeControl(FileRejectByte, transferId);
     public static byte[] SerializeFileComplete(byte transferId) => SerializeControl(FileCompleteByte, transferId);
-    public static byte[] SerializeFileCancel(byte transferId)   => SerializeControl(FileCancelByte,   transferId);
+    public static byte[] SerializeFileCancel(byte transferId) => SerializeControl(FileCancelByte, transferId);
 
     /// <summary>Extract the transfer_id byte from any 4-byte file-control packet.</summary>
     public static byte? DeserializeTransferId(byte[] data) =>

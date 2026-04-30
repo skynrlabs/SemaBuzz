@@ -35,8 +35,8 @@ public sealed class SemaBuzzListener : IDisposable
     public event EventHandler<SemaBuzzDrawEventArgs>? DrawReceived;
 
     // -- File transfer events --
-    public event EventHandler<SemaBuzzFileOfferEventArgs>?   FileOfferReceived;
-    public event EventHandler<SemaBuzzFileChunkEventArgs>?   FileChunkReceived;
+    public event EventHandler<SemaBuzzFileOfferEventArgs>? FileOfferReceived;
+    public event EventHandler<SemaBuzzFileChunkEventArgs>? FileChunkReceived;
     public event EventHandler<SemaBuzzFileControlEventArgs>? FileAcceptReceived;
     public event EventHandler<SemaBuzzFileControlEventArgs>? FileRejectReceived;
     public event EventHandler<SemaBuzzFileControlEventArgs>? FileCompleteReceived;
