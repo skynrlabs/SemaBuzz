@@ -208,11 +208,12 @@ internal sealed class RelayServer
         finally
         {
             await CloseAsync(ws, WebSocketCloseStatus.NormalClosure, "Session ended", ct);
-            // Notify the paired peer that this side has disconnected so it
-            // does not hang indefinitely waiting for data.
+            // Abort the paired peer's WebSocket so their ReceiveAsync unblocks immediately.
+            // CloseAsync would deadlock here because the other ForwardLoopAsync already holds
+            // an outstanding ReceiveAsync on that socket; Abort() needs no handshake.
             var otherWs = ReferenceEquals(ws, room.HostWs) ? room.DialerWs : room.HostWs;
             if (otherWs != null)
-                await CloseAsync(otherWs, WebSocketCloseStatus.NormalClosure, "Peer disconnected", ct);
+                try { otherWs.Abort(); } catch { }
         }
     }
 

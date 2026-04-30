@@ -105,6 +105,9 @@ public partial class MainWindow : Window
         InputBox.Focus();
         Loaded += (_, _) =>
         {
+            // Remove the FlowDocument's default internal padding so the caret aligns
+            // with the placeholder TextBlock which starts at the same left margin.
+            InputBox.Document.PagePadding = new Thickness(0);
             ApplyLicenseBanner();
             LoadActiveProfile();
             InlineTokenInput.Focus();

@@ -720,7 +720,28 @@ public sealed class SemaBuzzListener : IDisposable
         _networkChangeHandler = (_, _) =>
         {
             if (_cts != null && !_cts.IsCancellationRequested && GetOutboundLocalIp() != baseline)
-                _cts.Cancel();
+            {
+                // Best-effort: send Disconnect to the dialer through the existing relay connection
+                // before the old network interface goes away, so the dialer disconnects immediately
+                // rather than waiting up to ~12 s for the relay keepalive to time out.
+                if (_wsSend is { } send && Shield is { } shield
+                    && State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
+                {
+                    _ = Task.Run(async () =>
+                    {
+                        try
+                        {
+                            var bytes = SemaBuzzPacket.Control(SemaBuzzPacketType.Disconnect).ToWireBytes();
+                            bytes = shield.Encrypt(bytes);
+                            await send(bytes);
+                        }
+                        catch { }
+                        _cts?.Cancel();
+                    });
+                }
+                else
+                    _cts.Cancel();
+            }
         };
         NetworkChange.NetworkAddressChanged += _networkChangeHandler;
     }
