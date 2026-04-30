@@ -931,6 +931,9 @@ public partial class MainWindow : Window
             var sent = i + 1;
             if (_outboundStatusText != null)
                 _outboundStatusText.Text = $"Sending {sent} / {totalChunks}...";
+
+            // Pace sends to stay within the relay's 512 KB/s bandwidth cap.
+            await Task.Delay(SemaBuzzFileTransfer.ChunkSendIntervalMs);
         }
 
         if (!_outboundFileCts.IsCancellationRequested)
