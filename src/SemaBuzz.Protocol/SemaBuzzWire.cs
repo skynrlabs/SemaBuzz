@@ -82,3 +82,35 @@ public sealed class SemaBuzzImageChunkEventArgs(
     public ushort Total { get; } = total;
     public byte[] Data { get; } = data;
 }
+
+/// <summary>
+/// Event args for an incoming file-transfer offer.
+/// </summary>
+public sealed class SemaBuzzFileOfferEventArgs(
+    byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256) : EventArgs
+{
+    public byte TransferId { get; } = transferId;
+    public string Filename { get; } = filename;
+    public long FileSize { get; } = fileSize;
+    public ushort TotalChunks { get; } = totalChunks;
+    public byte[] Sha256 { get; } = sha256;
+}
+
+/// <summary>
+/// Event args for one received chunk of an in-progress file transfer.
+/// </summary>
+public sealed class SemaBuzzFileChunkEventArgs(
+    byte transferId, ushort chunkIdx, byte[] data) : EventArgs
+{
+    public byte TransferId { get; } = transferId;
+    public ushort ChunkIdx { get; } = chunkIdx;
+    public byte[] Data { get; } = data;
+}
+
+/// <summary>
+/// Event args for file-transfer control signals (Accept, Reject, Complete, Cancel).
+/// </summary>
+public sealed class SemaBuzzFileControlEventArgs(byte transferId) : EventArgs
+{
+    public byte TransferId { get; } = transferId;
+}

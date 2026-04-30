@@ -11,7 +11,10 @@
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
         FontSize="13"
         WindowStyle="SingleBorderWindow"
-        ResizeMode="CanResize">
+        ResizeMode="CanResize"
+        AllowDrop="True"
+        Drop="Window_Drop"
+        DragOver="Window_DragOver">
 
     <!-- Extend client area into the title bar so DWM stops drawing its own
          title text and icon. CaptionHeight=52 matches the unified header row.
@@ -632,7 +635,7 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Width="36" Height="36"
-                    Margin="0 0 90 0"
+                    Margin="0 0 132 0"
                     IsEnabled="{Binding IsEnabled, ElementName=InputBox}"
                     ToolTip="Emoticons"
                     Click="EmoticonPickerButton_Click">
@@ -831,7 +834,7 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Width="36" Height="36"
-                    Margin="0 0 174 0"
+                    Margin="0 0 216 0"
                     IsEnabled="False"
                     ToolTip="Whiteboard — shared drawing board"
                     Click="BoardButton_Click">
@@ -847,12 +850,29 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center"
                     Width="36" Height="36"
-                    Margin="0 0 132 0"
+                    Margin="0 0 174 0"
                     IsEnabled="False"
                     ToolTip="Walk the Web — push a URL to your peer"
                     Click="WalkButton_Click">
-                <TextBlock Text="🌐"
+                <emoji:TextBlock Text="🌐"
                            FontSize="16"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Button>
+            <!-- File button — send a file to the peer -->
+            <Button x:Name="FileButton"
+                    Style="{StaticResource SemaBuzzSendButton}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="36" Height="36"
+                    Margin="0 0 90 0"
+                    IsEnabled="False"
+                    ToolTip="Send a file to your peer"
+                    Click="FileButton_Click">
+                <TextBlock Text="&#xE8E5;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="15"
+                           Foreground="{DynamicResource AmberBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Button>
