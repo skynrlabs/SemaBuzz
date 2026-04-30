@@ -74,7 +74,7 @@ Row("Relay URI", $"ws://localhost:{port}/relay", ConsoleColor.Green);
 foreach (var ip in localIPs)
     Row("", $"ws://{ip}:{port}/relay", ConsoleColor.Green);
 Row("Health", $"http://localhost:{port}/");
-Row("Keep-alive", "30 s");
+Row("Keep-alive", "8 s");
 Row("Room TTL", "10 min");
 Row("Max rooms", "500  (global)");
 Row("Max per IP", "5  concurrent connections");
@@ -110,7 +110,7 @@ builder.Logging.SetMinimumLevel(LogLevel.Warning); // quiet in production
 
 var app = builder.Build();
 
-app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(30) });
+app.UseWebSockets(new WebSocketOptions { KeepAliveInterval = TimeSpan.FromSeconds(8) });
 
 // C-1: Only trust X-Forwarded-For when TRUST_PROXY=true is explicitly set by the operator.
 // Without this, any client can spoof an arbitrary IP and bypass the per-IP connection cap.
