@@ -61,7 +61,7 @@ public sealed class SemaBuzzListener : IDisposable
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _wsClient = new ClientWebSocket();
         _wsClient.Options.KeepAliveInterval = TimeSpan.FromSeconds(8);
-        _wsClient.Options.KeepAliveTimeout  = TimeSpan.FromSeconds(4);
+        _wsClient.Options.KeepAliveTimeout = TimeSpan.FromSeconds(4);
         _isRelayMode = true;
         _pendingDeadMessage = "Wire closed.";
         SubscribeNetworkChange();

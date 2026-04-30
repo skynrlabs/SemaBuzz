@@ -114,7 +114,6 @@
                     HorizontalAlignment="Right" VerticalAlignment="Center"
                     Click="Close_Click"/>
         </Grid>
-
     </Grid>
     </Border>
 </Window>
