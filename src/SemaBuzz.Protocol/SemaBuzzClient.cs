@@ -556,7 +556,7 @@ public sealed class SemaBuzzClient : IDisposable
         {
             while (!ct.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(10), ct);
+                await Task.Delay(TimeSpan.FromSeconds(3), ct);
                 if (State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
                     await SendControlAsync(SemaBuzzPacketType.Ping);
             }
