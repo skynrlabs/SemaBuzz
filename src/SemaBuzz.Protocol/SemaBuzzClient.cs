@@ -103,6 +103,8 @@ public sealed class SemaBuzzClient : IDisposable
 
         _cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         _wsClient = new ClientWebSocket();
+        _wsClient.Options.KeepAliveInterval = TimeSpan.FromSeconds(8);
+        _wsClient.Options.KeepAliveTimeout = TimeSpan.FromSeconds(4);
         SubscribeNetworkChange();
 
         try { await _wsClient.ConnectAsync(new Uri(relayUri), _cts.Token); }

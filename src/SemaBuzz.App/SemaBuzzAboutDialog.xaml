@@ -91,15 +91,7 @@
                        HorizontalAlignment="Center"
                        TextAlignment="Center"
                        TextWrapping="Wrap"
-                       Margin="0 0 0 8"/>
-
-            <TextBlock Text="The SemaBuzz relay server is proprietary software. All rights reserved by Skynr Labs."
-                       Foreground="#6E6E6E" FontSize="10"
-                       HorizontalAlignment="Center"
-                       TextAlignment="Center"
-                       TextWrapping="Wrap"
-                       Margin="0 0 0 0"/>
-
+                       Margin="0 0 0 4"/>
         </StackPanel>
 
         <!-- Separator -->
@@ -122,7 +114,6 @@
                     HorizontalAlignment="Right" VerticalAlignment="Center"
                     Click="Close_Click"/>
         </Grid>
-
     </Grid>
     </Border>
 </Window>
