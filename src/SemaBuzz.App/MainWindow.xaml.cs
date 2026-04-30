@@ -1309,6 +1309,7 @@ public partial class MainWindow : Window
                     {
                         "peer-disconnect" => $"× {savedHandle} disconnected · wire has been closed",
                         "not-available"  => $"× {savedHandle} is not available at this time",
+                        "network-changed" => "× connection lost · your network changed",
                         _                => "× wire is dead",
                     };
                 }
@@ -1316,6 +1317,7 @@ public partial class MainWindow : Window
                 {
                     "peer-disconnect" => $"› {savedHandle} disconnected",
                     "not-available"   => $"› {savedHandle} not available",
+                    "network-changed" => "› connection lost",
                     _                 => "› wire is dead",
                 };
                 SetStatus(statusMsg);
@@ -1837,6 +1839,10 @@ public partial class MainWindow : Window
 
     private void UpdateWireStateDot(SemaBuzzWireState state)
     {
+        // Stop any running opacity animation before applying the new state.
+        WireStateDot.BeginAnimation(OpacityProperty, null);
+        WireStateDot.Opacity = 1.0;
+
         WireStateDot.Fill = state switch
         {
             SemaBuzzWireState.Live     => new SolidColorBrush(Color.FromRgb(0xFF, 0xB3, 0x00)),

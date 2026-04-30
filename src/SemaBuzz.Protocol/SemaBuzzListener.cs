@@ -760,10 +760,14 @@ public sealed class SemaBuzzListener : IDisposable
                         }
                         catch { }
                         _cts?.Cancel();
+                        SetState(SemaBuzzWireState.Dead, "network-changed");
                     });
                 }
                 else
+                {
                     _cts.Cancel();
+                    SetState(SemaBuzzWireState.Dead, "network-changed");
+                }
             }
         };
         NetworkChange.NetworkAddressChanged += _networkChangeHandler;
