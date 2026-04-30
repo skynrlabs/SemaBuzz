@@ -1839,6 +1839,10 @@ public partial class MainWindow : Window
 
     private void UpdateWireStateDot(SemaBuzzWireState state)
     {
+        // Stop any running opacity animation before applying the new state.
+        WireStateDot.BeginAnimation(OpacityProperty, null);
+        WireStateDot.Opacity = 1.0;
+
         WireStateDot.Fill = state switch
         {
             SemaBuzzWireState.Live     => new SolidColorBrush(Color.FromRgb(0xFF, 0xB3, 0x00)),
