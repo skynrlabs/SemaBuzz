@@ -31,13 +31,6 @@ public static class SemaBuzzFileTransfer
     /// <summary>Maximum file size accepted by the protocol (10 MB).</summary>
     public const long MaxFileBytes = 10L * 1024 * 1024;
 
-    /// <summary>
-    /// Minimum delay (ms) between consecutive outbound chunks.
-    /// Keeps throughput at ~320 KB/s (40 chunks/sec × 8 KB), which is safely below
-    /// the relay's 512 KB/s per-session bandwidth cap and leaves headroom for chat.
-    /// </summary>
-    public const int ChunkSendIntervalMs = 25;
-
     // -------------------------------------------------------------------------
     // FileOffer
     //
