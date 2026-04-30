@@ -1309,6 +1309,7 @@ public partial class MainWindow : Window
                     {
                         "peer-disconnect" => $"× {savedHandle} disconnected · wire has been closed",
                         "not-available"  => $"× {savedHandle} is not available at this time",
+                        "network-changed" => "× connection lost · your network changed",
                         _                => "× wire is dead",
                     };
                 }
@@ -1316,6 +1317,7 @@ public partial class MainWindow : Window
                 {
                     "peer-disconnect" => $"› {savedHandle} disconnected",
                     "not-available"   => $"› {savedHandle} not available",
+                    "network-changed" => "› connection lost",
                     _                 => "› wire is dead",
                 };
                 SetStatus(statusMsg);
