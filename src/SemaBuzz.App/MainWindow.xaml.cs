@@ -917,11 +917,11 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Stream chunks — rate-limited to ≤384 KB/s (75 % of relay's 512 KB/s hard cap).
+        // Stream chunks — rate-limited to ≤1.5 MB/s (75 % of relay's 2 MB/s hard cap).
         // Task.Delay on Windows resolves to ~15 ms OS ticks, so a fixed 25 ms delay can
         // fire in 15 ms and push throughput above the relay cap.  Tracking cumulative bytes
         // against a Stopwatch keeps the rate accurate regardless of timer granularity.
-        const long RelayBytesPerSec = 384_000;
+        const long RelayBytesPerSec = 1_500_000;
         var sw = Stopwatch.StartNew();
         long encSent = 0; // encrypted bytes dispatched (plaintext + 28-byte AES-GCM overhead)
         for (ushort i = 0; i < totalChunks; i++)
@@ -931,8 +931,17 @@ public partial class MainWindow : Window
             var length = Math.Min(SemaBuzzFileTransfer.ChunkSize, fileBytes.Length - offset);
             var chunk  = fileBytes[offset..(offset + length)];
 
-            if (_client   != null) await _client.SendFileChunkAsync(transferId, i, chunk);
-            if (_listener != null) await _listener.SendFileChunkAsync(transferId, i, chunk);
+            try
+            {
+                if (_client   != null) await _client.SendFileChunkAsync(transferId, i, chunk);
+                if (_listener != null) await _listener.SendFileChunkAsync(transferId, i, chunk);
+            }
+            catch (Exception ex)
+            {
+                if (_outboundStatusText != null)
+                    _outboundStatusText.Text = $"× send error: {ex.GetType().Name}";
+                break;
+            }
 
             encSent += length + 28; // AES-GCM overhead: 12-byte nonce + 16-byte tag
             var expectedMs = encSent * 1000L / RelayBytesPerSec;
@@ -1711,6 +1720,16 @@ public partial class MainWindow : Window
             }
             else if (e.State == SemaBuzzWireState.Dead)
             {
+                // Cancel any in-progress file transfers.
+                _outboundFileCts?.Cancel();
+                if (_inboundChunks != null)
+                {
+                    if (_inboundStatusText  != null) _inboundStatusText.Text = "× peer disconnected";
+                    if (_inboundAcceptBtn   != null) _inboundAcceptBtn.IsEnabled  = false;
+                    if (_inboundDeclineBtn  != null) _inboundDeclineBtn.IsEnabled = false;
+                    ResetInboundTransfer();
+                }
+
                 // Cancel any pending inline approval
                 _approvalTimer?.Stop();
                 _approvalTimer = null;
@@ -1758,7 +1777,7 @@ public partial class MainWindow : Window
                         "peer-disconnect" => $"× {savedHandle} disconnected · wire has been closed",
                         "not-available"  => $"× {savedHandle} is not available at this time",
                         "network-changed" => "× connection lost · your network changed",
-                        _                => "× wire is dead",
+                        _ => e.Message != null ? $"× {e.Message}" : "× wire is dead",
                     };
                 }
                 string statusMsg = _warmingTimedOut ? "› session timed out" : e.Message switch
@@ -1766,7 +1785,7 @@ public partial class MainWindow : Window
                     "peer-disconnect" => $"› {savedHandle} disconnected",
                     "not-available"   => $"› {savedHandle} not available",
                     "network-changed" => "› connection lost",
-                    _                 => "› wire is dead",
+                    _ => e.Message != null ? $"› {e.Message}" : "› wire is dead",
                 };
                 SetStatus(statusMsg);
                 _warmingTimedOut = false;

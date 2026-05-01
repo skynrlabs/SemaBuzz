@@ -431,6 +431,9 @@ public sealed class SemaBuzzClient : IDisposable
         finally
         {
             _wsSend = null;
+            // Capture the relay's close reason before we send our own close frame (it may
+            // be cleared once we complete the handshake).
+            var relayCloseDesc = ws.CloseStatusDescription;
             // Attempt a graceful WebSocket close with a short deadline.  If the network is
             // already dead the send will never be ACKed and CloseAsync would hang forever
             // with CancellationToken.None — preventing the relay from detecting the dropout.
@@ -443,7 +446,12 @@ public sealed class SemaBuzzClient : IDisposable
             // If the relay loop exited for any reason other than explicit cancellation,
             // transition to Dead so the UI reflects the loss of connection.
             if (!ct.IsCancellationRequested && State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
-                SetState(SemaBuzzWireState.Dead, "relay connection closed");
+            {
+                var msg = string.IsNullOrEmpty(relayCloseDesc)
+                    ? "relay connection closed"
+                    : $"relay closed: {relayCloseDesc}";
+                SetState(SemaBuzzWireState.Dead, msg);
+            }
         }
     }
 
