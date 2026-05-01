@@ -910,7 +910,7 @@ public sealed class SemaBuzzClient : IDisposable
                 {
                     var result = new byte[needed];
                     Array.Copy(hdr, 4, result, 0, needed);
-                    var used      = needed + 4;
+                    var used = needed + 4;
                     var remaining = (int)acc.Length - used;
                     if (remaining > 0)
                     {

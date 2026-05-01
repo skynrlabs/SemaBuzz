@@ -276,7 +276,7 @@ public sealed class SemaBuzzListener : IDisposable
         }
         catch (OperationCanceledException) { }
         catch (WebSocketException ex) { _pendingDeadMessage = $"relay ws error: {ex.Message}"; }
-        catch (SocketException ex)     { _pendingDeadMessage = $"relay socket error: {ex.Message}"; }
+        catch (SocketException ex) { _pendingDeadMessage = $"relay socket error: {ex.Message}"; }
         finally
         {
             _wsSend = null;
@@ -286,7 +286,7 @@ public sealed class SemaBuzzListener : IDisposable
             if (deadMsg == "Wire closed.")
             {
                 var closeStatus = _wsClient?.CloseStatus;
-                var closeDesc   = _wsClient?.CloseStatusDescription;
+                var closeDesc = _wsClient?.CloseStatusDescription;
                 if (closeStatus.HasValue)
                     deadMsg = string.IsNullOrEmpty(closeDesc)
                         ? $"relay closed [{closeStatus.Value}]"
@@ -427,7 +427,7 @@ public sealed class SemaBuzzListener : IDisposable
                     byte[]? identData = null;
                     if (_isRelayMode && _wsClient != null)
                     {
-                        var identBuf      = new byte[16_384];
+                        var identBuf = new byte[16_384];
                         var identLeftovers = new MemoryStream(256);
                         identData = await ReceiveRelaySizedMessageAsync(_wsClient, identBuf, identLeftovers, identCts.Token);
                     }
@@ -855,7 +855,7 @@ public sealed class SemaBuzzListener : IDisposable
                 {
                     var result = new byte[needed];
                     Array.Copy(hdr, 4, result, 0, needed);
-                    var used      = needed + 4;
+                    var used = needed + 4;
                     var remaining = (int)acc.Length - used;
                     if (remaining > 0)
                     {
