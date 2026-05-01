@@ -34,25 +34,6 @@
         <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" Padding="0 0 6 0">
         <StackPanel Margin="28 20">
 
-        <!-- ═══ DEFAULT LISTEN PORT ═══ -->
-        <StackPanel x:Name="DefaultPortLabelRow" Orientation="Horizontal" Margin="0 0 0 14">
-            <TextBlock Text="DEFAULT LISTEN PORT"
-                       Foreground="{DynamicResource AmberBrush}"
-                       FontWeight="Bold" FontSize="11"/>
-        </StackPanel>
-
-        <TextBox x:Name="DefaultPortBox"
-                 Style="{StaticResource SemaBuzzInput}"
-                 MaxLength="5"
-                 Margin="0 0 0 6"/>
-
-        <TextBlock Text="Pre-fills the port field when you open the connect dialog."
-                   Foreground="#9E9E9E" FontSize="10"
-                   Margin="0 0 0 0"/>
-
-        <!-- Divider -->
-        <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 22 0 22"/>
-
         <!-- ═══ INDICATOR SENSITIVITY ═══ -->
         <TextBlock Text="INDICATOR SENSITIVITY"
                    Foreground="{DynamicResource AmberBrush}"
