@@ -57,18 +57,27 @@ public partial class SendFileDialog : Window
             return;
         }
 
-        byte[] bytes;
-        try { bytes = File.ReadAllBytes(_filePath); }
+        const long maxBytes = 10L * 1024 * 1024;
+        try
+        {
+            var fileSize = new FileInfo(_filePath).Length;
+            if (fileSize > maxBytes)
+            {
+                ShowError($"File is too large ({fileSize / 1024.0 / 1024.0:F1} MB). Maximum is 10 MB.");
+                return;
+            }
+        }
         catch (Exception ex)
         {
             ShowError($"Could not read file: {ex.Message}");
             return;
         }
 
-        const long maxBytes = 10L * 1024 * 1024;
-        if (bytes.Length > maxBytes)
+        byte[] bytes;
+        try { bytes = File.ReadAllBytes(_filePath); }
+        catch (Exception ex)
         {
-            ShowError($"File is too large ({bytes.Length / 1024.0 / 1024.0:F1} MB). Maximum is 10 MB.");
+            ShowError($"Could not read file: {ex.Message}");
             return;
         }
 
