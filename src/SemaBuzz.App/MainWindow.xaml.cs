@@ -1708,10 +1708,13 @@ public partial class MainWindow : Window
                 ClearChatMenuItem.IsEnabled  = true;
                 ProfilesMenuItem.IsEnabled   = false;
                 string wireDivider;
+                bool isRelay = (_client?.IsRelayMode ?? false) || (_listener?.IsRelayMode ?? false);
+                string connMode = isRelay ? "relay" : "direct · UDP";
                 if (e.State == SemaBuzzWireState.Secured)
-                    wireDivider = "› sema secured · wire is live";
+                    wireDivider = $"› sema secured · wire is live · {connMode}";
                 else
-                    wireDivider = "› wire is live";
+                    wireDivider = $"› wire is live · {connMode}";
+                SetStatus($"› wire is live · {connMode}");
                 AddChatDivider(wireDivider);
 
                 // Exchange identity with the peer

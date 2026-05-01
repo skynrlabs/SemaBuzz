@@ -56,6 +56,7 @@ public sealed class SemaBuzzListener : IDisposable
     public IPEndPoint? PeerEndPoint { get; private set; }
 
     public SemaBuzzShield? Shield { get; private set; }
+    public bool IsRelayMode => _isRelayMode;
 
     /// <summary>
     /// Start listening via a relay server over WebSocket. Connects to the relay,

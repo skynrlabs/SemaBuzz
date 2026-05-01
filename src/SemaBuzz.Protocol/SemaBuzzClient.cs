@@ -43,6 +43,7 @@ public sealed class SemaBuzzClient : IDisposable
 
     public SemaBuzzWireState State { get; private set; } = SemaBuzzWireState.Cold;
     public SemaBuzzShield? Shield { get; private set; }
+    public bool IsRelayMode => _wsSend != null;
 
     private volatile bool _waitingForApproval;
     private NetworkAddressChangedEventHandler? _networkChangeHandler;
