@@ -309,14 +309,9 @@ public sealed class SemaBuzzClient : IDisposable
                     var dec = Shield.Decrypt(data);
                     if (dec == null)
                     {
-                        // Decryption failure after handshake means a session key
-                        // mismatch -- surface it rather than silently dropping.
-                        if (State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
-                        {
-                            SetState(SemaBuzzWireState.Dead, "session key mismatch");
-                            _cts?.Cancel();
-                        }
-                        return;
+                        // Corrupted packet — drop silently.  Do NOT kill the
+                        // connection: a single bad packet is recoverable.
+                        continue;
                     }
                     data = dec;
                 }
