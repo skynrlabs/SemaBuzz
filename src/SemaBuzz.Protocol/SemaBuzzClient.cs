@@ -776,6 +776,7 @@ public sealed class SemaBuzzClient : IDisposable
     /// <summary>Send a whiteboard draw event to the peer.</summary>
     public async Task SendDrawAsync(SemaBuzzDrawEvent drawEvent)
     {
+        if (_udp == null && _wsSend == null) return;
         var bytes = SemaBuzzDraw.Serialize(drawEvent);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         if (_wsSend != null) await _wsSend(bytes);
@@ -785,6 +786,7 @@ public sealed class SemaBuzzClient : IDisposable
     /// <summary>Push a URL to the peer.</summary>
     public async Task SendUrlPushAsync(string url)
     {
+        if (_udp == null && _wsSend == null) return;
         var bytes = SemaBuzzUrlPush.Serialize(url);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         if (_wsSend != null) await _wsSend(bytes);
