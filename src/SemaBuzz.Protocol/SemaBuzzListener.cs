@@ -464,6 +464,10 @@ public sealed class SemaBuzzListener : IDisposable
                         SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
                     return;
                 }
+                // Reset liveness clock: the peer was silent while awaiting approval,
+                // so _lastPeerActivity could be stale (> 9 s) and the watchdog would
+                // fire immediately after we transition to Secured.
+                _lastPeerActivity = DateTime.UtcNow;
             }
 
             await SendEncryptedControlToAsync(SemaBuzzPacketType.HandshakeAck, result.RemoteEndPoint);
@@ -476,14 +480,9 @@ public sealed class SemaBuzzListener : IDisposable
             var decrypted = Shield.Decrypt(data);
             if (decrypted == null)
             {
-                // Corrupted or out-of-order packet  drop silently.
-                // Fatal only if we're already live (session key mismatch shouldn't happen post-ECDH).
-                if (State is SemaBuzzWireState.Live or SemaBuzzWireState.Secured)
-                {
-                    SetState(SemaBuzzWireState.Dead, "received unreadable packet  session key mismatch");
-                    if (_cts != null)
-                        _cts.Cancel();
-                }
+                // Corrupted or out-of-order packet — drop silently.
+                // Do NOT kill the connection: a single bad packet (e.g. a relay
+                // framing edge-case during a large file transfer) is recoverable.
                 return;
             }
             data = decrypted;
@@ -595,6 +594,8 @@ public sealed class SemaBuzzListener : IDisposable
                                 SetState(SemaBuzzWireState.Warming, $"Listening on port {_port}...");
                             return;
                         }
+                        // Reset liveness clock after approval (peer was silent during wait).
+                        _lastPeerActivity = DateTime.UtcNow;
                     }
 
                     await SendAckAsync(result.RemoteEndPoint);
