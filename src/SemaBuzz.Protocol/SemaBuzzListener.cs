@@ -262,8 +262,8 @@ public sealed class SemaBuzzListener : IDisposable
             }
         }
         catch (OperationCanceledException) { }
-        catch (WebSocketException) { }
-        catch (SocketException) { }
+        catch (WebSocketException ex) { _pendingDeadMessage = $"relay ws error: {ex.Message}"; }
+        catch (SocketException ex)     { _pendingDeadMessage = $"relay socket error: {ex.Message}"; }
         finally
         {
             _wsSend = null;
@@ -272,10 +272,16 @@ public sealed class SemaBuzzListener : IDisposable
             string deadMsg = _pendingDeadMessage;
             if (deadMsg == "Wire closed.")
             {
-                var closeDesc = _wsClient?.CloseStatusDescription;
-                deadMsg = string.IsNullOrEmpty(closeDesc)
-                    ? "relay connection closed"
-                    : $"relay closed: {closeDesc}";
+                var closeStatus = _wsClient?.CloseStatus;
+                var closeDesc   = _wsClient?.CloseStatusDescription;
+                if (closeStatus.HasValue)
+                    deadMsg = string.IsNullOrEmpty(closeDesc)
+                        ? $"relay closed [{closeStatus.Value}]"
+                        : $"relay closed [{closeStatus.Value}]: {closeDesc}";
+                else
+                    deadMsg = string.IsNullOrEmpty(closeDesc)
+                        ? "relay connection closed"
+                        : $"relay closed: {closeDesc}";
             }
             SetState(SemaBuzzWireState.Dead, deadMsg);
         }

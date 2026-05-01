@@ -427,12 +427,13 @@ public sealed class SemaBuzzClient : IDisposable
             }
         }
         catch (OperationCanceledException) { }
-        catch (WebSocketException) { SetState(SemaBuzzWireState.Dead, "Connection error."); }
+        catch (WebSocketException ex) { SetState(SemaBuzzWireState.Dead, $"relay ws error: {ex.Message}"); }
         finally
         {
             _wsSend = null;
             // Capture the relay's close reason before we send our own close frame (it may
             // be cleared once we complete the handshake).
+            var closeStatus = ws.CloseStatus;
             var relayCloseDesc = ws.CloseStatusDescription;
             // Attempt a graceful WebSocket close with a short deadline.  If the network is
             // already dead the send will never be ACKed and CloseAsync would hang forever
@@ -447,9 +448,15 @@ public sealed class SemaBuzzClient : IDisposable
             // transition to Dead so the UI reflects the loss of connection.
             if (!ct.IsCancellationRequested && State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
             {
-                var msg = string.IsNullOrEmpty(relayCloseDesc)
-                    ? "relay connection closed"
-                    : $"relay closed: {relayCloseDesc}";
+                string msg;
+                if (closeStatus.HasValue)
+                    msg = string.IsNullOrEmpty(relayCloseDesc)
+                        ? $"relay closed [{closeStatus.Value}]"
+                        : $"relay closed [{closeStatus.Value}]: {relayCloseDesc}";
+                else
+                    msg = string.IsNullOrEmpty(relayCloseDesc)
+                        ? "relay connection closed"
+                        : $"relay closed: {relayCloseDesc}";
                 SetState(SemaBuzzWireState.Dead, msg);
             }
         }
