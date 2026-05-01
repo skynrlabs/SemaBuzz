@@ -268,7 +268,16 @@ public sealed class SemaBuzzListener : IDisposable
         {
             _wsSend = null;
             _isRelayMode = false;
-            SetState(SemaBuzzWireState.Dead, _pendingDeadMessage);
+            // Surface the relay's close reason when no explicit protocol-level dead reason was set.
+            string deadMsg = _pendingDeadMessage;
+            if (deadMsg == "Wire closed.")
+            {
+                var closeDesc = _wsClient?.CloseStatusDescription;
+                deadMsg = string.IsNullOrEmpty(closeDesc)
+                    ? "relay connection closed"
+                    : $"relay closed: {closeDesc}";
+            }
+            SetState(SemaBuzzWireState.Dead, deadMsg);
         }
     }
 
