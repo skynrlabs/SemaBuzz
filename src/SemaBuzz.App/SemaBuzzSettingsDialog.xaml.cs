@@ -12,8 +12,6 @@ namespace SemaBuzz.App;
 
 public partial class SemaBuzzSettingsDialog : Window
 {
-    /// <summary>The port the user chose, or null to keep the built-in default.</summary>
-    public int?               SelectedDefaultListenPort { get; private set; }
     public double             SelectedIndicatorSensitivity { get; private set; }
     public IndicatorStyleId   SelectedIndicatorStyle       { get; private set; }
     public double             SelectedChatFontSize         { get; private set; }
@@ -31,10 +29,6 @@ public partial class SemaBuzzSettingsDialog : Window
 
         // Pre-select current settings
         var s = App.Settings;
-        if (s.DefaultListenPort != null)
-            DefaultPortBox.Text = s.DefaultListenPort.ToString();
-        else
-            DefaultPortBox.Text = "7070";
         SensitivitySlider.Value    = s.IndicatorSensitivity;
         StyleFlicker.IsChecked     = s.IndicatorStyle == IndicatorStyleId.Flicker;
         StylePulse.IsChecked       = s.IndicatorStyle == IndicatorStyleId.Pulse;
@@ -68,8 +62,6 @@ public partial class SemaBuzzSettingsDialog : Window
         // Gate Pro features when the user has not purchased the Pro add-on
         if (!SemaBuzzLicense.IsProUnlocked)
         {
-            DefaultPortBox.IsEnabled = false;
-            DefaultPortLabelRow.Children.Add(MakeProBadge());
             StylePulse.IsEnabled = false;
             StylePulse.Content   = MakeProContent("Pulse");
             StyleWave.IsEnabled  = false;
@@ -123,12 +115,6 @@ public partial class SemaBuzzSettingsDialog : Window
 
     private void Apply_Click(object sender, RoutedEventArgs e)
     {
-        if (int.TryParse(DefaultPortBox.Text.Trim(), out var parsedPort)
-            && parsedPort is >= 1024 and <= 65535)
-            SelectedDefaultListenPort = parsedPort;
-        else
-            SelectedDefaultListenPort = null; // revert to built-in default
-
         SelectedIndicatorSensitivity = SensitivitySlider.Value;
 
         if (StylePulse.IsChecked == true)
@@ -196,9 +182,6 @@ public partial class SemaBuzzSettingsDialog : Window
         if (purchased)
         {
             // Unlock all gated controls in-place
-            DefaultPortBox.IsEnabled = true;
-            if (DefaultPortLabelRow.Children.Count > 1)
-                DefaultPortLabelRow.Children.RemoveAt(DefaultPortLabelRow.Children.Count - 1);
             StylePulse.IsEnabled = true;
             StylePulse.Content   = "Pulse";
             StyleWave.IsEnabled  = true;

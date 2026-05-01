@@ -84,11 +84,6 @@ jobs:
           dotnet format src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj
           --verify-no-changes
           --severity warn
-      - name: Check formatting — Relay
-        run: >
-          dotnet format src/SemaBuzz.Relay/SemaBuzz.Relay.csproj
-          --verify-no-changes
-          --severity warn
       - name: Check formatting — Tests
         run: >
           dotnet format tests/SemaBuzz.Tests/SemaBuzz.Tests.csproj

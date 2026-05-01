@@ -71,7 +71,6 @@ public partial class MainWindow : Window
     // Hosting session params — set when we start listening so we can resume after a peer disconnects
     private string? _hostingToken;
     private string? _hostingRelayUri;
-    private int     _hostingPort;
 
     // Inline connection-approval state
     private TaskCompletionSource<bool>? _approvalTcs;
@@ -513,7 +512,6 @@ public partial class MainWindow : Window
         // Clear hosting params first so the Dead handler doesn't auto-resume
         _hostingToken    = null;
         _hostingRelayUri = null;
-        _hostingPort     = 0;
         _suppressNextDeadSound = true;
         if (_client   != null) await _client.DisconnectAsync();
         if (_listener != null) await _listener.DisconnectAsync();
@@ -583,7 +581,6 @@ public partial class MainWindow : Window
         var dlg = new SemaBuzzSettingsDialog(lockRelay: buzzWaiting) { Owner = this };
         if (dlg.ShowDialog() != true) return;
 
-        App.Settings.DefaultListenPort    = dlg.SelectedDefaultListenPort;
         App.Settings.IndicatorSensitivity = dlg.SelectedIndicatorSensitivity;
         App.Settings.IndicatorStyle       = dlg.SelectedIndicatorStyle;
         App.Settings.ChatFontSize         = dlg.SelectedChatFontSize;
@@ -618,35 +615,10 @@ public partial class MainWindow : Window
         BuzzIndicator.IndicatorStyle = App.Settings.IndicatorStyle;
     }
 
-    private void StartListening(int port, CancellationToken ct, bool clearChat = true)
-    {
-        _hostingToken    = null;
-        _hostingRelayUri = null;
-        _hostingPort     = port;
-        if (clearChat) ClearChatPanels();
-        _listener = new SemaBuzzListener();
-        _listener.PacketReceived             += OnRemotePacketReceived;
-        _listener.WireStateChanged           += OnWireStateChanged;
-        _listener.MetadataReceived           += OnMetadataReceived;
-        _listener.UrlPushReceived            += OnUrlPushReceived;
-        _listener.DrawReceived               += OnDrawReceived;
-        _listener.FileOfferReceived          += OnFileOfferReceived;
-        _listener.FileChunkReceived          += OnFileChunkReceived;
-        _listener.FileAcceptReceived         += OnFileAcceptReceived;
-        _listener.FileRejectReceived         += OnFileRejectReceived;
-        _listener.FileCompleteReceived       += OnFileCompleteReceived;
-        _listener.FileCancelReceived         += OnFileCancelReceived;
-        _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
-
-        SetStatus($"› listening on port {port}...");
-        _ = _listener.ListenAsync(port, ct);
-    }
-
     private void StartListeningViaRelay(string token, string relayUri, CancellationToken ct, bool clearChat = true)
     {
         _hostingToken    = token;
         _hostingRelayUri = relayUri;
-        _hostingPort     = 0;
         if (clearChat) ClearChatPanels();
         _listener = new SemaBuzzListener();
         _listener.PacketReceived             += OnRemotePacketReceived;
@@ -666,27 +638,6 @@ public partial class MainWindow : Window
         _ = _listener.ListenViaRelayAsync(
             relayUri,
             token, ct);
-    }
-
-    private void StartConnecting(string host, int port, CancellationToken ct)
-    {
-        ClearChatPanels();
-        _client = new SemaBuzzClient();
-        _client.PacketReceived          += OnRemotePacketReceived;
-        _client.WireStateChanged        += OnWireStateChanged;
-        _client.MetadataReceived        += OnMetadataReceived;
-        _client.UrlPushReceived         += OnUrlPushReceived;
-        _client.DrawReceived            += OnDrawReceived;
-        _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
-        _client.FileOfferReceived       += OnFileOfferReceived;
-        _client.FileChunkReceived       += OnFileChunkReceived;
-        _client.FileAcceptReceived      += OnFileAcceptReceived;
-        _client.FileRejectReceived      += OnFileRejectReceived;
-        _client.FileCompleteReceived    += OnFileCompleteReceived;
-        _client.FileCancelReceived      += OnFileCancelReceived;
-
-        SetStatus($"› dialing {host}:{port}...");
-        _ = _client.ConnectAsync(host, port, ct);
     }
 
     private void StartConnectingViaRelay(string token, string relayUri, CancellationToken ct)
@@ -1678,7 +1629,6 @@ public partial class MainWindow : Window
                     AddChatDivider($"× {savedHandle2} disconnected");
                     _hostingToken    = null;
                     _hostingRelayUri = null;
-                    _hostingPort     = 0;
                     if (_cts != null) _cts.Cancel();
                     _cts = null;
                     _warmingCts?.Cancel();
@@ -1708,10 +1658,13 @@ public partial class MainWindow : Window
                 ClearChatMenuItem.IsEnabled  = true;
                 ProfilesMenuItem.IsEnabled   = false;
                 string wireDivider;
+                bool isRelay = (_client?.IsRelayMode ?? false) || (_listener?.IsRelayMode ?? false);
+                string connMode = isRelay ? "relay" : "direct · UDP";
                 if (e.State == SemaBuzzWireState.Secured)
-                    wireDivider = "› sema secured · wire is live";
+                    wireDivider = $"› sema secured · wire is live · {connMode}";
                 else
-                    wireDivider = "› wire is live";
+                    wireDivider = $"› wire is live · {connMode}";
+                SetStatus($"› wire is live · {connMode}");
                 AddChatDivider(wireDivider);
 
                 // Exchange identity with the peer
@@ -1795,7 +1748,6 @@ public partial class MainWindow : Window
                 // Always return to the connect screen
                 _hostingToken    = null;
                 _hostingRelayUri = null;
-                _hostingPort     = 0;
                 FadeToIdle();
             }
         });
@@ -1816,7 +1768,6 @@ public partial class MainWindow : Window
         _warmingTimedOut = true;
         _hostingToken    = null;
         _hostingRelayUri = null;
-        _hostingPort     = 0;
         if (_cts != null)
             _cts.Cancel();
         _cts = null;
@@ -2354,7 +2305,6 @@ public partial class MainWindow : Window
             _isClosing = true;
             _hostingToken    = null;
             _hostingRelayUri = null;
-            _hostingPort     = 0;
             _suppressNextDeadSound = true;
             if (_client   != null) await _client.DisconnectAsync();
             if (_listener != null) await _listener.DisconnectAsync();

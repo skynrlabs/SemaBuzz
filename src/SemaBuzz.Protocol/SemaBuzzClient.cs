@@ -43,6 +43,7 @@ public sealed class SemaBuzzClient : IDisposable
 
     public SemaBuzzWireState State { get; private set; } = SemaBuzzWireState.Cold;
     public SemaBuzzShield? Shield { get; private set; }
+    public bool IsRelayMode => _wsSend != null;
 
     private volatile bool _waitingForApproval;
     private NetworkAddressChangedEventHandler? _networkChangeHandler;
@@ -234,15 +235,24 @@ public sealed class SemaBuzzClient : IDisposable
         // -- end punch-through attempt ---------------------------------------------
 
         // Wire up the WebSocket send delegate used by all public send methods.
+        // Every message is prefixed with a 4-byte big-endian length so the receiver can
+        // reassemble complete logical messages even when the relay forwards partial TCP
+        // segments as separate WebSocket messages (relay-independent framing).
         var ws = _wsClient!;
         _wsSend = async data =>
         {
             if (ws.State != WebSocketState.Open) return;
+            var framed = new byte[4 + data.Length];
+            framed[0] = (byte)(data.Length >> 24);
+            framed[1] = (byte)(data.Length >> 16);
+            framed[2] = (byte)(data.Length >> 8);
+            framed[3] = (byte)(data.Length & 0xFF);
+            data.CopyTo(framed, 4);
             await _wsSendLock.WaitAsync();
             try
             {
                 if (ws.State != WebSocketState.Open) return;
-                await ws.SendAsync(data, WebSocketMessageType.Binary, true, _cts!.Token);
+                await ws.SendAsync(framed, WebSocketMessageType.Binary, true, _cts!.Token);
             }
             catch { }
             finally { _wsSendLock.Release(); }
@@ -267,11 +277,14 @@ public sealed class SemaBuzzClient : IDisposable
     private async Task WsReceiveLoopAsync(WebSocket ws, ECDiffieHellman localEcdh, CancellationToken ct)
     {
         var buf = new byte[65_536];
+        // Persists across calls: accumulates partial relay forwards until a complete
+        // length-prefixed frame is available (see ReceiveRelaySizedMessageAsync).
+        var leftovers = new MemoryStream(65_536);
         try
         {
             while (!ct.IsCancellationRequested && ws.State == WebSocketState.Open)
             {
-                var data = await ReceiveWsMessageAsync(ws, buf, ct);
+                var data = await ReceiveRelaySizedMessageAsync(ws, buf, leftovers, ct);
                 if (data == null) break;
                 const int MaxPayload = 16_384;
                 if (data.Length < SemaBuzzPacket.WireSize || data.Length > MaxPayload) continue;
@@ -427,12 +440,13 @@ public sealed class SemaBuzzClient : IDisposable
             }
         }
         catch (OperationCanceledException) { }
-        catch (WebSocketException) { SetState(SemaBuzzWireState.Dead, "Connection error."); }
+        catch (WebSocketException ex) { SetState(SemaBuzzWireState.Dead, $"relay ws error: {ex.Message}"); }
         finally
         {
             _wsSend = null;
             // Capture the relay's close reason before we send our own close frame (it may
             // be cleared once we complete the handshake).
+            var closeStatus = ws.CloseStatus;
             var relayCloseDesc = ws.CloseStatusDescription;
             // Attempt a graceful WebSocket close with a short deadline.  If the network is
             // already dead the send will never be ACKed and CloseAsync would hang forever
@@ -447,9 +461,15 @@ public sealed class SemaBuzzClient : IDisposable
             // transition to Dead so the UI reflects the loss of connection.
             if (!ct.IsCancellationRequested && State is SemaBuzzWireState.Secured or SemaBuzzWireState.Live)
             {
-                var msg = string.IsNullOrEmpty(relayCloseDesc)
-                    ? "relay connection closed"
-                    : $"relay closed: {relayCloseDesc}";
+                string msg;
+                if (closeStatus.HasValue)
+                    msg = string.IsNullOrEmpty(relayCloseDesc)
+                        ? $"relay closed [{closeStatus.Value}]"
+                        : $"relay closed [{closeStatus.Value}]: {relayCloseDesc}";
+                else
+                    msg = string.IsNullOrEmpty(relayCloseDesc)
+                        ? "relay connection closed"
+                        : $"relay closed: {relayCloseDesc}";
                 SetState(SemaBuzzWireState.Dead, msg);
             }
         }
@@ -866,19 +886,60 @@ public sealed class SemaBuzzClient : IDisposable
             wireHandler(this, new SemaBuzzWireStateEventArgs(state, message));
     }
 
-    private static async Task<byte[]?> ReceiveWsMessageAsync(WebSocket ws, byte[] buffer, CancellationToken ct)
+    /// <summary>
+    /// Reads one complete length-prefixed relay message, accumulating raw bytes from
+    /// multiple WebSocket messages when the relay forwards partial TCP segments as
+    /// separate complete WS messages.  <paramref name="acc"/> must persist between calls.
+    /// </summary>
+    private static async Task<byte[]?> ReceiveRelaySizedMessageAsync(
+        WebSocket ws, byte[] buffer, MemoryStream acc, CancellationToken ct)
     {
-        using var stream = new MemoryStream();
+        const int MaxMsg = 65_536;
         while (true)
         {
-            WebSocketReceiveResult recv;
-            try { recv = await ws.ReceiveAsync(buffer, ct); }
-            catch (OperationCanceledException) { throw; }
-            catch { return null; }
+            // Try to extract a complete frame from whatever is already buffered.
+            if (acc.Length >= 4)
+            {
+                var hdr = acc.GetBuffer();
+                int needed = (hdr[0] << 24) | (hdr[1] << 16) | (hdr[2] << 8) | hdr[3];
+                if (needed <= 0 || needed > MaxMsg)
+                {
+                    acc.SetLength(0); // corrupt length — discard and resync
+                }
+                else if (acc.Length >= needed + 4)
+                {
+                    var result = new byte[needed];
+                    Array.Copy(hdr, 4, result, 0, needed);
+                    var used = needed + 4;
+                    var remaining = (int)acc.Length - used;
+                    if (remaining > 0)
+                    {
+                        var leftover = new byte[remaining];
+                        Array.Copy(hdr, used, leftover, 0, remaining);
+                        acc.SetLength(0);
+                        acc.Write(leftover, 0, remaining);
+                    }
+                    else
+                    {
+                        acc.SetLength(0);
+                    }
+                    return result;
+                }
+            }
 
-            if (recv.MessageType == WebSocketMessageType.Close) return null;
-            if (recv.Count > 0) stream.Write(buffer, 0, recv.Count);
-            if (recv.EndOfMessage) return stream.ToArray();
+            // Need more bytes — read one WebSocket message (may itself be fragmented).
+            while (true)
+            {
+                WebSocketReceiveResult recv;
+                try { recv = await ws.ReceiveAsync(buffer, ct); }
+                catch (OperationCanceledException) { throw; }
+                catch { return null; }
+
+                if (recv.MessageType == WebSocketMessageType.Close) return null;
+                if (recv.Count > 0) acc.Write(buffer, 0, recv.Count);
+                if (recv.EndOfMessage) break;
+            }
+            // Loop back to retry frame extraction with the newly accumulated bytes.
         }
     }
 

@@ -41,9 +41,6 @@ public sealed class SemaBuzzSettings
 {
     /// <summary>Active UI theme. Free users are limited to Obsidian and Daylight.</summary>
     public SemaBuzzThemeId    Theme             { get; set; } = SemaBuzzThemeId.Obsidian;
-    /// <summary>Default port pre-filled in the connect dialog's listen port field. Null means use the built-in default (7070).</summary>
-    public int?               DefaultListenPort { get; set; } = null;
-
     /// <summary>Multiplier (0.5–2.0) applied to packet intensity before driving the filament.</summary>
     public double             IndicatorSensitivity { get; set; } = 1.0;
 
