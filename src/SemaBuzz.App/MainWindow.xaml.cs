@@ -917,7 +917,13 @@ public partial class MainWindow : Window
             return;
         }
 
-        // Stream chunks
+        // Stream chunks — rate-limited to ≤384 KB/s (75 % of relay's 512 KB/s hard cap).
+        // Task.Delay on Windows resolves to ~15 ms OS ticks, so a fixed 25 ms delay can
+        // fire in 15 ms and push throughput above the relay cap.  Tracking cumulative bytes
+        // against a Stopwatch keeps the rate accurate regardless of timer granularity.
+        const long RelayBytesPerSec = 384_000;
+        var sw = Stopwatch.StartNew();
+        long encSent = 0; // encrypted bytes dispatched (plaintext + 28-byte AES-GCM overhead)
         for (ushort i = 0; i < totalChunks; i++)
         {
             if (_outboundFileCts.IsCancellationRequested) break;
@@ -928,12 +934,18 @@ public partial class MainWindow : Window
             if (_client   != null) await _client.SendFileChunkAsync(transferId, i, chunk);
             if (_listener != null) await _listener.SendFileChunkAsync(transferId, i, chunk);
 
+            encSent += length + 28; // AES-GCM overhead: 12-byte nonce + 16-byte tag
+            var expectedMs = encSent * 1000L / RelayBytesPerSec;
+            var actualMs   = sw.ElapsedMilliseconds;
+            if (expectedMs > actualMs)
+            {
+                try   { await Task.Delay((int)(expectedMs - actualMs), _outboundFileCts.Token); }
+                catch (OperationCanceledException) { break; }
+            }
+
             var sent = i + 1;
             if (_outboundStatusText != null)
                 _outboundStatusText.Text = $"Sending {sent} / {totalChunks}...";
-
-            // Pace sends to stay within the relay's 512 KB/s bandwidth cap.
-            await Task.Delay(SemaBuzzFileTransfer.ChunkSendIntervalMs);
         }
 
         if (!_outboundFileCts.IsCancellationRequested)
@@ -974,7 +986,7 @@ public partial class MainWindow : Window
             FontSize   = App.Settings.ChatFontSize - 1,
             Opacity    = 0.7,
         };
-        st.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
+        st.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         cardStack.Children.Add(st);
 
         LocalPanel.Children.Add(card);
@@ -1011,7 +1023,7 @@ public partial class MainWindow : Window
             Margin     = new Thickness(0, 4, 0, 0),
             Opacity    = 0.7,
         };
-        statusTb.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
+        statusTb.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         cardStack.Children.Add(statusTb);
 
         _inboundAcceptBtn  = acceptBtn;
@@ -1096,7 +1108,7 @@ public partial class MainWindow : Window
             FontSize   = App.Settings.ChatFontSize - 1,
             Opacity    = 0.6,
         };
-        sizeTb.SetResourceReference(TextBlock.ForegroundProperty, "ForegroundBrush");
+        sizeTb.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         cardStack.Children.Add(sizeTb);
 
         card.Child = cardStack;
