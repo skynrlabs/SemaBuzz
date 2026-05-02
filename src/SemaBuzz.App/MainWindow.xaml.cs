@@ -441,6 +441,7 @@ public partial class MainWindow : Window
         var relayUri = App.Settings.RelayUri;
         if (_cts != null) _cts.Cancel();
         _cts = new CancellationTokenSource();
+        _client   = null;   // clear any stale peer role before becoming host
         StartListeningViaRelay(token, relayUri, _cts.Token);
         ShowBuzzCode(token);
     }
@@ -453,6 +454,7 @@ public partial class MainWindow : Window
         LocalPaneLabel.Text = _localHandle.ToUpperInvariant();
         if (_cts != null) _cts.Cancel();
         _cts = new CancellationTokenSource();
+        _listener = null;   // clear any stale host role before becoming peer
         BuzzCodeBanner.Visibility = Visibility.Collapsed;
         ChatPanesGrid.Visibility  = Visibility.Visible;
         ClearChatPanels();
@@ -1473,6 +1475,8 @@ public partial class MainWindow : Window
                     _cts = null;
                     _warmingCts?.Cancel();
                     _warmingCts = null;
+                    _client   = null;   // drop stale transport so the next session starts clean
+                    _listener = null;
                     ResetToIdle();
                     FadeToIdle();
                 }
@@ -1587,6 +1591,8 @@ public partial class MainWindow : Window
                 // Always return to the connect screen
                 _hostingToken    = null;
                 _hostingRelayUri = null;
+                _client   = null;   // drop stale transport so the next session starts clean
+                _listener = null;
                 FadeToIdle();
             }
         });
