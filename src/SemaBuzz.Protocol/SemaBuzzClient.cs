@@ -35,11 +35,8 @@ public sealed class SemaBuzzClient : IDisposable
 
     // -- File transfer events --
     public event EventHandler<SemaBuzzFileOfferEventArgs>? FileOfferReceived;
-    public event EventHandler<SemaBuzzFileChunkEventArgs>? FileChunkReceived;
     public event EventHandler<SemaBuzzFileControlEventArgs>? FileAcceptReceived;
     public event EventHandler<SemaBuzzFileControlEventArgs>? FileRejectReceived;
-    public event EventHandler<SemaBuzzFileControlEventArgs>? FileCompleteReceived;
-    public event EventHandler<SemaBuzzFileControlEventArgs>? FileCancelReceived;
 
     public SemaBuzzWireState State { get; private set; } = SemaBuzzWireState.Cold;
     public SemaBuzzShield? Shield { get; private set; }
@@ -351,22 +348,14 @@ public sealed class SemaBuzzClient : IDisposable
                     continue;
                 }
 
-                // -- File transfer variable-length packets -----------------------
+                //  File transfer variable-length packets
                 if (SemaBuzzFileTransfer.IsFileOfferPacket(data))
                 {
                     var offer = SemaBuzzFileTransfer.DeserializeFileOffer(data);
                     if (offer.HasValue)
                         FileOfferReceived?.Invoke(this, new SemaBuzzFileOfferEventArgs(
                             offer.Value.TransferId, offer.Value.Filename, offer.Value.FileSize,
-                            offer.Value.TotalChunks, offer.Value.Sha256));
-                    continue;
-                }
-                if (SemaBuzzFileTransfer.IsFileChunkPacket(data))
-                {
-                    var chunk = SemaBuzzFileTransfer.DeserializeFileChunk(data);
-                    if (chunk.HasValue)
-                        FileChunkReceived?.Invoke(this, new SemaBuzzFileChunkEventArgs(
-                            chunk.Value.TransferId, chunk.Value.ChunkIdx, chunk.Value.Data));
+                            offer.Value.Sha256, offer.Value.Token));
                     continue;
                 }
                 if (SemaBuzzFileTransfer.IsFileAcceptPacket(data))
@@ -379,18 +368,6 @@ public sealed class SemaBuzzClient : IDisposable
                 {
                     var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
                     if (tid.HasValue) FileRejectReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
-                    continue;
-                }
-                if (SemaBuzzFileTransfer.IsFileCompletePacket(data))
-                {
-                    var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
-                    if (tid.HasValue) FileCompleteReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
-                    continue;
-                }
-                if (SemaBuzzFileTransfer.IsFileCancelPacket(data))
-                {
-                    var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
-                    if (tid.HasValue) FileCancelReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
                     continue;
                 }
 
@@ -579,15 +556,7 @@ public sealed class SemaBuzzClient : IDisposable
                     if (offer.HasValue)
                         FileOfferReceived?.Invoke(this, new SemaBuzzFileOfferEventArgs(
                             offer.Value.TransferId, offer.Value.Filename, offer.Value.FileSize,
-                            offer.Value.TotalChunks, offer.Value.Sha256));
-                    continue;
-                }
-                if (SemaBuzzFileTransfer.IsFileChunkPacket(data))
-                {
-                    var chunk = SemaBuzzFileTransfer.DeserializeFileChunk(data);
-                    if (chunk.HasValue)
-                        FileChunkReceived?.Invoke(this, new SemaBuzzFileChunkEventArgs(
-                            chunk.Value.TransferId, chunk.Value.ChunkIdx, chunk.Value.Data));
+                            offer.Value.Sha256, offer.Value.Token));
                     continue;
                 }
                 if (SemaBuzzFileTransfer.IsFileAcceptPacket(data))
@@ -600,18 +569,6 @@ public sealed class SemaBuzzClient : IDisposable
                 {
                     var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
                     if (tid.HasValue) FileRejectReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
-                    continue;
-                }
-                if (SemaBuzzFileTransfer.IsFileCompletePacket(data))
-                {
-                    var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
-                    if (tid.HasValue) FileCompleteReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
-                    continue;
-                }
-                if (SemaBuzzFileTransfer.IsFileCancelPacket(data))
-                {
-                    var tid = SemaBuzzFileTransfer.DeserializeTransferId(data);
-                    if (tid.HasValue) FileCancelReceived?.Invoke(this, new SemaBuzzFileControlEventArgs(tid.Value));
                     continue;
                 }
 
@@ -789,20 +746,10 @@ public sealed class SemaBuzzClient : IDisposable
     }
 
     /// <summary>Send a file-transfer offer to the peer.</summary>
-    public async Task SendFileOfferAsync(byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256)
+    public async Task SendFileOfferAsync(byte transferId, string filename, long fileSize, byte[] sha256, string token)
     {
         if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
-        var bytes = SemaBuzzFileTransfer.SerializeFileOffer(transferId, filename, fileSize, totalChunks, sha256);
-        if (Shield != null) bytes = Shield.Encrypt(bytes);
-        if (_wsSend != null) await _wsSend(bytes);
-        else await _udp!.SendAsync(bytes);
-    }
-
-    /// <summary>Send one chunk of a file transfer.</summary>
-    public async Task SendFileChunkAsync(byte transferId, ushort chunkIdx, byte[] chunkData)
-    {
-        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
-        var bytes = SemaBuzzFileTransfer.SerializeFileChunk(transferId, chunkIdx, chunkData);
+        var bytes = SemaBuzzFileTransfer.SerializeFileOffer(transferId, filename, fileSize, sha256, token);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         if (_wsSend != null) await _wsSend(bytes);
         else await _udp!.SendAsync(bytes);
@@ -823,26 +770,6 @@ public sealed class SemaBuzzClient : IDisposable
     {
         if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
         var bytes = SemaBuzzFileTransfer.SerializeFileReject(transferId);
-        if (Shield != null) bytes = Shield.Encrypt(bytes);
-        if (_wsSend != null) await _wsSend(bytes);
-        else await _udp!.SendAsync(bytes);
-    }
-
-    /// <summary>Signal that all chunks have been transmitted.</summary>
-    public async Task SendFileCompleteAsync(byte transferId)
-    {
-        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
-        var bytes = SemaBuzzFileTransfer.SerializeFileComplete(transferId);
-        if (Shield != null) bytes = Shield.Encrypt(bytes);
-        if (_wsSend != null) await _wsSend(bytes);
-        else await _udp!.SendAsync(bytes);
-    }
-
-    /// <summary>Cancel an in-progress transfer (either side may call this).</summary>
-    public async Task SendFileCancelAsync(byte transferId)
-    {
-        if ((_udp == null && _wsSend == null) || State is not (SemaBuzzWireState.Live or SemaBuzzWireState.Secured)) return;
-        var bytes = SemaBuzzFileTransfer.SerializeFileCancel(transferId);
         if (Shield != null) bytes = Shield.Encrypt(bytes);
         if (_wsSend != null) await _wsSend(bytes);
         else await _udp!.SendAsync(bytes);

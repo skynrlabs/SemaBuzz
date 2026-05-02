@@ -98,6 +98,26 @@ public static class SemaBuzzRelayPacket
     }
 
     /// <summary>
+    /// Convert a WebSocket relay URI (wss:// or ws://) to the HTTP base URI used
+    /// for file staging (POST /file, GET /file/{token}).
+    /// Example: "wss://relay.semabuzz.me/relay" → "https://relay.semabuzz.me"
+    /// </summary>
+    public static string GetFileBaseUri(string relayWsUri)
+    {
+        try
+        {
+            var uri = new Uri(relayWsUri);
+            var scheme = uri.Scheme == "wss" ? "https" : "http";
+            var port = uri.IsDefaultPort ? string.Empty : $":{uri.Port}";
+            return $"{scheme}://{uri.Host}{port}";
+        }
+        catch
+        {
+            return "https://relay.semabuzz.me";
+        }
+    }
+
+    /// <summary>
     /// Generate a random 6-character uppercase token.
     /// Omits I, O, 0, 1 to avoid visual confusion when reading aloud.
     /// </summary>

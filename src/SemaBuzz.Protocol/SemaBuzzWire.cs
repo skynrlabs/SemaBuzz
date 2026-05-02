@@ -72,43 +72,22 @@ public sealed class SemaBuzzDrawEventArgs(SemaBuzzDrawEvent drawEvent) : EventAr
 }
 
 /// <summary>
-/// Event args carrying one chunk of a peer-sent image.
-/// </summary>
-public sealed class SemaBuzzImageChunkEventArgs(
-    byte transferId, ushort chunkIdx, ushort total, byte[] data) : EventArgs
-{
-    public byte TransferId { get; } = transferId;
-    public ushort ChunkIdx { get; } = chunkIdx;
-    public ushort Total { get; } = total;
-    public byte[] Data { get; } = data;
-}
-
-/// <summary>
 /// Event args for an incoming file-transfer offer.
+/// The file bytes are not in-band; the receiver fetches them via HTTP using Token.
 /// </summary>
 public sealed class SemaBuzzFileOfferEventArgs(
-    byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256) : EventArgs
+    byte transferId, string filename, long fileSize, byte[] sha256, string token) : EventArgs
 {
     public byte TransferId { get; } = transferId;
     public string Filename { get; } = filename;
     public long FileSize { get; } = fileSize;
-    public ushort TotalChunks { get; } = totalChunks;
     public byte[] Sha256 { get; } = sha256;
+    /// <summary>Relay file-staging token — use GET /file/{Token} to download.</summary>
+    public string Token { get; } = token;
 }
 
 /// <summary>
-/// Event args for one received chunk of an in-progress file transfer.
-/// </summary>
-public sealed class SemaBuzzFileChunkEventArgs(
-    byte transferId, ushort chunkIdx, byte[] data) : EventArgs
-{
-    public byte TransferId { get; } = transferId;
-    public ushort ChunkIdx { get; } = chunkIdx;
-    public byte[] Data { get; } = data;
-}
-
-/// <summary>
-/// Event args for file-transfer control signals (Accept, Reject, Complete, Cancel).
+/// Event args for file-transfer control signals (Accept, Reject).
 /// </summary>
 public sealed class SemaBuzzFileControlEventArgs(byte transferId) : EventArgs
 {
