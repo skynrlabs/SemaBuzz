@@ -1593,6 +1593,9 @@ public partial class MainWindow : Window
                 _hostingRelayUri = null;
                 _client   = null;   // drop stale transport so the next session starts clean
                 _listener = null;
+                _peerSeqInitialized = false;  // reset so next session's seq numbers are accepted fresh
+                _pendingPeerPackets.Clear();
+                _pendingPeerResyncTimer.Stop();
                 FadeToIdle();
             }
         });
