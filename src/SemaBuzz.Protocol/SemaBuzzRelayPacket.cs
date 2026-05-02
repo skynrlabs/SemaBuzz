@@ -106,9 +106,9 @@ public static class SemaBuzzRelayPacket
     {
         try
         {
-            var uri    = new Uri(relayWsUri);
+            var uri = new Uri(relayWsUri);
             var scheme = uri.Scheme == "wss" ? "https" : "http";
-            var port   = uri.IsDefaultPort ? string.Empty : $":{uri.Port}";
+            var port = uri.IsDefaultPort ? string.Empty : $":{uri.Port}";
             return $"{scheme}://{uri.Host}{port}";
         }
         catch

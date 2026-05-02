@@ -19,7 +19,7 @@ namespace SemaBuzz.Protocol;
 /// </summary>
 public static class SemaBuzzFileTransfer
 {
-    public const byte FileOfferByte  = 0x0B;
+    public const byte FileOfferByte = 0x0B;
     public const byte FileAcceptByte = 0x0D;
     public const byte FileRejectByte = 0x0E;
 
@@ -45,7 +45,7 @@ public static class SemaBuzzFileTransfer
     public static byte[] SerializeFileOffer(
         byte transferId, string filename, long fileSize, byte[] sha256, string token)
     {
-        var nameBytes  = Encoding.UTF8.GetBytes(filename);
+        var nameBytes = Encoding.UTF8.GetBytes(filename);
         if (nameBytes.Length > 255) nameBytes = nameBytes[..255];
         var tokenBytes = Encoding.ASCII.GetBytes(token);
         if (tokenBytes.Length > 255) tokenBytes = tokenBytes[..255];
@@ -59,8 +59,8 @@ public static class SemaBuzzFileTransfer
         nameBytes.CopyTo(buf, 5);
 
         var o = 5 + nameBytes.Length;
-        buf[o]     = (byte)(fileSize & 0xFF);
-        buf[o + 1] = (byte)((fileSize >>  8) & 0xFF);
+        buf[o] = (byte)(fileSize & 0xFF);
+        buf[o + 1] = (byte)((fileSize >> 8) & 0xFF);
         buf[o + 2] = (byte)((fileSize >> 16) & 0xFF);
         buf[o + 3] = (byte)((fileSize >> 24) & 0xFF);
         sha256.AsSpan(0, 32).CopyTo(buf.AsSpan(o + 4));
@@ -80,7 +80,7 @@ public static class SemaBuzzFileTransfer
         var filename = Encoding.UTF8.GetString(data, 5, nameLen);
         var o = 5 + nameLen;
         var fileSize = (long)(data[o] | (data[o + 1] << 8) | (data[o + 2] << 16) | (data[o + 3] << 24));
-        var sha256   = data[(o + 4)..(o + 4 + 32)];
+        var sha256 = data[(o + 4)..(o + 4 + 32)];
         o += 36;
         var tokenLen = data[o];
         if (data.Length < o + 1 + tokenLen) return null;
