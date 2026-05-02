@@ -1,5 +1,8 @@
 using System.IO;
+using System.Net.Http;
+using System.Security.Cryptography;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -8,6 +11,7 @@ namespace SemaBuzz.App;
 public partial class SendFileDialog : Window
 {
     private readonly string _filePath;
+    private readonly string _relayBaseUri;
 
     private static readonly HashSet<string> BlockedExtensions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -16,13 +20,16 @@ public partial class SendFileDialog : Window
         ".zip", ".7z", ".rar", ".tar", ".gz", ".bz2", ".xz", ".cab", ".iso",
     };
 
-    public string FileName  { get; private set; } = string.Empty;
-    public byte[] FileBytes { get; private set; } = [];
+    public string FileName   { get; private set; } = string.Empty;
+    public long   FileSize   { get; private set; }
+    public byte[] FileSha256 { get; private set; } = [];
+    public string FileToken  { get; private set; } = string.Empty;
 
-    public SendFileDialog(string filePath)
+    public SendFileDialog(string filePath, string relayBaseUri)
     {
         InitializeComponent();
         _filePath        = filePath;
+        _relayBaseUri    = relayBaseUri;
         var fi           = new FileInfo(filePath);
         FileNameText.Text = fi.Name;
         FileSizeText.Text = FormatSize(fi.Length);
@@ -46,30 +53,37 @@ public partial class SendFileDialog : Window
         Close();
     }
 
-    private void Send_Click(object sender, RoutedEventArgs e)
+    private async void Send_Click(object sender, RoutedEventArgs e)
     {
         ClearError();
+
+        var btn = (Button)sender;
+        btn.IsEnabled = false;
 
         var ext = Path.GetExtension(_filePath);
         if (BlockedExtensions.Contains(ext))
         {
             ShowError($"Cannot send {ext} files — this file type is not allowed.");
+            btn.IsEnabled = true;
             return;
         }
 
+        long fileLength;
         const long maxBytes = 10L * 1024 * 1024;
         try
         {
-            var fileSize = new FileInfo(_filePath).Length;
-            if (fileSize > maxBytes)
+            fileLength = new FileInfo(_filePath).Length;
+            if (fileLength > maxBytes)
             {
-                ShowError($"File is too large ({fileSize / 1024.0 / 1024.0:F1} MB). Maximum is 10 MB.");
+                ShowError($"File is too large ({fileLength / 1024.0 / 1024.0:F1} MB). Maximum is 10 MB.");
+                btn.IsEnabled = true;
                 return;
             }
         }
         catch (Exception ex)
         {
             ShowError($"Could not read file: {ex.Message}");
+            btn.IsEnabled = true;
             return;
         }
 
@@ -78,17 +92,54 @@ public partial class SendFileDialog : Window
         catch (Exception ex)
         {
             ShowError($"Could not read file: {ex.Message}");
+            btn.IsEnabled = true;
             return;
         }
 
         if (HasDangerousMagicBytes(bytes))
         {
             ShowError("This file appears to be an executable or archive — it cannot be sent.");
+            btn.IsEnabled = true;
+            return;
+        }
+
+        var sha256 = SHA256.HashData(bytes);
+
+        FileSizeText.Text = "Uploading...";
+        string token;
+        try
+        {
+            using var http    = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            using var content = new ByteArrayContent(bytes);
+            var resp = await http.PostAsync($"{_relayBaseUri}/file", content);
+            if (!resp.IsSuccessStatusCode)
+            {
+                ShowError($"Upload failed (HTTP {(int)resp.StatusCode}). Check your relay connection.");
+                FileSizeText.Text = FormatSize(fileLength);
+                btn.IsEnabled = true;
+                return;
+            }
+            token = (await resp.Content.ReadAsStringAsync()).Trim();
+            if (string.IsNullOrEmpty(token))
+            {
+                ShowError("Upload failed: relay returned an empty token.");
+                FileSizeText.Text = FormatSize(fileLength);
+                btn.IsEnabled = true;
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Upload failed: {ex.Message}");
+            FileSizeText.Text = FormatSize(fileLength);
+            btn.IsEnabled = true;
             return;
         }
 
         FileName     = Path.GetFileName(_filePath);
-        FileBytes    = bytes;
+        FileSize     = fileLength;
+        FileSha256   = sha256;
+        FileToken    = token;
         DialogResult = true;
         Close();
     }

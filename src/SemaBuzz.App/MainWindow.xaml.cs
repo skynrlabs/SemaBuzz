@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using System.Windows;
@@ -98,17 +99,14 @@ public partial class MainWindow : Window
     private byte _nextTransferId;
 
     // Outbound state
-    private CancellationTokenSource? _outboundFileCts;
     private TaskCompletionSource<bool>? _fileAcceptTcs;
     private TextBlock? _outboundStatusText;
 
-    // Inbound assembly state
-    private byte[][]? _inboundChunks;
-    private ushort    _inboundExpectedTotal;
+    // Inbound state
     private byte      _inboundTransferId;
     private string    _inboundFilename   = string.Empty;
     private byte[]?   _inboundSha256;
-    private ushort    _inboundReceivedCount;
+    private string?   _inboundToken;
     private string?   _inboundSavePath;
     private TextBlock? _inboundStatusText;
     private Button?    _inboundAcceptBtn;
@@ -627,11 +625,8 @@ public partial class MainWindow : Window
         _listener.UrlPushReceived            += OnUrlPushReceived;
         _listener.DrawReceived               += OnDrawReceived;
         _listener.FileOfferReceived          += OnFileOfferReceived;
-        _listener.FileChunkReceived          += OnFileChunkReceived;
         _listener.FileAcceptReceived         += OnFileAcceptReceived;
         _listener.FileRejectReceived         += OnFileRejectReceived;
-        _listener.FileCompleteReceived       += OnFileCompleteReceived;
-        _listener.FileCancelReceived         += OnFileCancelReceived;
         _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
 
         SetStatus($"› waiting via relay (token: {token}) via {relayUri}...");
@@ -651,11 +646,8 @@ public partial class MainWindow : Window
         _client.DrawReceived            += OnDrawReceived;
         _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
         _client.FileOfferReceived       += OnFileOfferReceived;
-        _client.FileChunkReceived       += OnFileChunkReceived;
         _client.FileAcceptReceived      += OnFileAcceptReceived;
         _client.FileRejectReceived      += OnFileRejectReceived;
-        _client.FileCompleteReceived    += OnFileCompleteReceived;
-        _client.FileCancelReceived      += OnFileCancelReceived;
 
         SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
@@ -800,21 +792,22 @@ public partial class MainWindow : Window
 
     private async void FileButton_Click(object sender, RoutedEventArgs e)
     {
-        if (_outboundFileCts != null)
+        if (_fileAcceptTcs != null)
         {
             SetStatus("› a file transfer is already in progress");
             return;
         }
         var openDlg = new Microsoft.Win32.OpenFileDialog { Title = "Send a File" };
         if (openDlg.ShowDialog(this) != true) return;
-        var sendDlg = new SendFileDialog(openDlg.FileName) { Owner = this };
+        var relayBaseUri = SemaBuzzRelayPacket.GetFileBaseUri(App.Settings.RelayUri);
+        var sendDlg = new SendFileDialog(openDlg.FileName, relayBaseUri) { Owner = this };
         if (sendDlg.ShowDialog() != true) return;
-        await SendFileAsync(sendDlg.FileName, sendDlg.FileBytes);
+        await SendFileAsync(sendDlg.FileName, sendDlg.FileSize, sendDlg.FileSha256, sendDlg.FileToken);
     }
 
     private void Window_DragOver(object sender, DragEventArgs e)
     {
-        e.Effects = (FileButton.IsEnabled && _outboundFileCts == null &&
+        e.Effects = (FileButton.IsEnabled && _fileAcceptTcs == null &&
                      e.Data.GetDataPresent(DataFormats.FileDrop))
             ? DragDropEffects.Copy
             : DragDropEffects.None;
@@ -823,108 +816,39 @@ public partial class MainWindow : Window
 
     private async void Window_Drop(object sender, DragEventArgs e)
     {
-        if (!FileButton.IsEnabled || _outboundFileCts != null) return;
+        if (!FileButton.IsEnabled || _fileAcceptTcs != null) return;
         if (!e.Data.GetDataPresent(DataFormats.FileDrop)) return;
         var files = e.Data.GetData(DataFormats.FileDrop) as string[];
         if (files == null || files.Length == 0) return;
-        var sendDlg = new SendFileDialog(files[0]) { Owner = this };
+        var relayBaseUri = SemaBuzzRelayPacket.GetFileBaseUri(App.Settings.RelayUri);
+        var sendDlg = new SendFileDialog(files[0], relayBaseUri) { Owner = this };
         if (sendDlg.ShowDialog() != true) return;
-        await SendFileAsync(sendDlg.FileName, sendDlg.FileBytes);
+        await SendFileAsync(sendDlg.FileName, sendDlg.FileSize, sendDlg.FileSha256, sendDlg.FileToken);
     }
 
-    private async Task SendFileAsync(string filename, byte[] fileBytes)
+    private async Task SendFileAsync(string filename, long fileSize, byte[] sha256, string token)
     {
-        var totalChunks = (ushort)((fileBytes.Length + SemaBuzzFileTransfer.ChunkSize - 1) / SemaBuzzFileTransfer.ChunkSize);
-        var transferId  = _nextTransferId++;
-        var sha256      = SHA256.HashData(fileBytes);
+        var transferId = _nextTransferId++;
 
-        // Show outbound card
-        AppendOutboundFileCard(filename, fileBytes.Length, out var statusText);
+        // Show outbound card and wait for peer accept/reject
+        AppendOutboundFileCard(filename, fileSize, out var statusText);
         _outboundStatusText = statusText;
+        _fileAcceptTcs = new TaskCompletionSource<bool>();
 
-        // Send offer and wait for peer response
-        _fileAcceptTcs  = new TaskCompletionSource<bool>();
-        _outboundFileCts = new CancellationTokenSource();
-
-        if (_client   != null) await _client.SendFileOfferAsync(transferId, filename, fileBytes.Length, totalChunks, sha256);
-        if (_listener != null) await _listener.SendFileOfferAsync(transferId, filename, fileBytes.Length, totalChunks, sha256);
+        if (_client   != null) await _client.SendFileOfferAsync(transferId, filename, fileSize, sha256, token);
+        if (_listener != null) await _listener.SendFileOfferAsync(transferId, filename, fileSize, sha256, token);
 
         bool accepted;
         try
         {
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(60));
-            using var linked  = CancellationTokenSource.CreateLinkedTokenSource(timeout.Token, _outboundFileCts.Token);
-            accepted = await _fileAcceptTcs.Task.WaitAsync(linked.Token);
+            accepted = await _fileAcceptTcs.Task.WaitAsync(timeout.Token);
         }
         catch { accepted = false; }
 
-        if (!accepted)
-        {
-            if (_outboundStatusText != null) _outboundStatusText.Text = "× declined";
-            _fileAcceptTcs   = null;
-            _outboundFileCts.Dispose();
-            _outboundFileCts  = null;
-            _outboundStatusText = null;
-            return;
-        }
-
-        // Stream chunks — rate-limited to ≤1.5 MB/s (75 % of relay's 2 MB/s hard cap).
-        // Task.Delay on Windows resolves to ~15 ms OS ticks, so a fixed 25 ms delay can
-        // fire in 15 ms and push throughput above the relay cap.  Tracking cumulative bytes
-        // against a Stopwatch keeps the rate accurate regardless of timer granularity.
-        const long RelayBytesPerSec = 1_500_000;
-        var sw = Stopwatch.StartNew();
-        long encSent = 0; // encrypted bytes dispatched (plaintext + 28-byte AES-GCM overhead)
-        for (ushort i = 0; i < totalChunks; i++)
-        {
-            if (_outboundFileCts.IsCancellationRequested) break;
-            var offset = i * SemaBuzzFileTransfer.ChunkSize;
-            var length = Math.Min(SemaBuzzFileTransfer.ChunkSize, fileBytes.Length - offset);
-            var chunk  = fileBytes[offset..(offset + length)];
-
-            try
-            {
-                if (_client   != null) await _client.SendFileChunkAsync(transferId, i, chunk);
-                if (_listener != null) await _listener.SendFileChunkAsync(transferId, i, chunk);
-            }
-            catch (Exception ex)
-            {
-                if (_outboundStatusText != null)
-                    _outboundStatusText.Text = $"× send error: {ex.GetType().Name}";
-                break;
-            }
-
-            encSent += length + 28; // AES-GCM overhead: 12-byte nonce + 16-byte tag
-            var expectedMs = encSent * 1000L / RelayBytesPerSec;
-            var actualMs   = sw.ElapsedMilliseconds;
-            if (expectedMs > actualMs)
-            {
-                try   { await Task.Delay((int)(expectedMs - actualMs), _outboundFileCts.Token); }
-                catch (OperationCanceledException) { break; }
-            }
-
-            var sent = i + 1;
-            if (_outboundStatusText != null)
-                _outboundStatusText.Text = $"Sending {sent} / {totalChunks}...";
-        }
-
-        if (!_outboundFileCts.IsCancellationRequested)
-        {
-            if (_client   != null) await _client.SendFileCompleteAsync(transferId);
-            if (_listener != null) await _listener.SendFileCompleteAsync(transferId);
-            if (_outboundStatusText != null)
-                _outboundStatusText.Text = $"✓ Sent ({fileBytes.Length / 1024} KB)";
-        }
-        else
-        {
-            if (_client   != null) await _client.SendFileCancelAsync(transferId);
-            if (_listener != null) await _listener.SendFileCancelAsync(transferId);
-            if (_outboundStatusText != null) _outboundStatusText.Text = "× cancelled";
-        }
-
-        _fileAcceptTcs   = null;
-        _outboundFileCts.Dispose();
-        _outboundFileCts  = null;
+        _fileAcceptTcs = null;
+        if (_outboundStatusText != null)
+            _outboundStatusText.Text = accepted ? $"✓ Sent ({fileSize / 1024} KB)" : "× declined";
         _outboundStatusText = null;
     }
 
@@ -955,7 +879,7 @@ public partial class MainWindow : Window
     }
 
     private void AppendInboundFileOfferCard(
-        byte transferId, string filename, long fileSize, ushort totalChunks, byte[] sha256)
+        byte transferId, string filename, long fileSize, byte[] sha256, string token)
     {
         var (headerRow, headerTb, headerTs) = MakeChatLine(
             _peerHandle, _peerAvatarPng, Color.FromRgb(0x9E, 0x9E, 0x9E), null);
@@ -1007,17 +931,37 @@ public partial class MainWindow : Window
                 return;
             }
 
-            _inboundChunks        = new byte[totalChunks][];
-            _inboundExpectedTotal = totalChunks;
-            _inboundTransferId    = transferId;
-            _inboundFilename      = filename;
-            _inboundSha256        = sha256;
-            _inboundReceivedCount = 0;
-            _inboundSavePath      = saveDlg.FileName;
+            _inboundTransferId = transferId;
+            _inboundFilename   = filename;
+            _inboundSha256     = sha256;
+            _inboundToken      = token;
+            _inboundSavePath   = saveDlg.FileName;
 
-            statusTb.Text = $"Receiving 0 / {totalChunks} chunks...";
+            statusTb.Text = "Downloading...";
             if (_client   != null) await _client.SendFileAcceptAsync(transferId);
             if (_listener != null) await _listener.SendFileAcceptAsync(transferId);
+
+            var relayBaseUri = SemaBuzzRelayPacket.GetFileBaseUri(App.Settings.RelayUri);
+            var savePath     = _inboundSavePath;
+            var expectedHash = _inboundSha256;
+            try
+            {
+                using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+                var data = await http.GetByteArrayAsync($"{relayBaseUri}/file/{token}");
+                if (!SHA256.HashData(data).SequenceEqual(expectedHash!))
+                {
+                    statusTb.Text = "× integrity check failed";
+                    ResetInboundTransfer();
+                    return;
+                }
+                await File.WriteAllBytesAsync(savePath!, data);
+                statusTb.Text = $"✓ Saved ({data.Length / 1024} KB)";
+            }
+            catch (Exception ex)
+            {
+                statusTb.Text = $"× download failed: {ex.Message}";
+            }
+            ResetInboundTransfer();
         };
 
         declineBtn.Click += async (_, _) =>
@@ -1079,29 +1023,15 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            if (_inboundChunks != null)
+            if (_inboundStatusText != null)
             {
-                // Already receiving — auto-reject this second offer
+                // Already handling a file offer — auto-reject this new one
                 if (_client   != null) _ = _client.SendFileRejectAsync(e.TransferId);
                 if (_listener != null) _ = _listener.SendFileRejectAsync(e.TransferId);
                 return;
             }
-            AppendInboundFileOfferCard(e.TransferId, e.Filename, e.FileSize, e.TotalChunks, e.Sha256);
+            AppendInboundFileOfferCard(e.TransferId, e.Filename, e.FileSize, e.Sha256, e.Token);
             ShowToastIfUnfocused(_peerHandle, $"📎 {_peerHandle} wants to send {e.Filename}");
-        });
-    }
-
-    private void OnFileChunkReceived(object? sender, SemaBuzzFileChunkEventArgs e)
-    {
-        Dispatcher.Invoke(() =>
-        {
-            if (_inboundChunks == null || e.TransferId != _inboundTransferId) return;
-            if (e.ChunkIdx >= _inboundChunks.Length) return;
-            if (_inboundChunks[e.ChunkIdx] != null) return; // duplicate
-            _inboundChunks[e.ChunkIdx] = e.Data;
-            _inboundReceivedCount++;
-            if (_inboundStatusText != null)
-                _inboundStatusText.Text = $"Receiving {_inboundReceivedCount} / {_inboundExpectedTotal}...";
         });
     }
 
@@ -1115,90 +1045,16 @@ public partial class MainWindow : Window
         _fileAcceptTcs?.TrySetResult(false);
     }
 
-    private void OnFileCompleteReceived(object? sender, SemaBuzzFileControlEventArgs e)
-    {
-        Dispatcher.Invoke(async () =>
-        {
-            if (_inboundChunks == null || e.TransferId != _inboundTransferId) return;
-
-            var chunks       = _inboundChunks;
-            var expectedHash = _inboundSha256!;
-            var savePath     = _inboundSavePath!;
-            var statusTb     = _inboundStatusText;
-            ResetInboundTransfer();
-
-            if (statusTb != null) statusTb.Text = "Verifying...";
-
-            string result;
-            try
-            {
-                result = await Task.Run(() =>
-                {
-                    // Assemble
-                    var totalSize = chunks.Sum(c => c?.Length ?? 0);
-                    var assembled = new byte[totalSize];
-                    var offset    = 0;
-                    for (var i = 0; i < chunks.Length; i++)
-                    {
-                        if (chunks[i] == null) return "× transfer incomplete — missing chunks";
-                        chunks[i].CopyTo(assembled, offset);
-                        offset += chunks[i].Length;
-                    }
-
-                    // Verify SHA-256
-                    if (!SHA256.HashData(assembled).SequenceEqual(expectedHash))
-                        return "× file integrity check failed";
-
-                    // Write to disk
-                    try
-                    {
-                        File.WriteAllBytes(savePath, assembled);
-                        return $"✓ Saved  ({assembled.Length / 1024} KB)";
-                    }
-                    catch (Exception ex) { return $"× could not save: {ex.Message}"; }
-                });
-            }
-            catch (Exception ex) { result = $"× error: {ex.Message}"; }
-
-            if (statusTb != null) statusTb.Text = result;
-        });
-    }
-
-    private void OnFileCancelReceived(object? sender, SemaBuzzFileControlEventArgs e)
-    {
-        if (_inboundChunks != null && e.TransferId == _inboundTransferId)
-        {
-            var statusTb = _inboundStatusText;
-            ResetInboundTransfer();
-            Dispatcher.Invoke(() =>
-            {
-                if (_inboundAcceptBtn  != null) _inboundAcceptBtn.IsEnabled  = false;
-                if (_inboundDeclineBtn != null) _inboundDeclineBtn.IsEnabled = false;
-                if (statusTb           != null) statusTb.Text = "× cancelled by peer";
-            });
-        }
-        else
-        {
-            // Peer cancelled our outbound offer
-            _outboundFileCts?.Cancel();
-            Dispatcher.Invoke(() =>
-            {
-                if (_outboundStatusText != null) _outboundStatusText.Text = "× cancelled by peer";
-            });
-        }
-    }
-
     private void ResetInboundTransfer()
     {
-        _inboundChunks        = null;
-        _inboundExpectedTotal = 0;
-        _inboundFilename      = string.Empty;
-        _inboundSha256        = null;
-        _inboundReceivedCount = 0;
-        _inboundSavePath      = null;
-        _inboundStatusText    = null;
-        _inboundAcceptBtn     = null;
-        _inboundDeclineBtn    = null;
+        _inboundToken      = null;
+        _inboundTransferId = 0;
+        _inboundFilename   = string.Empty;
+        _inboundSha256     = null;
+        _inboundSavePath   = null;
+        _inboundStatusText = null;
+        _inboundAcceptBtn  = null;
+        _inboundDeclineBtn = null;
     }
 
     private void AppendUrlCard(string url, bool isSent, Panel panel, ScrollViewer scrollViewer)
@@ -1673,9 +1529,8 @@ public partial class MainWindow : Window
             }
             else if (e.State == SemaBuzzWireState.Dead)
             {
-                // Cancel any in-progress file transfers.
-                _outboundFileCts?.Cancel();
-                if (_inboundChunks != null)
+                // Clean up any visible inbound file offer card.
+                if (_inboundStatusText != null)
                 {
                     if (_inboundStatusText  != null) _inboundStatusText.Text = "× peer disconnected";
                     if (_inboundAcceptBtn   != null) _inboundAcceptBtn.IsEnabled  = false;
