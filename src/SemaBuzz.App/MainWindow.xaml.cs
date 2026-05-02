@@ -103,11 +103,6 @@ public partial class MainWindow : Window
     private TextBlock? _outboundStatusText;
 
     // Inbound state
-    private byte      _inboundTransferId;
-    private string    _inboundFilename   = string.Empty;
-    private byte[]?   _inboundSha256;
-    private string?   _inboundToken;
-    private string?   _inboundSavePath;
     private TextBlock? _inboundStatusText;
     private Button?    _inboundAcceptBtn;
     private Button?    _inboundDeclineBtn;
@@ -931,19 +926,13 @@ public partial class MainWindow : Window
                 return;
             }
 
-            _inboundTransferId = transferId;
-            _inboundFilename   = filename;
-            _inboundSha256     = sha256;
-            _inboundToken      = token;
-            _inboundSavePath   = saveDlg.FileName;
-
             statusTb.Text = "Downloading...";
             if (_client   != null) await _client.SendFileAcceptAsync(transferId);
             if (_listener != null) await _listener.SendFileAcceptAsync(transferId);
 
             var relayBaseUri = SemaBuzzRelayPacket.GetFileBaseUri(App.Settings.RelayUri);
-            var savePath     = _inboundSavePath;
-            var expectedHash = _inboundSha256;
+            var savePath     = saveDlg.FileName;
+            var expectedHash = sha256;
             try
             {
                 using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
@@ -1047,11 +1036,6 @@ public partial class MainWindow : Window
 
     private void ResetInboundTransfer()
     {
-        _inboundToken      = null;
-        _inboundTransferId = 0;
-        _inboundFilename   = string.Empty;
-        _inboundSha256     = null;
-        _inboundSavePath   = null;
         _inboundStatusText = null;
         _inboundAcceptBtn  = null;
         _inboundDeclineBtn = null;
@@ -1532,9 +1516,9 @@ public partial class MainWindow : Window
                 // Clean up any visible inbound file offer card.
                 if (_inboundStatusText != null)
                 {
-                    if (_inboundStatusText  != null) _inboundStatusText.Text = "× peer disconnected";
-                    if (_inboundAcceptBtn   != null) _inboundAcceptBtn.IsEnabled  = false;
-                    if (_inboundDeclineBtn  != null) _inboundDeclineBtn.IsEnabled = false;
+                    _inboundStatusText.Text = "× peer disconnected";
+                    if (_inboundAcceptBtn  != null) _inboundAcceptBtn.IsEnabled  = false;
+                    if (_inboundDeclineBtn != null) _inboundDeclineBtn.IsEnabled = false;
                     ResetInboundTransfer();
                 }
 

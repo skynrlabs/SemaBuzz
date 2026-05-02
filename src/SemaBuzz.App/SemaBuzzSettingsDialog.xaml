@@ -247,8 +247,10 @@
 
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
                    Text="WebSocket relay address (ws:// or wss://). Click RESET to restore the default."/>
-        <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"
+        <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
                    Text="Only use a relay you trust. Traffic is encrypted before it leaves your device."/>
+        <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"
+                   Text="File transfers require the official SemaBuzz Relay binary. Third-party relay software will not support file transfers."/>
 
         </StackPanel>
         </ScrollViewer>

@@ -72,18 +72,6 @@ public sealed class SemaBuzzDrawEventArgs(SemaBuzzDrawEvent drawEvent) : EventAr
 }
 
 /// <summary>
-/// Event args carrying one chunk of a peer-sent image.
-/// </summary>
-public sealed class SemaBuzzImageChunkEventArgs(
-    byte transferId, ushort chunkIdx, ushort total, byte[] data) : EventArgs
-{
-    public byte TransferId { get; } = transferId;
-    public ushort ChunkIdx { get; } = chunkIdx;
-    public ushort Total { get; } = total;
-    public byte[] Data { get; } = data;
-}
-
-/// <summary>
 /// Event args for an incoming file-transfer offer.
 /// The file bytes are not in-band; the receiver fetches them via HTTP using Token.
 /// </summary>
