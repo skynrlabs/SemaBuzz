@@ -396,7 +396,13 @@ public partial class MainWindow : Window
             fade.Completed += (_, _) =>
             {
                 ChatPanesGrid.BeginAnimation(UIElement.OpacityProperty, null);
-                ShowIdleState();
+                // Guard: a new session may have started during the 300 ms fade
+                // (e.g. user clicked Start Buzz immediately after a timeout).
+                // If so, skip ShowIdleState() to avoid trampling the new UI state.
+                if (_listener == null && _client == null)
+                    ShowIdleState();
+                else
+                    ChatPanesGrid.Opacity = 1; // restore opacity for the incoming session
             };
             ChatPanesGrid.BeginAnimation(UIElement.OpacityProperty, fade);
         }
