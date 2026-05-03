@@ -59,7 +59,7 @@
         <Rectangle Grid.Row="1" Fill="{DynamicResource ObsidianBorderBrush}"/>
 
         <!-- Canvas area -->
-        <Border Grid.Row="2" Background="#111214" ClipToBounds="True">
+        <Border Grid.Row="2" x:Name="CanvasBorder" Background="#111214" ClipToBounds="True">
             <Grid>
                 <!-- Peer strokes (bottom, hit-test off so mouse events reach local layer) -->
                 <Canvas x:Name="PeerCanvas" IsHitTestVisible="False"/>
@@ -133,6 +133,16 @@
                         Content="CLEAR"
                         Padding="10 4"
                         Click="Clear_Click"/>
+
+                <!-- Separator -->
+                <Rectangle Width="1" Height="20" Fill="{DynamicResource ObsidianBorderBrush}" Margin="8 0"/>
+
+                <!-- Save -->
+                <Button Style="{StaticResource SemaBuzzButton}"
+                        Content="SAVE"
+                        Padding="10 4"
+                        ToolTip="Save whiteboard as PNG"
+                        Click="Save_Click"/>
 
             </StackPanel>
 

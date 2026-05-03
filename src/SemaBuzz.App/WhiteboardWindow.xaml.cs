@@ -2,7 +2,9 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Microsoft.Win32;
 using SemaBuzz.Protocol;
 
 namespace SemaBuzz.App;
@@ -163,6 +165,51 @@ public partial class WhiteboardWindow : Window
         LocalCanvas.Children.Clear();
         PeerCanvas.Children.Clear();
         DrawSent?.Invoke(this, new SemaBuzzDrawEvent { Action = SemaBuzzDrawAction.Clear });
+    }
+
+    private void Save_Click(object sender, RoutedEventArgs e)
+    {
+        var dlg = new SaveFileDialog
+        {
+            Title            = "Save Whiteboard",
+            Filter           = "PNG Image|*.png",
+            FileName         = $"whiteboard-{DateTime.Now:yyyyMMdd-HHmmss}.png",
+            DefaultExt       = ".png",
+            AddExtension     = true,
+        };
+        if (dlg.ShowDialog(this) != true) return;
+
+        // Measure the canvas area in device-independent pixels
+        var w = CanvasBorder.ActualWidth;
+        var h = CanvasBorder.ActualHeight;
+        if (w <= 0 || h <= 0) return;
+
+        // Get the current DPI so the bitmap matches screen resolution
+        var src   = PresentationSource.FromVisual(this);
+        var dpiX  = src != null ? 96.0 * src.CompositionTarget.TransformToDevice.M11 : 96.0;
+        var dpiY  = src != null ? 96.0 * src.CompositionTarget.TransformToDevice.M22 : 96.0;
+
+        var pixW = (int)(w * dpiX / 96.0);
+        var pixH = (int)(h * dpiY / 96.0);
+
+        var rtb = new RenderTargetBitmap(pixW, pixH, dpiX, dpiY, PixelFormats.Pbgra32);
+
+        // Fill background first (#111214) so the saved PNG isn't transparent
+        var bg = new DrawingVisual();
+        using (var dc = bg.RenderOpen())
+            dc.DrawRectangle(new SolidColorBrush(Color.FromRgb(0x11, 0x12, 0x14)),
+                             null, new Rect(0, 0, w, h));
+        rtb.Render(bg);
+
+        // Render peer strokes then local strokes (same z-order as the window)
+        rtb.Render(PeerCanvas);
+        rtb.Render(LocalCanvas);
+
+        var encoder = new PngBitmapEncoder();
+        encoder.Frames.Add(BitmapFrame.Create(rtb));
+
+        using var stream = System.IO.File.OpenWrite(dlg.FileName);
+        encoder.Save(stream);
     }
 
     private void Close_Click(object sender, RoutedEventArgs e) => Close();
