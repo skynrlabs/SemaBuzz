@@ -615,10 +615,13 @@
 
         <!-- Input Row -->
         <Grid Grid.Row="6" Background="{DynamicResource ObsidianSurfaceBrush}">
+            <!-- Constrain the text area so it cannot overlap the action buttons.
+                 252 = BoardButton right-margin (216) + button width (36). -->
+            <Grid Margin="0 0 252 0">
             <emoji:RichTextBox x:Name="InputBox"
                      Style="{StaticResource SemaBuzzInputRTB}"
                      AcceptsReturn="False"
-                     Padding="16 12 216 12"
+                     Padding="16 12 6 12"
                      VerticalAlignment="Center"
                      Background="{DynamicResource ObsidianSurfaceBrush}"
                      BorderThickness="0"
@@ -638,6 +641,7 @@
                        Foreground="{DynamicResource WireDeadBrush}"
                        Opacity="0.45"
                        Visibility="Collapsed"/>
+            </Grid>
             <Button x:Name="EmoticonPickerButton"
                     Style="{StaticResource SemaBuzzSendButton}"
                     HorizontalAlignment="Right"
