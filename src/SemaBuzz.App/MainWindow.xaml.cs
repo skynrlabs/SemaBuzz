@@ -65,6 +65,9 @@ public partial class MainWindow : Window
     private Grid?               _peerLiveRow;
     private EmojiWpf.TextBlock? _livePeerBlock;
     private TextBlock?          _livePeerTimestamp;
+    // Emoji (non-BMP) arrive as two separate char packets (surrogate pair).
+    // Buffer the high surrogate and wait for the low before appending to the TextBlock.
+    private char _peerPendingHighSurrogate;
 
     // Shared whiteboard window (non-modal, stays open while wire is live)
     private WhiteboardWindow? _whiteboard;
@@ -539,10 +542,11 @@ public partial class MainWindow : Window
     {
         LocalPanel.Children.Clear();
         PeerPanel.Children.Clear();
-        _peerLiveRow         = null;
-        _livePeerBlock       = null;
-        _livePeerTimestamp   = null;
-        _previousInputText   = string.Empty;
+        _peerLiveRow              = null;
+        _livePeerBlock            = null;
+        _livePeerTimestamp        = null;
+        _peerPendingHighSurrogate = '\0';
+        _previousInputText        = string.Empty;
     }
 
     //  SETTINGS menu
@@ -1163,9 +1167,10 @@ public partial class MainWindow : Window
         if (string.IsNullOrEmpty(msg)) return;
 
         // When LivePreview is off the streamer hasn't seen the chars yet — feed them now.
+        // Walk by index so surrogate pairs are fed in the correct order (high then low).
         if (!App.Settings.LivePreview)
-            foreach (var c in msg)
-                _streamer.Feed(c);
+            for (var i = 0; i < msg.Length; i++)
+                _streamer.Feed(msg[i]);
 
         // Add the committed row to the local pane
         var (row, tb, ts) = MakeChatLine(_localHandle, _localAvatarPng, SemaBuzzThemeManager.AccentColor, "AmberBrush");
@@ -1424,6 +1429,7 @@ public partial class MainWindow : Window
         SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        FileButton.IsEnabled           = false;        _peerLiveRow                   = null;
         _livePeerBlock                 = null;
         _livePeerTimestamp             = null;
+        _peerPendingHighSurrogate      = '\0';
         _peerHandle                    = "peer";
         _peerAvatarPng                 = null;
         _peerStatus                    = SemaBuzz.Protocol.SemaBuzzStatus.Available;
@@ -1757,6 +1763,30 @@ public partial class MainWindow : Window
 
     private void AppendPeerCharacter(char ch)
     {
+        // Emoji outside the BMP (e.g. 😎 U+1F60E) arrive as two successive char packets
+        // because SemaBuzzPacket.Character is a single UTF-16 code unit.  Appending a
+        // lone high surrogate to Emoji.Wpf.TextBlock.Text causes it to corrupt nearby
+        // characters, so we buffer the high surrogate and wait for the low half.
+        if (char.IsHighSurrogate(ch))
+        {
+            _peerPendingHighSurrogate = ch;
+            return;
+        }
+
+        string textToAppend;
+        if (char.IsLowSurrogate(ch) && _peerPendingHighSurrogate != '\0')
+        {
+            // Complete the surrogate pair into a proper 2-char string.
+            textToAppend = new string(new[] { _peerPendingHighSurrogate, ch });
+            _peerPendingHighSurrogate = '\0';
+        }
+        else
+        {
+            // BMP character (or stray low surrogate — discard any buffered high).
+            _peerPendingHighSurrogate = '\0';
+            textToAppend = ch.ToString();
+        }
+
         // '\n' commits a live line -- if there's no live line, nothing to freeze.
         // '\b' removes a character -- if there's no live line, nothing to delete.
         // Creating a row just to immediately freeze/no-op it would leave an empty row.
@@ -1822,7 +1852,7 @@ public partial class MainWindow : Window
         }
         else
         {
-            _livePeerBlock.Text += ch;
+            _livePeerBlock.Text += textToAppend;
         }
         PeerScrollViewer.ScrollToEnd();
     }
