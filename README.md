@@ -51,7 +51,7 @@ Purchase at [semabuzz.gumroad.com/l/dgeyxz](https://semabuzz.gumroad.com/l/dgeyx
 
 The host generates a short token and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted on-device before transmission.
 
-Default relay: `wss://relay.semabuzz.me` (configurable in Settings for Pro users)
+Default relay: `ws://localhost:7171/relay` (configurable in Settings for Pro users)
 
 ---
 
