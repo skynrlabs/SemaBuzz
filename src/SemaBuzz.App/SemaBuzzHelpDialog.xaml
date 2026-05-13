@@ -231,33 +231,7 @@
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="SETTINGS → Preferences lets you set the relay server address, toggle Live Preview, adjust BuzzIndicator sensitivity, choose the indicator visual style, and configure chat log storage."/>
-
-                <!-- ─── CHAT &amp; DATA ─── -->
-                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
-                <TextBlock Text="CHAT &amp; DATA"
-                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
-                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
-
-                <TextBlock Text="Where are my chat logs stored?"
-                           Foreground="{DynamicResource AmberBrush}"
-                           FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="When Permanent Encrypted is enabled in Preferences, messages are saved encrypted (locked to your Windows account) at:"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="{DynamicResource AmberBrush}" FontSize="11"
-                           Text="%APPDATA%\SemaBuzz\chatlog.bin"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="The file is not readable outside of SemaBuzz."/>
-
-                <TextBlock Text="How do I clear the chat?"
-                           Foreground="{DynamicResource AmberBrush}"
-                           FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="Open VIEW → Clear Chat while a wire is active. This clears both the local and peer chat panes from the screen. It does not delete your saved log file."/>
+                           Text="SETTINGS → Preferences lets you set the relay server address, toggle Live Preview, adjust BuzzIndicator sensitivity, and choose the indicator visual style."/>
 
                 <!-- ─── WINDOW &amp; SYSTEM ─── -->
                 <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
