@@ -12,8 +12,8 @@
        The Publisher CN= string must match your code-signing certificate.
    -->
   <Identity
-    Name="YourPublisher.SemaBuzz"
-    Publisher="CN=YourPublisher"
+    Name="SkynrLabs.SemaBuzz"
+    Publisher="CN=E5B2DD2D-EE35-4DD8-B0DB-9657F3E61EB7"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity

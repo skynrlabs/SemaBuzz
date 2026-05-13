@@ -55,7 +55,7 @@ public partial class WalkUrlDialog : Window
 
     private void ShowError(string message)
     {
-        UrlErrorText.Text       = message;
+        UrlErrorText.Text = message;
         UrlErrorText.Visibility = Visibility.Visible;
         OuterBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
     }

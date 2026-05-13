@@ -17,67 +17,28 @@ public partial class SemaBuzzThemeDialog : Window
         // Pre-select the currently active theme
         switch (SemaBuzzThemeManager.Current)
         {
-            case SemaBuzzThemeId.Neon:      ThemeNeon.IsChecked      = true; break;
-            case SemaBuzzThemeId.Matrix:    ThemeMatrix.IsChecked    = true; break;
+            case SemaBuzzThemeId.Neon: ThemeNeon.IsChecked = true; break;
+            case SemaBuzzThemeId.Matrix: ThemeMatrix.IsChecked = true; break;
             case SemaBuzzThemeId.BloodMoon: ThemeBloodMoon.IsChecked = true; break;
-            case SemaBuzzThemeId.Arctic:    ThemeArctic.IsChecked    = true; break;
-            case SemaBuzzThemeId.Sepia:     ThemeSepia.IsChecked     = true; break;
-            case SemaBuzzThemeId.Midnight:  ThemeMidnight.IsChecked  = true; break;
-            case SemaBuzzThemeId.Sunset:    ThemeSunset.IsChecked    = true; break;
-            case SemaBuzzThemeId.Rose:      ThemeRose.IsChecked      = true; break;
-            case SemaBuzzThemeId.Violet:    ThemeViolet.IsChecked    = true; break;
-            case SemaBuzzThemeId.Emerald:   ThemeEmerald.IsChecked   = true; break;
-            case SemaBuzzThemeId.Steel:     ThemeSteel.IsChecked    = true; break;
-            case SemaBuzzThemeId.Forest:    ThemeForest.IsChecked    = true; break;
-            case SemaBuzzThemeId.Chrome:        ThemeChrome.IsChecked        = true; break;
-            case SemaBuzzThemeId.Daylight:      ThemeDaylight.IsChecked      = true; break;
+            case SemaBuzzThemeId.Arctic: ThemeArctic.IsChecked = true; break;
+            case SemaBuzzThemeId.Sepia: ThemeSepia.IsChecked = true; break;
+            case SemaBuzzThemeId.Midnight: ThemeMidnight.IsChecked = true; break;
+            case SemaBuzzThemeId.Sunset: ThemeSunset.IsChecked = true; break;
+            case SemaBuzzThemeId.Rose: ThemeRose.IsChecked = true; break;
+            case SemaBuzzThemeId.Violet: ThemeViolet.IsChecked = true; break;
+            case SemaBuzzThemeId.Emerald: ThemeEmerald.IsChecked = true; break;
+            case SemaBuzzThemeId.Steel: ThemeSteel.IsChecked = true; break;
+            case SemaBuzzThemeId.Forest: ThemeForest.IsChecked = true; break;
+            case SemaBuzzThemeId.Chrome: ThemeChrome.IsChecked = true; break;
+            case SemaBuzzThemeId.Daylight: ThemeDaylight.IsChecked = true; break;
             case SemaBuzzThemeId.MutedTerminal: ThemeMutedTerminal.IsChecked = true; break;
-            case SemaBuzzThemeId.Parchment:     ThemeParchment.IsChecked     = true; break;
-            case SemaBuzzThemeId.Sage:           ThemeSage.IsChecked          = true; break;
-            case SemaBuzzThemeId.Lavender:       ThemeLavender.IsChecked      = true; break;
-            case SemaBuzzThemeId.Sand:           ThemeSand.IsChecked          = true; break;
-            default:                            ThemeObsidian.IsChecked      = true; break;
+            case SemaBuzzThemeId.Parchment: ThemeParchment.IsChecked = true; break;
+            case SemaBuzzThemeId.Sage: ThemeSage.IsChecked = true; break;
+            case SemaBuzzThemeId.Lavender: ThemeLavender.IsChecked = true; break;
+            case SemaBuzzThemeId.Sand: ThemeSand.IsChecked = true; break;
+            default: ThemeObsidian.IsChecked = true; break;
         }
 
-        if (!SemaBuzzLicense.IsProUnlocked)
-        {
-            (RadioButton Rb, string Label)[] proThemes =
-            [
-                (ThemeNeon,      "Neon  (pink \u00b7 purple)"),
-                (ThemeMatrix,    "Matrix  (CRT green \u00b7 black)"),
-                (ThemeBloodMoon, "Blood Moon  (crimson \u00b7 black)"),
-                (ThemeArctic,    "Arctic  (icy cyan \u00b7 deep navy)"),
-                (ThemeSepia,     "Sepia  (old gold \u00b7 dark oak)"),
-                (ThemeMidnight,  "Midnight  (electric blue \u00b7 void)"),
-                (ThemeSunset,    "Sunset  (deep orange \u00b7 char)"),
-                (ThemeRose,      "Rose  (hot pink \u00b7 dark)"),
-                (ThemeViolet,    "Violet  (electric purple \u00b7 void)"),
-                (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
-                (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
-                (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
-                (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
-                (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeParchment,     "Parchment  (warm cream \u00b7 rust)"),
-                (ThemeSage,          "Sage  (soft green \u00b7 deep forest)"),
-                (ThemeLavender,      "Lavender  (soft violet \u00b7 indigo)"),
-                (ThemeSand,          "Sand  (warm tan \u00b7 deep teal)"),
-            ];
-            foreach (var (rb, label) in proThemes)
-            {
-                rb.IsEnabled = false;
-                rb.Content   = MakeProContent(label);
-            }
-            if (SemaBuzzThemeManager.Current != SemaBuzzThemeId.Obsidian &&
-                SemaBuzzThemeManager.Current != SemaBuzzThemeId.Daylight)
-            {
-                ThemeObsidian.IsChecked = true;
-                SemaBuzzThemeManager.Apply(SemaBuzzThemeId.Obsidian);
-            }
-        }
-        else
-        {
-            BuyNowThemeButton.Visibility = Visibility.Collapsed;
-        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -156,86 +117,9 @@ public partial class SemaBuzzThemeDialog : Window
 
     //  Footer
 
-    private async void BuyNow_Click(object sender, RoutedEventArgs e)
-    {
-        var purchased = await SemaBuzzLicense.PurchaseAsync(this);
-        if (purchased)
-        {
-            (RadioButton Rb, string Label)[] proThemes =
-            [
-                (ThemeNeon,      "Neon  (pink \u00b7 purple)"),
-                (ThemeMatrix,    "Matrix  (CRT green \u00b7 black)"),
-                (ThemeBloodMoon, "Blood Moon  (crimson \u00b7 black)"),
-                (ThemeArctic,    "Arctic  (icy cyan \u00b7 deep navy)"),
-                (ThemeSepia,     "Sepia  (old gold \u00b7 dark oak)"),
-                (ThemeMidnight,  "Midnight  (electric blue \u00b7 void)"),
-                (ThemeSunset,    "Sunset  (deep orange \u00b7 char)"),
-                (ThemeRose,      "Rose  (hot pink \u00b7 dark)"),
-                (ThemeViolet,    "Violet  (electric purple \u00b7 void)"),
-                (ThemeEmerald,   "Emerald  (rich green \u00b7 deep)"),
-                (ThemeSteel,     "Steel  (blue-grey \u00b7 industrial)"),
-                (ThemeForest,    "Forest  (turquoise \u00b7 earth)"),
-                (ThemeChrome,        "Chrome  (blue \u00b7 dark grey)"),
-                (ThemeMutedTerminal, "Muted Terminal  (teal \u00b7 lime green)"),
-                (ThemeParchment,     "Parchment  (warm cream \u00b7 deep rust)"),
-                (ThemeSage,          "Sage  (soft green \u00b7 deep forest)"),
-                (ThemeLavender,      "Lavender  (soft violet \u00b7 deep indigo)"),
-                (ThemeSand,          "Sand  (warm tan \u00b7 deep teal)"),
-            ];
-            foreach (var (rb, label) in proThemes)
-            {
-                rb.IsEnabled = true;
-                rb.Content   = label;
-            }
-            BuyNowThemeButton.IsEnabled = false;
-            BuyNowThemeButton.Content   = "\u2713 SemaBuzz Pro";
-        }
-    }
-
     private void Close_Click(object sender, RoutedEventArgs e)
         => DialogResult = true;
 
     private void Cancel_Click(object sender, RoutedEventArgs e)
         => DialogResult = false;
-
-    //  Pro badge helpers
-
-    private static StackPanel MakeProContent(string label) => BuildProPanel(label);
-
-    private static Border MakeProBadge()
-    {
-        var badge = new Border
-        {
-            CornerRadius      = new CornerRadius(3),
-            BorderThickness   = new Thickness(1),
-            Background        = Brushes.Transparent,
-            Padding           = new Thickness(5, 1, 5, 1),
-            Margin            = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        badge.SetResourceReference(Border.BorderBrushProperty, "AmberBrush");
-        var tb = new TextBlock
-        {
-            Text       = "PRO",
-            FontSize   = 9,
-            FontWeight = FontWeights.Bold,
-            FontFamily = new FontFamily("Cascadia Code, Consolas"),
-        };
-        tb.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
-        badge.Child = tb;
-        return badge;
-    }
-
-    private static StackPanel BuildProPanel(string label)
-    {
-        var panel = new StackPanel { Orientation = Orientation.Horizontal };
-        panel.Children.Add(new TextBlock
-        {
-            Text              = label,
-            VerticalAlignment = VerticalAlignment.Center,
-        });
-        panel.Children.Add(MakeProBadge());
-        return panel;
-    }
-
 }

@@ -8,9 +8,9 @@ namespace SemaBuzz.App;
 public sealed class SemaBuzzProfile
 {
     /// <summary>Unique stable identifier for this profile (GUID string).</summary>
-    public string  Id           { get; set; } = Guid.NewGuid().ToString();
+    public string Id { get; set; } = Guid.NewGuid().ToString();
     /// <summary>Display name shown in the chat pane header and sent to the peer on connect.</summary>
-    public string  Handle       { get; set; } = "anonymous";
+    public string Handle { get; set; } = "anonymous";
     /// <summary>Avatar image serialised as a Base64-encoded PNG string, or null if none.</summary>
     public string? AvatarBase64 { get; set; }
 
@@ -30,7 +30,7 @@ public sealed class SemaBuzzProfile
 /// <summary>Loads and saves profiles to %APPDATA%\SemaBuzz\profiles.json.</summary>
 public static class SemaBuzzProfileStore
 {
-    private static readonly string _dir  =
+    private static readonly string _dir =
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "SemaBuzz");
     private static readonly string _path = Path.Combine(_dir, "profiles.json");
 

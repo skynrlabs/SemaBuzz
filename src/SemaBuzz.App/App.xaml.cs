@@ -51,10 +51,6 @@ public partial class App : Application
         Settings = SemaBuzzSettings.Load();
         SemaBuzzThemeManager.Apply(Settings.Theme);
 
-        // Kick off the async Store license check in the background.
-        // Result is cached in SemaBuzzLicense.IsProUnlocked; dialogs gate on it when opened.
-        SemaBuzzLicense.Check();
-
         // Register for toast notification activation in the background  the COM
         // server registration and Start Menu shortcut creation it performs can take
         // several seconds on first run after a build, so we must not block the UI thread.

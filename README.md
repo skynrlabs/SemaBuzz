@@ -2,64 +2,70 @@
 
 ![License](https://img.shields.io/badge/license-Proprietary-red?style=flat-square)
 ![.NET](https://img.shields.io/badge/.NET-9-512BD4?style=flat-square&logo=dotnet&logoColor=white)
-![C#](https://img.shields.io/badge/C%23-12-239120?style=flat-square&logo=csharp&logoColor=white)
-![WPF](https://img.shields.io/badge/WPF-Windows-0078D6?style=flat-square&logo=windows&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078D6?style=flat-square&logo=windows&logoColor=white)
 ![Encryption](https://img.shields.io/badge/encryption-AES--256--GCM%20%2B%20ECDH--P256-22c55e?style=flat-square&logo=letsencrypt&logoColor=white)
 ![WebSocket](https://img.shields.io/badge/relay-WebSocket-f97316?style=flat-square)
-![Docker](https://img.shields.io/badge/relay-Docker-2496ED?style=flat-square&logo=docker&logoColor=white)
 
-> **Built for the desktop. Made for the wire.**
-> A live-typing chat for Windows — encrypted in transit, no accounts, relay-assisted connection.
+> A private, encrypted 1-to-1 messaging app for Windows.  
+> No accounts. No cloud storage. Just a wire between two people.
 
 ---
 
-## What It Is
+## What Is SemaBuzz?
 
-SemaBuzz is a C# / .NET 9 WPF desktop application that lets two people communicate in real time over a direct encrypted connection. Text is streamed **character-by-character** as it is typed, so the other person sees your thoughts form live on their screen. A visual "filament" indicator pulses with the rhythm of incoming data, making the connection feel tactile and alive.
+SemaBuzz is a free Windows desktop app that lets two people communicate in real time over an end-to-end encrypted connection. Text streams **character-by-character** as you type — the other person sees your thoughts form live on their screen. A visual filament indicator pulses with the rhythm of incoming keystrokes, making the connection feel alive.
 
-Messages are encrypted on your device with ECDH P-256 key exchange and AES-256-GCM before leaving it. The relay forwards packets but never holds the keys and cannot read your messages. No account required — just a handle and a relay token.
+Every session generates fresh encryption keys on both devices using **ECDH P-256**. All traffic is encrypted with **AES-256-GCM** before it leaves your machine. The relay server — which you or your peer must self-host — forwards only opaque bytes it can never read. When the session ends, nothing is retained anywhere.
 
 ---
 
 ## Features
 
-### Free
-- **Live-wire typing** — characters stream keystroke-by-keystroke in real time
-- **Buzz alerts** — send an instant ⚡ that shakes the peer's window and pulses the filament
-- **Strong encryption** — ephemeral ECDH P-256 key exchange + AES-256-GCM; relay sees only ciphertext
-- **Relay connection** — connect via the default relay; no port-forwarding needed
-- **STUN NAT discovery** — auto-detects your external IP/port for direct connections
-- **Identity profiles** — named handles with optional avatar images, saved locally
-- **100+ emoji** — full colour emoji rendering in chat and built-in picker (7 categories)
-- **Obsidian theme** — the default dark amber look
-- **Flicker indicator** — the live-typing filament animation
-
-### Pro (one-time license — $9.99)
-- **URL Walk** — push a live URL to your peer mid-conversation; appears as a clickable card
-- **Shared whiteboard** — open a real-time drawing board alongside chat; 6 colours, 3 stroke sizes, synced CLEAR; strokes encrypted over the wire
-- **15 Pro themes** — Neon, Matrix, Blood Moon, Arctic, Sepia, Midnight, Sunset, Rose, Violet, Emerald, Steel, Forest, Chrome, Muted Terminal, Retro '95
-- **Pulse & Wave indicator styles** — additional filament animations
-- **Custom relay URI** — override the default relay in Settings
-- **Custom default port** — pre-configure your listen port
-
-Purchase at [semabuzz.gumroad.com/l/dgeyxz](https://semabuzz.gumroad.com/l/dgeyxz). License key is emailed instantly and activates offline.
+- **Live-wire typing** — keystrokes stream in real time; watch the other person compose character by character
+- **BuzzIndicator** — a filament that pulses and glows with incoming activity, even when preview is off
+- **⚡ Buzz alerts** — send an instant pulse to get your peer's attention without typing
+- **File transfer** — send files via the relay; SHA-256 verified on receipt
+- **Shared whiteboard** — real-time collaborative drawing board alongside chat
+- **Walk Web** — push a URL to your peer as a clickable card instantly
+- **Emoji picker** — 100+ emoji across 7 categories with full colour rendering
+- **Profiles** — named handles with optional avatars, saved locally and switched at any time
+- **Themes** — choose from a library of dark and light themes with live preview
+- **Status** — set Available, Away, or Busy with an optional custom message
+- **System tray** — minimize to tray; live sessions continue in the background
+- **Always on Top** — keep SemaBuzz floating above other windows
+- **Strong encryption** — ephemeral ECDH P-256 + AES-256-GCM; the relay never holds keys
 
 ---
 
-## How Connections Work
+## How It Works
 
-The host generates a short token and shares it with their peer. Both sides connect to the relay server via WebSocket; the relay pairs them by token and forwards encrypted frames transparently. The relay never sees plaintext — the ECDH handshake and all subsequent traffic is encrypted on-device before transmission.
+1. One person clicks **CREATE A BUZZ** — a unique 6-character code appears.
+2. They share that code with the other person by any means (text, email, etc.).
+3. The other person enters the code and clicks **JOIN**.
+4. Both sides are connected and encrypted. Close the app and the session is gone forever.
 
-Default relay: `wss://relay.semabuzz.me` (configurable in Settings for Pro users)
+The relay server pairs the two clients by code and forwards their encrypted frames. It never sees plaintext.
 
 ---
 
-## Encryption
+## Requirements
 
-Every session generates a **fresh ephemeral ECDH P-256 key pair**. Public keys are exchanged during the handshake, a shared secret is derived, and all subsequent traffic is encrypted with **AES-256-GCM** — providing both confidentiality and tamper detection. Private keys never leave the device. Peer identity metadata (handle + avatar) is also encrypted before transmission.
+- Windows 10 version 1809 (build 17763) or later
+- A self-hosted [SemaBuzz Relay](https://github.com/skynrlabs/SemaBuzz-Relay) — you or your peer must run one
 
-Per-packet sequence numbers guard against replays.
+---
+
+## Building from Source
+
+Requires the [.NET 9 SDK](https://dotnet.microsoft.com/download) with the **Windows desktop development** workload.
+
+```
+git clone https://github.com/skynrlabs/SemaBuzz.git
+cd SemaBuzz
+dotnet build SemaBuzz.sln -c Debug
+```
+
+Output lands in `build/Debug/`. Set `SemaBuzz.App` as the startup project in Visual Studio to run with F5.
 
 ---
 
@@ -68,10 +74,8 @@ Per-packet sequence numbers guard against replays.
 | Project | Role |
 |---|---|
 | `SemaBuzz.App` | WPF UI — windows, dialogs, theming, indicator |
-| `SemaBuzz.Protocol` | Core library — wire protocol, encryption, STUN, relay client |
-| `SemaBuzz.Relay` | Self-hostable ASP.NET Core WebSocket relay server |
 | `SemaBuzz.Styles` | Shared XAML styles and colour resources |
-| `SemaBuzz.Tests` | Unit and integration tests |
+| [`SemaBuzz.Protocol`](https://github.com/skynrlabs/SemaBuzz-Protocol) | Wire protocol, encryption, relay client (NuGet package) |
 
 ---
 
@@ -81,135 +85,72 @@ Per-packet sequence numbers guard against replays.
 |---|---|
 | Language | C# 12 |
 | Runtime | .NET 9 |
-| UI Framework | WPF (Windows Presentation Foundation) |
-| Networking | WebSocket (relay), UDP (direct P2P) |
+| UI Framework | WPF |
+| Networking | WebSocket (relay) |
 | Encryption | ECDH P-256 + AES-256-GCM |
-| NAT Traversal | STUN (RFC 5389) |
-| Emoji | [Emoji.Wpf](https://github.com/samhocevar/emoji.wpf) 0.3.4 |
-| Packaging | Single-file `.exe` (self-contained) |
-| Min OS | Windows 10 1809 (build 17763)+ |
-
----
-
-## Building
-
-Requirements: Visual Studio 2022 (17.8+) or the .NET 9 SDK with the **.NET desktop development** workload.
-
-```
-git clone https://github.com/semabuzz/SemaBuzz.git
-cd SemaBuzz
-dotnet build SemaBuzz.sln -c Debug
-```
-
-Output lands in `build/Debug/net9.0-windows10.0.17763.0/`. Set `SemaBuzz.App` as the startup project in Visual Studio to run with F5.
+| Min OS | Windows 10 1809 (build 17763) |
 
 ---
 
 ## Self-Hosting the Relay
 
-### Pre-built binaries
-
-Download a self-contained single-file binary from the [latest release](https://github.com/semabuzz/SemaBuzz/releases/latest):
+SemaBuzz requires a relay server. Download a self-contained binary from the [SemaBuzz Relay releases](https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.1.0):
 
 | Platform | File |
 |---|---|
-| Windows x64 | `SemaBuzz-Relay-Windows.exe` |
-| Linux x64 | `SemaBuzz-Relay-Linux` |
+| Linux x64 | `SemaBuzz.Relay-linux-x64.tar.gz` |
+| Linux ARM64 | `SemaBuzz.Relay-linux-arm64.tar.gz` |
+| Windows x64 | `SemaBuzz.Relay-win-x64.zip` |
 
-No runtime required. Just run:
+Run it:
 
-```powershell
-# Windows
-.\SemaBuzz-Relay-Windows.exe [--port 7171]
-
+```bash
 # Linux
-chmod +x SemaBuzz-Relay-Linux
-./SemaBuzz-Relay-Linux [--port 7171]
+./SemaBuzz.Relay
+
+# Windows
+.\SemaBuzz.Relay.exe
 ```
 
-The default port is **7171** and can be overridden with `--port` or the `PORT` environment variable.
+Default port is **7171**. Override with the `PORT` environment variable. Enter `ws://your-server:7171/relay` in SemaBuzz's Settings → Preferences.
 
-### Build from source
-
-```
-cd src/SemaBuzz.Relay
-dotnet run
-```
-
-### Docker
-
-```dockerfile
-docker build -t semabuzz-relay .
-docker run -p 7171:7171 semabuzz-relay
-```
-
-Or deploy to Railway, Render, or Fly.io — set the `PORT` environment variable; TLS is terminated by the platform.
-
-### Endpoints
-
-| Path | Description |
-|---|---|
-| `GET /` | Health check — returns `SemaBuzz Relay OK` |
-| `WS /relay` | WebSocket endpoint for SemaBuzz clients |
-
-### Rate limits & defaults
-
-| Setting | Value |
-|---|---|
-| Default port | 7171 |
-| WebSocket keep-alive | 30 s |
-| Room TTL (idle) | 10 min |
-| Max rooms (global) | 500 |
-| Max connections per IP | 5 |
-
-### Stopping
-
-```powershell
-# Ctrl+C in the terminal (clean shutdown)
-# Windows background:
-Stop-Process -Name "SemaBuzz-Relay-Windows"
-# Linux background:
-pkill SemaBuzz-Relay-Linux
-# Docker:
-docker stop <container-name>
-```
+To verify the relay is running, open `http://your-server:7171` in a browser — you should see a health response. "WebSocket upgrade required" is also a valid response and means the relay is up.
 
 ---
 
-## Privacy — Relay Design
+## Privacy
 
-The relay is a **blind pass-through**. It does not log, read, or store message content. All traffic is encrypted on-device before reaching the relay; the server sees only opaque binary frames. IP addresses are held in memory for the duration of a session only and are never written to disk.
+The relay is a blind pass-through. It does not log, read, or store message content. All traffic is encrypted on-device before it reaches the relay.
 
----
-
-## Data & Privacy (App)
-
-All settings and profiles are stored locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer (routed through the relay). The relay server sees only opaque encrypted binary frames.
+The app stores only your preferences and profiles locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer via the relay.
 
 ---
 
 ## Contributing
 
+PRs and issues are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
 The repo uses a two-branch model:
 
 | Branch | Purpose |
 |---|---|
-| `main` | Stable, release-ready. Tagged on every release. |
-| `dev` | Integration target — all PRs merge here first. |
-
-For features and fixes, branch off `dev` (`feature/my-thing` or `fix/my-thing`), open a PR back to `dev`. Releases are cut by merging `dev` → `main` and tagging:
-
-- App releases: `vX.Y.Z`
-- Relay releases: `vX.Y.Z-relay`
+| `main` | Stable, release-ready |
+| `dev` | Integration target — all PRs merge here first |
 
 ---
 
 ## License
 
-SemaBuzz is **proprietary software**. Copyright © 2026 Skynr Labs. All rights reserved.
+SemaBuzz for Windows is **proprietary software**. Copyright © 2026 skynrlabs. All rights reserved.
 
 You may download and use the application for personal or internal business use. You may not copy, modify, redistribute, sublicense, or sell the software or its source code. See [LICENSE](LICENSE) for full terms.
 
+The [SemaBuzz Protocol](https://github.com/skynrlabs/SemaBuzz-Protocol) is dual-licensed (AGPL-3.0 / Commercial).  
+The [SemaBuzz Relay](https://github.com/skynrlabs/SemaBuzz-Relay) is MIT licensed.
+
 ---
 
-[semabuzz.com](https://semabuzz.com) &nbsp;·&nbsp; [Skynr Labs](https://skynrlabs.com)
+[semabuzz.me](https://semabuzz.me) &nbsp;·&nbsp; [GitHub Sponsors](https://github.com/sponsors/skynrlabs)
+
+
+

@@ -15,7 +15,7 @@ namespace SemaBuzz.App;
 internal static class SemaBuzzSingleInstance
 {
     private const string MutexName = "SemaBuzz_SingleInstance_Mutex";
-    private const string PipeName  = "SemaBuzz_SingleInstance_Pipe";
+    private const string PipeName = "SemaBuzz_SingleInstance_Pipe";
 
     private static Mutex? _mutex;
 
@@ -108,7 +108,7 @@ internal static class SemaBuzzSingleInstance
         var thread = new Thread(() => ListenLoop(appExiting))
         {
             IsBackground = true,
-            Name         = "SemaBuzz-PipeListener",
+            Name = "SemaBuzz-PipeListener",
         };
         thread.Start();
     }

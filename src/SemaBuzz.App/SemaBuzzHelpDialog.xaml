@@ -2,7 +2,7 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="SemaBuzz — FAQ"
-        Height="480" Width="520"
+        Height="560" Width="540"
         Background="{DynamicResource WindowBackgroundBrush}"
         Foreground="{DynamicResource AmberBrush}"
         FontFamily="Cascadia Code, JetBrains Mono, Consolas"
@@ -46,98 +46,232 @@
                                Text="SemaBuzz is a private, encrypted 1-to-1 communication tool. No accounts. Messages are encrypted on your device using ECDH P-256 and AES-256-GCM before leaving it. The relay server forwards your packets but holds no keys and can never read them."/>
                 </Border>
 
-                <!-- Q1 -->
-                <TextBlock Text="How do I start a session as the HOST?"
+                <!-- ─── GETTING CONNECTED ─── -->
+                <TextBlock Text="GETTING CONNECTED"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
+                <TextBlock Text="How do I create a buzz and host a session?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="1.  Click WIRE → Connect in the menu."/>
+                           Text="1.  On the main screen click CREATE A BUZZ."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="2.  Choose HOST at the top of the dialog."/>
+                           Text="2.  A 6-character Buzz code appears (e.g. X7K2QP). Click COPY to copy it."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="3.  You will see a Buzz address — something like buzz://X7K2QP. Click COPY to copy it."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="4.  Send that address to the other person by any means (text message, email, etc.)."/>
+                           Text="3.  Send that code to the other person by any means — text, email, etc."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="5.  Click CONNECT and wait. The app will say Warming… until the other person dials in."/>
+                           Text="4.  SemaBuzz waits. As soon as they join you will both be live."/>
 
-                <!-- Q2 -->
-                <TextBlock Text="How do I dial in and connect to someone?"
+                <TextBlock Text="How do I join someone else's session?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="1.  Click WIRE → Connect in the menu."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="2.  Choose DIAL at the top of the dialog."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="3.  Paste the Buzz address you received into the Buzz field (e.g. buzz://X7K2QP)."/>
+                           Text="1.  Type or paste the 6-character Buzz code into the 'Join a Buzz' box on the main screen."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="4.  Click CONNECT. You will be live as soon as both sides are connected."/>
+                           Text="2.  Press Enter or click JOIN. You will be connected once the host approves."/>
 
-                <!-- Q3 -->
-                <TextBlock Text="What is a Buzz address?"
+                <TextBlock Text="What is a Buzz code?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="It looks like buzz://X7K2QP — a short one-time code that tells the relay server which two people belong together. It is only valid for the current session. When you close the connection or click NEW, the old address can never be used again."/>
+                           Text="A 6-character one-time code (e.g. X7K2QP) that pairs two people on the same relay. It is only valid for the current session — when either side disconnects the code expires and can never be reused."/>
 
-                <!-- Q4 -->
-                <TextBlock Text="Do I need to open any firewall ports or forward my router?"
+                <TextBlock Text="What happens when someone requests to connect to me?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="No. SemaBuzz connects through an encrypted relay over standard HTTPS (port 443). It works on home Wi-Fi, mobile hotspots, office networks, and behind firewalls — no configuration needed."/>
+                           Text="An approval prompt appears showing the requester's handle and a countdown timer. Click APPROVE to let them in or DENY to refuse. If the timer expires without a response the request is automatically denied."/>
 
-                <!-- Q5 -->
+                <!-- ─── SECURITY &amp; RELAY ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="SECURITY &amp; RELAY"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
                 <TextBlock Text="Is it secure? Can the relay server read my messages?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="No. Every session generates fresh encryption keys on both devices using ECDH (a standard used by Signal and iMessage). The relay only forwards encrypted bytes it cannot read. Even if the relay server were compromised, your messages are unreadable."/>
+                           Text="No. Every session generates a fresh key pair on both devices using ECDH P-256 — the same approach used by Signal and iMessage. All data is encrypted with AES-256-GCM on your device before it leaves. The relay only forwards opaque bytes it cannot read; even a compromised relay reveals nothing."/>
 
-                <!-- Q6 -->
-                <TextBlock Text="Where are my chat logs stored?"
+                <TextBlock Text="What is a relay server and do I need one?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="When Permanent Encrypted is enabled in Settings, messages are locked to your Windows account and saved to:"/>
+                           Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. You or your peer must run a SemaBuzz Relay server and enter its WebSocket address in SETTINGS → Preferences."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="{DynamicResource AmberBrush}" FontSize="11"
-                           Text="%APPDATA%\SemaBuzz\chatlog.bin"/>
+                           Foreground="#AAAAAA" FontSize="12">
+                    <Run Text="The relay is open-source (MIT) and available "/>
+                    <Hyperlink NavigateUri="https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.1.0"
+                               Foreground="{DynamicResource AmberBrush}"
+                               RequestNavigate="Hyperlink_RequestNavigate">here</Hyperlink>
+                    <Run Text=". It uses a standard WebSocket on port 7171 by default — no special firewall rules needed on client machines."/>
+                </TextBlock>
+
+                <TextBlock Text="How do I test that my relay is working?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Open a browser and navigate to your relay's HTTP address (e.g. http://localhost:7171). You should see a short health response — this confirms the relay is up and listening."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="Use VIEW → Open Log to read your history inside the app. The file is not readable outside of SemaBuzz."/>
+                           Text="If you see 'WebSocket upgrade required' that is also correct — it means the relay is running and waiting for a WebSocket connection from the app. A plain browser request is not a WebSocket, so that message is expected."/>
 
-                <!-- Q7 -->
-                <TextBlock Text="What is Live Preview and should I turn it off?"
+                <!-- ─── MESSAGING FEATURES ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="MESSAGING FEATURES"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
+                <TextBlock Text="What is Live Preview?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="Live Preview streams every keystroke to the other person as you type — they see each letter appear in real time. If you prefer to compose privately and send all at once, open SETTINGS → Preferences and uncheck 'Stream typing live to peer'. Press Enter to send."/>
+                           Text="Live Preview streams every keystroke to the other person as you type — they see each letter appear in real time. To compose privately instead, open SETTINGS → Preferences and uncheck 'Stream typing live to peer'. Either way, press Enter to send the finished message."/>
 
-                <!-- Q8 -->
+                <TextBlock Text="What is the BuzzIndicator (the bar at the bottom)?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="The BuzzIndicator is a visual typing meter. Its filament glows and pulses as the other person types, so you know they are actively composing even if Live Preview is off. Adjust its sensitivity and visual style in SETTINGS → Preferences."/>
+
+                <TextBlock Text="What does the ⚡ Buzz button do?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Sends a 'buzz' — a short electrical pulse animation that fires on the other person's BuzzIndicator. Use it to get their attention without typing anything."/>
+
+                <TextBlock Text="How do I send an emoji?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Click the 😊 button in the input area to open the emoji picker. Categories include faces, gestures, symbols, animals, food, travel, activities, and objects. Click any emoji to insert it into your message."/>
+
+                <!-- ─── FILES &amp; SHARING ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="FILES &amp; SHARING"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
+                <TextBlock Text="How do I send a file?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Click the 📎 button, choose a file, and confirm. The other person sees a file transfer card with ACCEPT and DECLINE buttons."/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Once they accept, the file transfers via the relay. A SHA-256 checksum is verified on receipt to confirm the file arrived intact."/>
+
+                <TextBlock Text="What is Walk Web (the 🌐 button)?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Walk Web pushes a URL directly to the other person — a clickable link appears instantly in their chat pane. Useful for sharing a webpage without sending it as plain text in a message."/>
+
+                <TextBlock Text="How do I use the Whiteboard (✏)?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Click the ✏ button to open the shared drawing board. Both sides can draw simultaneously and see each other's strokes in real time. The whiteboard stays open while you continue chatting."/>
+
+                <!-- ─── IDENTITY &amp; STATUS ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="IDENTITY &amp; STATUS"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
+                <TextBlock Text="Can I use a custom name / profile?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Yes. Go to SETTINGS → Profiles to create or edit named profiles with a handle and avatar. Your active profile name is sent to the other person when a session starts so they know who they're talking to. Switch profiles at any time from the profile badge in the top-right corner."/>
+
+                <TextBlock Text="How do I set my status (Available / Away / Busy)?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Click the profile badge in the top-right corner. A menu lets you choose Available, Away, or Busy and optionally type a custom status message. Your status is shown to peers when you connect."/>
+
+                <!-- ─── SETTINGS &amp; LOOK ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="SETTINGS &amp; LOOK"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
+                <TextBlock Text="How do I change the theme?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Open SETTINGS → Themes. A grid of all available themes is shown with a live preview — click one to preview, then OK to save or Cancel to revert to your previous theme."/>
+
+                <TextBlock Text="What can I configure in Preferences?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="SETTINGS → Preferences lets you set the relay server address, toggle Live Preview, adjust BuzzIndicator sensitivity, and choose the indicator visual style."/>
+
+                <!-- ─── WINDOW &amp; SYSTEM ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="WINDOW &amp; SYSTEM"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
+                <TextBlock Text="Can I minimize SemaBuzz to the system tray?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Yes. Minimizing the window hides it to the system tray. Double-click the tray icon to restore it. A live session continues running while minimized."/>
+
+                <TextBlock Text="What is Always on Top?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="WIRE → Always on Top keeps the SemaBuzz window floating above all other windows, even when you focus on another application. Useful when monitoring an active session while working in another program."/>
+
+                <!-- ─── TROUBLESHOOTING ─── -->
+                <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
+                <TextBlock Text="TROUBLESHOOTING"
+                           Foreground="{DynamicResource AmberBrush}" FontSize="10"
+                           FontWeight="Bold" Opacity="0.55" Margin="0 0 0 12"/>
+
                 <TextBlock Text="The connection dropped. What do I do?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="When a connection drops, SemaBuzz automatically returns to the main screen — no manual disconnect is needed."/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="The host clicks CREATE A BUZZ to generate a new code and shares it with the other person."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="Click WIRE → Disconnect if it is still shown, then WIRE → Connect again. The host generates a new Buzz address and shares it with the other person. Your on-screen chat history stays visible."/>
+                           Text="The other person enters the new code and clicks JOIN. Your on-screen chat history stays visible."/>
 
-                <!-- Q9 — for family/non-technical users -->
                 <TextBlock Text="I'm not technical — what do I actually need to know?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
@@ -145,27 +279,17 @@
                         CornerRadius="4" Padding="14 10" Margin="0 0 0 20">
                     <StackPanel>
                         <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12" Margin="0 0 0 6"
-                                   Text="Think of it like a one-time phone call, but for text and images:"/>
+                                   Text="Think of it like a one-time phone call, but for text and files:"/>
                         <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12" Margin="0 0 0 4"
-                                   Text="•  One person hosts (like answering the phone)."/>
+                                   Text="•  One person clicks CREATE A BUZZ and sends the code to the other."/>
                         <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12" Margin="0 0 0 4"
-                                   Text="•  They send you a short code (buzz://XXXXXX) by any means."/>
-                        <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12" Margin="0 0 0 4"
-                                   Text="•  You paste that code into the DIAL box and click CONNECT."/>
+                                   Text="•  The other types that code in the box and clicks JOIN."/>
                         <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12" Margin="0 0 0 6"
                                    Text="•  You're connected. Type and press Enter to send."/>
                         <TextBlock TextWrapping="Wrap" Foreground="#888" FontSize="11"
                                    Text="Nothing is stored on any server. Close the app when you're done and the session is gone."/>
                     </StackPanel>
                 </Border>
-
-                <!-- Q10 -->
-                <TextBlock Text="Can I use a custom name / profile?"
-                           Foreground="{DynamicResource AmberBrush}"
-                           FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
-                           Foreground="#AAAAAA" FontSize="12"
-                           Text="Yes — enter a handle in the identity section of the connect dialog, or save it as a named profile for quick re-use. Your name is sent to the other person when the session starts so they know who they're talking to."/>
 
             </StackPanel>
         </ScrollViewer>

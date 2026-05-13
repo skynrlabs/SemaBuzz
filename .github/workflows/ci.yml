@@ -17,58 +17,19 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      - name: Checkout Protocol (for local NuGet feed)
+        uses: actions/checkout@v4
+        with:
+          repository: skynrlabs/SemaBuzz-Protocol
+          path: SemaBuzz-Protocol
+      - name: Pack Protocol
+        run: dotnet pack SemaBuzz-Protocol/src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj --configuration Release --output ../SemaBuzz-Protocol/nupkg
       - name: Restore
         run: dotnet restore SemaBuzz.sln
       - name: Build (Release)
         run: dotnet build SemaBuzz.sln --configuration Release --no-restore
 
-  # ── 2. Unit Tests ───────────────────────────────────────────────────────────
-  unit-tests:
-    name: Unit Tests
-    runs-on: windows-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-      - name: Run unit tests
-        run: >
-          dotnet test tests/SemaBuzz.Tests/SemaBuzz.Tests.csproj
-          --configuration Release
-          --filter "Category!=Integration"
-          --logger "trx;LogFileName=unit-results.trx"
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: unit-test-results
-          path: "**/*.trx"
-
-  # ── 3. Integration Tests ────────────────────────────────────────────────────
-  integration-tests:
-    name: Integration Tests
-    runs-on: windows-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: '9.0.x'
-      - name: Run integration tests
-        run: >
-          dotnet test tests/SemaBuzz.Tests/SemaBuzz.Tests.csproj
-          --configuration Release
-          --filter "Category=Integration"
-          --logger "trx;LogFileName=integration-results.trx"
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: integration-test-results
-          path: "**/*.trx"
-
-  # ── 4. Lint ──────────────────────────────────────────────────────────────────
+  # ── 2. Lint ──────────────────────────────────────────────────────────────────
   lint:
     name: Lint
     runs-on: windows-latest
@@ -77,15 +38,22 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
+      - name: Checkout Protocol (for local NuGet feed)
+        uses: actions/checkout@v4
+        with:
+          repository: skynrlabs/SemaBuzz-Protocol
+          path: SemaBuzz-Protocol
+      - name: Pack Protocol
+        run: dotnet pack SemaBuzz-Protocol/src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj --configuration Release --output ../SemaBuzz-Protocol/nupkg
       - name: Restore (for analyzers)
         run: dotnet restore SemaBuzz.sln
-      - name: Check formatting — Protocol
+      - name: Check formatting — App
         run: >
-          dotnet format src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj
+          dotnet format src/SemaBuzz.App/SemaBuzz.App.csproj
           --verify-no-changes
           --severity warn
-      - name: Check formatting — Tests
+      - name: Check formatting — Styles
         run: >
-          dotnet format tests/SemaBuzz.Tests/SemaBuzz.Tests.csproj
+          dotnet format src/SemaBuzz.Styles/SemaBuzz.Styles.csproj
           --verify-no-changes
           --severity warn

@@ -3,6 +3,7 @@
   <ItemGroup>
     <PackageReference Include="Emoji.Wpf" Version="0.3.4" />
     <PackageReference Include="Microsoft.Toolkit.Uwp.Notifications" Version="7.1.2" />
+    <PackageReference Include="SemaBuzz.Protocol" Version="1.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -11,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SemaBuzz.Protocol\SemaBuzz.Protocol.csproj" />
     <ProjectReference Include="..\SemaBuzz.Styles\SemaBuzz.Styles.csproj" />
   </ItemGroup>
 

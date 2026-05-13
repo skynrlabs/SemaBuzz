@@ -453,12 +453,6 @@
 
         <!-- Footer -->
         <Grid Grid.Row="4" Margin="20 0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
-                <Button x:Name="BuyNowThemeButton"
-                        Style="{StaticResource SemaBuzzButton}"
-                        Content="UPGRADE TO PRO"
-                        Click="BuyNow_Click"/>
-            </StackPanel>
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
                 <Button Style="{StaticResource SemaBuzzButton}" Content="CANCEL"
                         Margin="0 0 10 0" Click="Cancel_Click"/>

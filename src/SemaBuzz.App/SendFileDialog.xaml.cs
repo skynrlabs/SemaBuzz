@@ -20,17 +20,17 @@ public partial class SendFileDialog : Window
         ".zip", ".7z", ".rar", ".tar", ".gz", ".bz2", ".xz", ".cab", ".iso",
     };
 
-    public string FileName   { get; private set; } = string.Empty;
-    public long   FileSize   { get; private set; }
+    public string FileName { get; private set; } = string.Empty;
+    public long FileSize { get; private set; }
     public byte[] FileSha256 { get; private set; } = [];
-    public string FileToken  { get; private set; } = string.Empty;
+    public string FileToken { get; private set; } = string.Empty;
 
     public SendFileDialog(string filePath, string relayBaseUri)
     {
         InitializeComponent();
-        _filePath        = filePath;
-        _relayBaseUri    = relayBaseUri;
-        var fi           = new FileInfo(filePath);
+        _filePath = filePath;
+        _relayBaseUri = relayBaseUri;
+        var fi = new FileInfo(filePath);
         FileNameText.Text = fi.Name;
         FileSizeText.Text = FormatSize(fi.Length);
     }
@@ -109,7 +109,7 @@ public partial class SendFileDialog : Window
         string token;
         try
         {
-            using var http    = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(60) };
             using var content = new ByteArrayContent(bytes);
             var resp = await http.PostAsync($"{_relayBaseUri}/file", content);
             if (!resp.IsSuccessStatusCode)
@@ -136,19 +136,19 @@ public partial class SendFileDialog : Window
             return;
         }
 
-        FileName     = Path.GetFileName(_filePath);
-        FileSize     = fileLength;
-        FileSha256   = sha256;
-        FileToken    = token;
+        FileName = Path.GetFileName(_filePath);
+        FileSize = fileLength;
+        FileSha256 = sha256;
+        FileToken = token;
         DialogResult = true;
         Close();
     }
 
     private void ShowError(string message)
     {
-        FileErrorText.Text       = message;
+        FileErrorText.Text = message;
         FileErrorText.Visibility = Visibility.Visible;
-        OuterBorder.BorderBrush  = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
+        OuterBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
     }
 
     private void ClearError()
@@ -159,9 +159,9 @@ public partial class SendFileDialog : Window
 
     private static string FormatSize(long bytes) => bytes switch
     {
-        < 1024        => $"{bytes} B",
+        < 1024 => $"{bytes} B",
         < 1024 * 1024 => $"{bytes / 1024.0:F1} KB",
-        _             => $"{bytes / 1024.0 / 1024.0:F1} MB",
+        _ => $"{bytes / 1024.0 / 1024.0:F1} MB",
     };
 
     private static bool HasDangerousMagicBytes(byte[] data)
