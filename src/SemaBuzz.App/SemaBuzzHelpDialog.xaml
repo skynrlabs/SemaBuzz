@@ -110,16 +110,24 @@
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. You or your peer must run a SemaBuzz Relay server and enter its WebSocket address in SETTINGS → Preferences."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12">
-                    <Run Text="The relay is open-source (MIT) and available at "/>
+                    <Run Text="The relay is open-source (MIT) and available "/>
                     <Hyperlink NavigateUri="https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.1.0"
                                Foreground="{DynamicResource AmberBrush}"
-                               RequestNavigate="Hyperlink_RequestNavigate">
-                        github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.1.0
-                    </Hyperlink>
-                    <Run Text=". It uses a standard WebSocket on port 80 or 443 — no special firewall rules needed on client machines."/>
+                               RequestNavigate="Hyperlink_RequestNavigate">here</Hyperlink>
+                    <Run Text=". It uses a standard WebSocket on port 7171 by default — no special firewall rules needed on client machines."/>
                 </TextBlock>
+
+                <TextBlock Text="How do I test that my relay is working?"
+                           Foreground="{DynamicResource AmberBrush}"
+                           FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="Open a browser and navigate to your relay's HTTP address (e.g. http://localhost:7171). You should see a short health response — this confirms the relay is up and listening."/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="If you see 'WebSocket upgrade required' that is also correct — it means the relay is running and waiting for a WebSocket connection from the app. A plain browser request is not a WebSocket, so that message is expected."/>
 
                 <!-- ─── MESSAGING FEATURES ─── -->
                 <Rectangle Height="1" Fill="{DynamicResource ObsidianBorderBrush}" Margin="0 4 0 14"/>
