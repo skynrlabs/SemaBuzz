@@ -6,85 +6,85 @@ namespace SemaBuzz.App;
 /// <summary>Identifies the active visual theme for the SemaBuzz UI.</summary>
 public enum SemaBuzzThemeId
 {
-    Obsidian   = 0,
-    Neon       = 1,
-    Matrix     = 2,
-    BloodMoon  = 3,
-    Arctic     = 4,
-    Sepia      = 5,
-    Midnight   = 6,
-    Sunset     = 7,
-    Rose       = 8,
-    Violet     = 9,
-    Emerald    = 10,
-    Steel      = 11,
-    Forest     = 12,
-    Chrome        = 13,
+    Obsidian = 0,
+    Neon = 1,
+    Matrix = 2,
+    BloodMoon = 3,
+    Arctic = 4,
+    Sepia = 5,
+    Midnight = 6,
+    Sunset = 7,
+    Rose = 8,
+    Violet = 9,
+    Emerald = 10,
+    Steel = 11,
+    Forest = 12,
+    Chrome = 13,
     MutedTerminal = 14,
-    Daylight      = 15,
-    Parchment     = 16,
-    Sage          = 17,
-    Lavender      = 18,
-    Sand          = 19,
+    Daylight = 15,
+    Parchment = 16,
+    Sage = 17,
+    Lavender = 18,
+    Sand = 19,
 }
 
 /// <summary>Identifies the filament animation style shown in the buzz indicator.</summary>
 public enum IndicatorStyleId
 {
     Flicker = 0, // Default (free)  chaotic multi-harmonic
-    Pulse   = 1, // PRO  clean single-harmonic heartbeat
-    Wave    = 2, // PRO  slow rolling sine
+    Pulse = 1, // PRO  clean single-harmonic heartbeat
+    Wave = 2, // PRO  slow rolling sine
 }
 
 /// <summary>Persisted user preferences for SemaBuzz. Serialised to %APPDATA%\SemaBuzz\settings.json.</summary>
 public sealed class SemaBuzzSettings
 {
     /// <summary>Active UI theme. Free users are limited to Obsidian and Daylight.</summary>
-    public SemaBuzzThemeId    Theme             { get; set; } = SemaBuzzThemeId.Obsidian;
+    public SemaBuzzThemeId Theme { get; set; } = SemaBuzzThemeId.Obsidian;
     /// <summary>Multiplier (0.5–2.0) applied to packet intensity before driving the filament.</summary>
-    public double             IndicatorSensitivity { get; set; } = 1.0;
+    public double IndicatorSensitivity { get; set; } = 1.0;
 
     /// <summary>Filament animation style.</summary>
-    public IndicatorStyleId   IndicatorStyle       { get; set; } = IndicatorStyleId.Flicker;
+    public IndicatorStyleId IndicatorStyle { get; set; } = IndicatorStyleId.Flicker;
 
     /// <summary>Font size used for chat message text (11–20).</summary>
-    public double             ChatFontSize         { get; set; } = 13.0;
+    public double ChatFontSize { get; set; } = 13.0;
 
     /// <summary>When true, keystrokes are streamed live to the peer as the user types.</summary>
-    public bool               LivePreview          { get; set; } = true;
+    public bool LivePreview { get; set; } = true;
 
     /// <summary>When true, minimizing the main window hides it to the system tray.</summary>
-    public bool               MinimizeToTray       { get; set; } = false;
+    public bool MinimizeToTray { get; set; } = false;
 
     /// <summary>When true, buzz actions play the configured local sound.</summary>
-    public bool               BuzzSoundEnabled     { get; set; } = true;
+    public bool BuzzSoundEnabled { get; set; } = true;
 
     /// <summary>Playback volume for the local buzz sound (0.0-1.0).</summary>
-    public double             BuzzSoundVolume      { get; set; } = 0.75;
+    public double BuzzSoundVolume { get; set; } = 0.75;
 
     /// <summary>When true, SemaBuzz is registered to run at Windows startup.</summary>
-    public bool               StartWithWindows     { get; set; } = false;
+    public bool StartWithWindows { get; set; } = false;
 
     /// <summary>When true, incoming connection requests are automatically approved without prompting.</summary>
-    public bool               AutoApprove          { get; set; } = false;
+    public bool AutoApprove { get; set; } = false;
 
     /// <summary>
     /// WebSocket relay endpoint for the SemaBuzz Relay server.
     /// There is no hosted relay — users must deploy their own:
     /// https://github.com/skynrlabs/SemaBuzz-Relay
     /// </summary>
-    public string             RelayUri             { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+    public string RelayUri { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
     /// <summary>
     /// ID of the profile that is currently selected as the active identity.
     /// Null means use the first available profile, or "anonymous" if none exist.
     /// </summary>
-    public string?            ActiveProfileId      { get; set; } = null;
+    public string? ActiveProfileId { get; set; } = null;
 
     /// <summary>Your current online status shown to the peer.</summary>
-    public SemaBuzz.Protocol.SemaBuzzStatus Status        { get; set; } = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+    public SemaBuzz.Protocol.SemaBuzzStatus Status { get; set; } = SemaBuzz.Protocol.SemaBuzzStatus.Available;
     /// <summary>Optional short message shown alongside your status (e.g. "Back in 10 min").</summary>
-    public string             StatusMessage        { get; set; } = string.Empty;
+    public string StatusMessage { get; set; } = string.Empty;
 
     //  Persistence
 

@@ -33,9 +33,9 @@ namespace SemaBuzz.App;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private SemaBuzzClient?   _client;
+    private SemaBuzzClient? _client;
     private SemaBuzzListener? _listener;
-    private SemaBuzzStreamer  _streamer = new();
+    private SemaBuzzStreamer _streamer = new();
     private CancellationTokenSource? _cts;
     private CancellationTokenSource? _warmingCts;
     private bool _warmingTimedOut;
@@ -57,14 +57,14 @@ public partial class MainWindow : Window
     private const int MaxPendingPeerPackets = 8;
     private static readonly TimeSpan PendingPeerResyncDelay = TimeSpan.FromMilliseconds(120);
     private ushort _lastPeerSeq;
-    private bool   _peerSeqInitialized;
+    private bool _peerSeqInitialized;
     private readonly Dictionary<ushort, SemaBuzzPacket> _pendingPeerPackets = [];
     private readonly DispatcherTimer _pendingPeerResyncTimer;
 
     // Chat row containers (tracked so they can be removed when cleared)
-    private Grid?               _peerLiveRow;
+    private Grid? _peerLiveRow;
     private EmojiWpf.TextBlock? _livePeerBlock;
-    private TextBlock?          _livePeerTimestamp;
+    private TextBlock? _livePeerTimestamp;
     // Emoji (non-BMP) arrive as two separate char packets (surrogate pair).
     // Buffer the high surrogate and wait for the low before appending to the TextBlock.
     private char _peerPendingHighSurrogate;
@@ -78,22 +78,22 @@ public partial class MainWindow : Window
 
     // Inline connection-approval state
     private TaskCompletionSource<bool>? _approvalTcs;
-    private DispatcherTimer?            _approvalTimer;
-    private int                         _approvalSecondsLeft;
+    private DispatcherTimer? _approvalTimer;
+    private int _approvalSecondsLeft;
 
     // Local identity (set from connect dialog)
-    private string  _localHandle    = "anonymous";
+    private string _localHandle = "anonymous";
     private byte[]? _localAvatarPng;
 
     // Remote peer identity (received via metadata exchange)
-    private string  _peerHandle     = "peer";
+    private string _peerHandle = "peer";
     private byte[]? _peerAvatarPng;
 
     // Online status
-    private SemaBuzz.Protocol.SemaBuzzStatus _localStatus        = SemaBuzz.Protocol.SemaBuzzStatus.Available;
-    private string                           _localStatusMessage = string.Empty;
-    private SemaBuzz.Protocol.SemaBuzzStatus _peerStatus         = SemaBuzz.Protocol.SemaBuzzStatus.Available;
-    private string                           _peerStatusMessage  = string.Empty;
+    private SemaBuzz.Protocol.SemaBuzzStatus _localStatus = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+    private string _localStatusMessage = string.Empty;
+    private SemaBuzz.Protocol.SemaBuzzStatus _peerStatus = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+    private string _peerStatusMessage = string.Empty;
     private readonly Forms.NotifyIcon _trayIcon;
     private bool _trayTipShown;
 
@@ -107,8 +107,8 @@ public partial class MainWindow : Window
 
     // Inbound state
     private TextBlock? _inboundStatusText;
-    private Button?    _inboundAcceptBtn;
-    private Button?    _inboundDeclineBtn;
+    private Button? _inboundAcceptBtn;
+    private Button? _inboundDeclineBtn;
 
     public MainWindow()
     {
@@ -130,8 +130,8 @@ public partial class MainWindow : Window
             InlineTokenInput.Focus();
             // Wire the spaced display TextBlock and caret glow from the template
             _spacedDisplay = InlineTokenInput.Template.FindName("SpacedDisplay", InlineTokenInput) as TextBlock;
-            var fakeCaret  = InlineTokenInput.Template.FindName("FakeCaret", InlineTokenInput) as Rectangle;
-            _caretGlow     = fakeCaret?.Effect as DropShadowEffect;
+            var fakeCaret = InlineTokenInput.Template.FindName("FakeCaret", InlineTokenInput) as Rectangle;
+            _caretGlow = fakeCaret?.Effect as DropShadowEffect;
             UpdateGlowColors();
         };
 
@@ -235,20 +235,20 @@ public partial class MainWindow : Window
     // Show the Buzz Code center card so the host can share their code.
     private void ShowBuzzCode(string token)
     {
-        BuzzCodeBannerLabel.Text        = string.Join("  ", token.ToUpperInvariant().ToCharArray());
-        BuzzIdleState.Visibility        = Visibility.Collapsed;
-        BuzzWaitingState.Visibility     = Visibility.Visible;
-        BuzzRequestState.Visibility     = Visibility.Collapsed;
-        BuzzCodeBanner.Visibility       = Visibility.Visible;
-        ChatPanesGrid.Visibility        = Visibility.Collapsed;
+        BuzzCodeBannerLabel.Text = string.Join("  ", token.ToUpperInvariant().ToCharArray());
+        BuzzIdleState.Visibility = Visibility.Collapsed;
+        BuzzWaitingState.Visibility = Visibility.Visible;
+        BuzzRequestState.Visibility = Visibility.Collapsed;
+        BuzzCodeBanner.Visibility = Visibility.Visible;
+        ChatPanesGrid.Visibility = Visibility.Collapsed;
         // Allow disconnect while waiting for a peer
-        DisconnectMenuItem.IsEnabled    = true;
-        ProfilesMenuItem.IsEnabled      = false;
+        DisconnectMenuItem.IsEnabled = true;
+        ProfilesMenuItem.IsEnabled = false;
 
         if (!string.IsNullOrEmpty(_hostingRelayUri))
         {
-            CustomRelayWarningMsg.Text    = "Relay active — your peer must set their relay to:";
-            CustomRelayWarningUri.Text    = _hostingRelayUri;
+            CustomRelayWarningMsg.Text = "Relay active — your peer must set their relay to:";
+            CustomRelayWarningUri.Text = _hostingRelayUri;
             CustomRelayWarning.Visibility = Visibility.Visible;
         }
         else
@@ -265,7 +265,7 @@ public partial class MainWindow : Window
         _approvalTcs?.TrySetResult(false);
         _approvalTcs = null;
         BuzzCodeBanner.Visibility = Visibility.Collapsed;
-        ChatPanesGrid.Visibility  = Visibility.Visible;
+        ChatPanesGrid.Visibility = Visibility.Visible;
     }
 
     private void CopyBuzzCode_Click(object sender, RoutedEventArgs e)
@@ -315,19 +315,19 @@ public partial class MainWindow : Window
     {
         var profiles = SemaBuzzProfileStore.Load();
         var activeId = App.Settings.ActiveProfileId;
-        var active   = profiles.FirstOrDefault(p => p.Id == activeId)
+        var active = profiles.FirstOrDefault(p => p.Id == activeId)
                     ?? (profiles.Count > 0 ? profiles[0] : null);
         if (active != null)
         {
-            _localHandle    = string.IsNullOrWhiteSpace(active.Handle) ? "anonymous" : active.Handle;
+            _localHandle = string.IsNullOrWhiteSpace(active.Handle) ? "anonymous" : active.Handle;
             _localAvatarPng = active.AvatarPng;
         }
         else
         {
-            _localHandle    = "anonymous";
+            _localHandle = "anonymous";
             _localAvatarPng = null;
         }
-        _localStatus        = App.Settings.Status;
+        _localStatus = App.Settings.Status;
         _localStatusMessage = App.Settings.StatusMessage ?? string.Empty;
         RefreshProfileBadge();
         ApplyLocalStatusUI();
@@ -341,7 +341,7 @@ public partial class MainWindow : Window
             var bmp = new BitmapImage();
             bmp.BeginInit();
             bmp.StreamSource = new MemoryStream(png);
-            bmp.CacheOption  = BitmapCacheOption.OnLoad;
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
             bmp.EndInit();
             bmp.Freeze();
             ProfileBadgeAvatar.Fill = new ImageBrush(bmp) { Stretch = Stretch.UniformToFill };
@@ -421,20 +421,20 @@ public partial class MainWindow : Window
         _approvalTimer = null;
         _approvalTcs?.TrySetResult(false);
         _approvalTcs = null;
-        InlineTokenInput.Text        = string.Empty;
+        InlineTokenInput.Text = string.Empty;
         if (_spacedDisplay != null) _spacedDisplay.Text = string.Empty;
-        InlineConnectBtn.IsEnabled   = false;
-        BuzzIdleState.Visibility     = Visibility.Visible;
-        BuzzWaitingState.Visibility  = Visibility.Collapsed;
-        BuzzRequestState.Visibility  = Visibility.Collapsed;
-        BuzzCodeBanner.Visibility    = Visibility.Visible;
-        ChatPanesGrid.Visibility     = Visibility.Collapsed;
-        ChatPanesGrid.Opacity        = 1;   // reset after any fade
+        InlineConnectBtn.IsEnabled = false;
+        BuzzIdleState.Visibility = Visibility.Visible;
+        BuzzWaitingState.Visibility = Visibility.Collapsed;
+        BuzzRequestState.Visibility = Visibility.Collapsed;
+        BuzzCodeBanner.Visibility = Visibility.Visible;
+        ChatPanesGrid.Visibility = Visibility.Collapsed;
+        ChatPanesGrid.Opacity = 1;   // reset after any fade
         DisconnectMenuItem.IsEnabled = false;
-        ProfilesMenuItem.IsEnabled   = true;
-        ProfileBadgeBtn.IsEnabled    = true;
-        BoardButton.IsEnabled        = false;
-        FileButton.IsEnabled         = false;
+        ProfilesMenuItem.IsEnabled = true;
+        ProfileBadgeBtn.IsEnabled = true;
+        BoardButton.IsEnabled = false;
+        FileButton.IsEnabled = false;
         _whiteboard?.Close();
         _whiteboard = null;
         InputBox.Document.Blocks.Clear();
@@ -446,11 +446,11 @@ public partial class MainWindow : Window
     {
         LoadActiveProfile();
         LocalPaneLabel.Text = _localHandle.ToUpperInvariant();
-        var token    = SemaBuzzRelayPacket.GenerateToken();
+        var token = SemaBuzzRelayPacket.GenerateToken();
         var relayUri = App.Settings.RelayUri;
         if (_cts != null) _cts.Cancel();
         _cts = new CancellationTokenSource();
-        _client   = null;   // clear any stale peer role before becoming host
+        _client = null;   // clear any stale peer role before becoming host
         StartListeningViaRelay(token, relayUri, _cts.Token);
         ShowBuzzCode(token);
     }
@@ -465,7 +465,7 @@ public partial class MainWindow : Window
         _cts = new CancellationTokenSource();
         _listener = null;   // clear any stale host role before becoming peer
         BuzzCodeBanner.Visibility = Visibility.Collapsed;
-        ChatPanesGrid.Visibility  = Visibility.Visible;
+        ChatPanesGrid.Visibility = Visibility.Visible;
         ClearChatPanels();
         StartConnectingViaRelay(token, App.Settings.RelayUri, _cts.Token);
     }
@@ -514,15 +514,15 @@ public partial class MainWindow : Window
     private async void Wire_Disconnect_Click(object sender, RoutedEventArgs e)
     {
         // Clear hosting params first so the Dead handler doesn't auto-resume
-        _hostingToken    = null;
+        _hostingToken = null;
         _hostingRelayUri = null;
         _suppressNextDeadSound = true;
-        if (_client   != null) await _client.DisconnectAsync();
+        if (_client != null) await _client.DisconnectAsync();
         if (_listener != null) await _listener.DisconnectAsync();
         if (_cts != null)
             _cts.Cancel();
-        _cts      = null;
-        _client   = null;
+        _cts = null;
+        _client = null;
         _listener = null;
         // Update UI immediately — Dead event may not fire when cancelling while waiting
         ResetToIdle();
@@ -542,11 +542,11 @@ public partial class MainWindow : Window
     {
         LocalPanel.Children.Clear();
         PeerPanel.Children.Clear();
-        _peerLiveRow              = null;
-        _livePeerBlock            = null;
-        _livePeerTimestamp        = null;
+        _peerLiveRow = null;
+        _livePeerBlock = null;
+        _livePeerTimestamp = null;
         _peerPendingHighSurrogate = '\0';
-        _previousInputText        = string.Empty;
+        _previousInputText = string.Empty;
     }
 
     //  SETTINGS menu
@@ -568,7 +568,7 @@ public partial class MainWindow : Window
     private void Settings_Profiles_Click(object sender, RoutedEventArgs e)
     {
         bool wireActive = BuzzWaitingState.Visibility == Visibility.Visible
-                       || ChatPanesGrid.Visibility    == Visibility.Visible;
+                       || ChatPanesGrid.Visibility == Visibility.Visible;
         new SemaBuzzProfilesDialog(lockDelete: wireActive) { Owner = this }.ShowDialog();
         LoadActiveProfile();
     }
@@ -576,8 +576,8 @@ public partial class MainWindow : Window
     private void ProfileBadge_Click(object sender, RoutedEventArgs e)
     {
         ProfileBadgeBtn.ContextMenu.PlacementTarget = ProfileBadgeBtn;
-        ProfileBadgeBtn.ContextMenu.Placement       = System.Windows.Controls.Primitives.PlacementMode.Bottom;
-        ProfileBadgeBtn.ContextMenu.IsOpen          = true;
+        ProfileBadgeBtn.ContextMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.Bottom;
+        ProfileBadgeBtn.ContextMenu.IsOpen = true;
     }
 
     private void Settings_Preferences_Click(object sender, RoutedEventArgs e)
@@ -587,15 +587,15 @@ public partial class MainWindow : Window
         if (dlg.ShowDialog() != true) return;
 
         App.Settings.IndicatorSensitivity = dlg.SelectedIndicatorSensitivity;
-        App.Settings.IndicatorStyle       = dlg.SelectedIndicatorStyle;
-        App.Settings.ChatFontSize         = dlg.SelectedChatFontSize;
-        App.Settings.LivePreview          = dlg.SelectedLivePreview;
-        App.Settings.MinimizeToTray       = dlg.SelectedMinimizeToTray;
-        App.Settings.StartWithWindows     = dlg.SelectedStartWithWindows;
-        App.Settings.AutoApprove          = dlg.SelectedAutoApprove;
-        App.Settings.BuzzSoundEnabled     = dlg.SelectedBuzzSoundEnabled;
-        App.Settings.BuzzSoundVolume      = dlg.SelectedBuzzSoundVolume;
-        App.Settings.RelayUri             = dlg.SelectedRelayUri;
+        App.Settings.IndicatorStyle = dlg.SelectedIndicatorStyle;
+        App.Settings.ChatFontSize = dlg.SelectedChatFontSize;
+        App.Settings.LivePreview = dlg.SelectedLivePreview;
+        App.Settings.MinimizeToTray = dlg.SelectedMinimizeToTray;
+        App.Settings.StartWithWindows = dlg.SelectedStartWithWindows;
+        App.Settings.AutoApprove = dlg.SelectedAutoApprove;
+        App.Settings.BuzzSoundEnabled = dlg.SelectedBuzzSoundEnabled;
+        App.Settings.BuzzSoundVolume = dlg.SelectedBuzzSoundVolume;
+        App.Settings.RelayUri = dlg.SelectedRelayUri;
         App.Settings.Save();
 
         SemaBuzzStartup.Apply(App.Settings.StartWithWindows);
@@ -616,25 +616,25 @@ public partial class MainWindow : Window
     /// <summary>Push sensitivity and style from saved settings to the live indicator control.</summary>
     private void ApplyIndicatorSettings()
     {
-        BuzzIndicator.Sensitivity     = App.Settings.IndicatorSensitivity;
+        BuzzIndicator.Sensitivity = App.Settings.IndicatorSensitivity;
         BuzzIndicator.IndicatorStyle = App.Settings.IndicatorStyle;
     }
 
     private void StartListeningViaRelay(string token, string relayUri, CancellationToken ct, bool clearChat = true)
     {
-        _hostingToken    = token;
+        _hostingToken = token;
         _hostingRelayUri = relayUri;
         if (clearChat) ClearChatPanels();
         _listener = new SemaBuzzListener();
-        _listener.PacketReceived             += OnRemotePacketReceived;
-        _listener.WireStateChanged           += OnWireStateChanged;
-        _listener.MetadataReceived           += OnMetadataReceived;
-        _listener.UrlPushReceived            += OnUrlPushReceived;
-        _listener.DrawReceived               += OnDrawReceived;
-        _listener.FileOfferReceived          += OnFileOfferReceived;
-        _listener.FileAcceptReceived         += OnFileAcceptReceived;
-        _listener.FileRejectReceived         += OnFileRejectReceived;
-        _listener.ConnectionApprovalCallback  = OnConnectionApprovalRequested;
+        _listener.PacketReceived += OnRemotePacketReceived;
+        _listener.WireStateChanged += OnWireStateChanged;
+        _listener.MetadataReceived += OnMetadataReceived;
+        _listener.UrlPushReceived += OnUrlPushReceived;
+        _listener.DrawReceived += OnDrawReceived;
+        _listener.FileOfferReceived += OnFileOfferReceived;
+        _listener.FileAcceptReceived += OnFileAcceptReceived;
+        _listener.FileRejectReceived += OnFileRejectReceived;
+        _listener.ConnectionApprovalCallback = OnConnectionApprovalRequested;
 
         SetStatus($"› waiting via relay (token: {token}) via {relayUri}...");
         _ = _listener.ListenViaRelayAsync(
@@ -646,15 +646,15 @@ public partial class MainWindow : Window
     {
         ClearChatPanels();
         _client = new SemaBuzzClient();
-        _client.PacketReceived          += OnRemotePacketReceived;
-        _client.WireStateChanged        += OnWireStateChanged;
-        _client.MetadataReceived        += OnMetadataReceived;
-        _client.UrlPushReceived         += OnUrlPushReceived;
-        _client.DrawReceived            += OnDrawReceived;
-        _client.HandshakeHoldReceived   += OnHandshakeHoldReceived;
-        _client.FileOfferReceived       += OnFileOfferReceived;
-        _client.FileAcceptReceived      += OnFileAcceptReceived;
-        _client.FileRejectReceived      += OnFileRejectReceived;
+        _client.PacketReceived += OnRemotePacketReceived;
+        _client.WireStateChanged += OnWireStateChanged;
+        _client.MetadataReceived += OnMetadataReceived;
+        _client.UrlPushReceived += OnUrlPushReceived;
+        _client.DrawReceived += OnDrawReceived;
+        _client.HandshakeHoldReceived += OnHandshakeHoldReceived;
+        _client.FileOfferReceived += OnFileOfferReceived;
+        _client.FileAcceptReceived += OnFileAcceptReceived;
+        _client.FileRejectReceived += OnFileRejectReceived;
 
         SetStatus($"› joining relay room {token} via {relayUri}...");
         _ = _client.ConnectViaRelayAsync(
@@ -695,7 +695,7 @@ public partial class MainWindow : Window
     {
         if (e.DataObject.GetDataPresent(DataFormats.UnicodeText))
         {
-            var text      = (string)e.DataObject.GetData(DataFormats.UnicodeText);
+            var text = (string)e.DataObject.GetData(DataFormats.UnicodeText);
             var sanitized = new string(text.Where(IsChatCharAllowed).ToArray());
             if (sanitized != text)
             {
@@ -720,7 +720,7 @@ public partial class MainWindow : Window
     private async void BuzzButton_Click(object sender, RoutedEventArgs e)
     {
         // Send the Buzz packet to the peer
-        if (_client   != null) await _client.SendBuzzAsync();
+        if (_client != null) await _client.SendBuzzAsync();
         if (_listener != null) await _listener.SendBuzzAsync();
 
         // Also pulse our own filament so the sender feels it
@@ -747,7 +747,7 @@ public partial class MainWindow : Window
         }
 
         // Send to peer
-        if (_client   != null) await _client.SendUrlPushAsync(url);
+        if (_client != null) await _client.SendUrlPushAsync(url);
         if (_listener != null) await _listener.SendUrlPushAsync(url);
 
         // Clear input box if that's where the URL came from
@@ -781,7 +781,7 @@ public partial class MainWindow : Window
             _whiteboard = new WhiteboardWindow();
             _whiteboard.DrawSent += async (_, ev) =>
             {
-                if (_client   != null) await _client.SendDrawAsync(ev);
+                if (_client != null) await _client.SendDrawAsync(ev);
                 if (_listener != null) await _listener.SendDrawAsync(ev);
             };
             _whiteboard.Closed += (_, _) => _whiteboard = null;
@@ -842,7 +842,7 @@ public partial class MainWindow : Window
         _outboundStatusText = statusText;
         _fileAcceptTcs = new TaskCompletionSource<bool>();
 
-        if (_client   != null) await _client.SendFileOfferAsync(transferId, filename, fileSize, sha256, token);
+        if (_client != null) await _client.SendFileOfferAsync(transferId, filename, fileSize, sha256, token);
         if (_listener != null) await _listener.SendFileOfferAsync(transferId, filename, fileSize, sha256, token);
 
         bool accepted;
@@ -872,10 +872,10 @@ public partial class MainWindow : Window
 
         var st = new TextBlock
         {
-            Text       = "Waiting for peer to accept...",
+            Text = "Waiting for peer to accept...",
             FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize   = App.Settings.ChatFontSize - 1,
-            Opacity    = 0.7,
+            FontSize = App.Settings.ChatFontSize - 1,
+            Opacity = 0.7,
         };
         st.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         cardStack.Children.Add(st);
@@ -908,42 +908,42 @@ public partial class MainWindow : Window
 
         var statusTb = new TextBlock
         {
-            Text       = string.Empty,
+            Text = string.Empty,
             FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize   = App.Settings.ChatFontSize - 1,
-            Margin     = new Thickness(0, 4, 0, 0),
-            Opacity    = 0.7,
+            FontSize = App.Settings.ChatFontSize - 1,
+            Margin = new Thickness(0, 4, 0, 0),
+            Opacity = 0.7,
         };
         statusTb.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         cardStack.Children.Add(statusTb);
 
-        _inboundAcceptBtn  = acceptBtn;
+        _inboundAcceptBtn = acceptBtn;
         _inboundDeclineBtn = declineBtn;
         _inboundStatusText = statusTb;
 
         acceptBtn.Click += async (_, _) =>
         {
-            acceptBtn.IsEnabled  = false;
+            acceptBtn.IsEnabled = false;
             declineBtn.IsEnabled = false;
 
             var saveDlg = new Microsoft.Win32.SaveFileDialog
             {
                 FileName = filename,
-                Title    = "Save Received File",
+                Title = "Save Received File",
             };
             if (saveDlg.ShowDialog(this) != true)
             {
-                acceptBtn.IsEnabled  = true;
+                acceptBtn.IsEnabled = true;
                 declineBtn.IsEnabled = true;
                 return;
             }
 
             statusTb.Text = "Downloading...";
-            if (_client   != null) await _client.SendFileAcceptAsync(transferId);
+            if (_client != null) await _client.SendFileAcceptAsync(transferId);
             if (_listener != null) await _listener.SendFileAcceptAsync(transferId);
 
             var relayBaseUri = SemaBuzzRelayPacket.GetFileBaseUri(App.Settings.RelayUri);
-            var savePath     = saveDlg.FileName;
+            var savePath = saveDlg.FileName;
             var expectedHash = sha256;
             try
             {
@@ -967,10 +967,10 @@ public partial class MainWindow : Window
 
         declineBtn.Click += async (_, _) =>
         {
-            acceptBtn.IsEnabled  = false;
+            acceptBtn.IsEnabled = false;
             declineBtn.IsEnabled = false;
-            statusTb.Text        = "× declined";
-            if (_client   != null) await _client.SendFileRejectAsync(transferId);
+            statusTb.Text = "× declined";
+            if (_client != null) await _client.SendFileRejectAsync(transferId);
             if (_listener != null) await _listener.SendFileRejectAsync(transferId);
         };
 
@@ -982,10 +982,10 @@ public partial class MainWindow : Window
     {
         var card = new Border
         {
-            Margin          = new Thickness(40, 2, 0, 6),
-            Padding         = new Thickness(12, 10, 12, 10),
+            Margin = new Thickness(40, 2, 0, 6),
+            Padding = new Thickness(12, 10, 12, 10),
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(4),
+            CornerRadius = new CornerRadius(4),
         };
         card.SetResourceReference(Border.BorderBrushProperty, "ObsidianBorderBrush");
         card.SetResourceReference(Border.BackgroundProperty, "InputBackgroundBrush");
@@ -994,11 +994,11 @@ public partial class MainWindow : Window
 
         var fileNameTb = new TextBlock
         {
-            Text         = $"📎  {filename}",
-            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize     = App.Settings.ChatFontSize,
+            Text = $"📎  {filename}",
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize = App.Settings.ChatFontSize,
             TextWrapping = TextWrapping.Wrap,
-            Margin       = new Thickness(0, 0, 0, 2),
+            Margin = new Thickness(0, 0, 0, 2),
         };
         fileNameTb.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
         cardStack.Children.Add(fileNameTb);
@@ -1008,10 +1008,10 @@ public partial class MainWindow : Window
             : $"{fileSize / 1024.0:F0} KB";
         var sizeTb = new TextBlock
         {
-            Text       = sizeStr,
+            Text = sizeStr,
             FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize   = App.Settings.ChatFontSize - 1,
-            Opacity    = 0.6,
+            FontSize = App.Settings.ChatFontSize - 1,
+            Opacity = 0.6,
         };
         sizeTb.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         cardStack.Children.Add(sizeTb);
@@ -1027,7 +1027,7 @@ public partial class MainWindow : Window
             if (_inboundStatusText != null)
             {
                 // Already handling a file offer — auto-reject this new one
-                if (_client   != null) _ = _client.SendFileRejectAsync(e.TransferId);
+                if (_client != null) _ = _client.SendFileRejectAsync(e.TransferId);
                 if (_listener != null) _ = _listener.SendFileRejectAsync(e.TransferId);
                 return;
             }
@@ -1049,14 +1049,14 @@ public partial class MainWindow : Window
     private void ResetInboundTransfer()
     {
         _inboundStatusText = null;
-        _inboundAcceptBtn  = null;
+        _inboundAcceptBtn = null;
         _inboundDeclineBtn = null;
     }
 
     private void AppendUrlCard(string url, bool isSent, Panel panel, ScrollViewer scrollViewer)
     {
-        var handle   = isSent ? _localHandle : _peerHandle;
-        var avatar   = isSent ? _localAvatarPng : _peerAvatarPng;
+        var handle = isSent ? _localHandle : _peerHandle;
+        var avatar = isSent ? _localAvatarPng : _peerAvatarPng;
         var nameColor = isSent ? SemaBuzzThemeManager.AccentColor : Color.FromRgb(0x9E, 0x9E, 0x9E);
         var accentKey = isSent ? "AmberBrush" : (string?)null;
 
@@ -1069,10 +1069,10 @@ public partial class MainWindow : Window
         // Card border
         var card = new Border
         {
-            Margin          = new Thickness(40, 2, 0, 6),
-            Padding         = new Thickness(12, 10, 12, 10),
+            Margin = new Thickness(40, 2, 0, 6),
+            Padding = new Thickness(12, 10, 12, 10),
             BorderThickness = new Thickness(1),
-            CornerRadius    = new CornerRadius(4),
+            CornerRadius = new CornerRadius(4),
         };
         card.SetResourceReference(Border.BorderBrushProperty, "ObsidianBorderBrush");
         card.SetResourceReference(Border.BackgroundProperty, "InputBackgroundBrush");
@@ -1083,11 +1083,11 @@ public partial class MainWindow : Window
         var urlDisplay = url.Length > 80 ? url[..80] + "…" : url;
         var urlText = new TextBlock
         {
-            Text         = urlDisplay,
-            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize     = App.Settings.ChatFontSize,
+            Text = urlDisplay,
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize = App.Settings.ChatFontSize,
             TextWrapping = TextWrapping.Wrap,
-            Margin       = new Thickness(0, 0, 0, 8),
+            Margin = new Thickness(0, 0, 0, 8),
         };
         urlText.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
         cardStack.Children.Add(urlText);
@@ -1095,9 +1095,9 @@ public partial class MainWindow : Window
         // OPEN button
         var openBtn = new Button
         {
-            Content             = "OPEN",
+            Content = "OPEN",
             HorizontalAlignment = HorizontalAlignment.Left,
-            Padding             = new Thickness(14, 4, 14, 4),
+            Padding = new Thickness(14, 4, 14, 4),
         };
         openBtn.SetResourceReference(Button.StyleProperty, "SemaBuzzButton");
         var capturedUrl = url;
@@ -1150,9 +1150,9 @@ public partial class MainWindow : Window
             using var ms = new MemoryStream(avatarPng);
             var bmp = new BitmapImage();
             bmp.BeginInit();
-            bmp.StreamSource      = ms;
-            bmp.CacheOption       = BitmapCacheOption.OnLoad;
-            bmp.DecodePixelWidth  = 28;
+            bmp.StreamSource = ms;
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
+            bmp.DecodePixelWidth = 28;
             bmp.DecodePixelHeight = 28;
             bmp.EndInit();
             bmp.Freeze();
@@ -1253,7 +1253,7 @@ public partial class MainWindow : Window
         if (_pendingPackets.Count == 0) return;
         var batch = _pendingPackets.ToArray();
         _pendingPackets.Clear();
-        if (_client   != null) await _client.SendBatchAsync(batch);
+        if (_client != null) await _client.SendBatchAsync(batch);
         if (_listener != null) await _listener.SendBatchAsync(batch);
     }
 
@@ -1284,10 +1284,10 @@ public partial class MainWindow : Window
             Activate();
 
             BuzzRequestFromLabel.Text = $"{peerIdentifier} wants to open a wire.";
-            _approvalSecondsLeft      = 30;
+            _approvalSecondsLeft = 30;
             BuzzRequestCountdown.Text = $"Auto-declining in {_approvalSecondsLeft}s...";
-            BuzzWaitingState.Visibility  = Visibility.Collapsed;
-            BuzzRequestState.Visibility  = Visibility.Visible;
+            BuzzWaitingState.Visibility = Visibility.Collapsed;
+            BuzzRequestState.Visibility = Visibility.Visible;
 
             _approvalTimer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(1) };
             _approvalTimer.Tick += (_, _) =>
@@ -1330,7 +1330,7 @@ public partial class MainWindow : Window
             {
                 if (!_peerSeqInitialized)
                 {
-                    _lastPeerSeq        = e.Packet.SeqNum;
+                    _lastPeerSeq = e.Packet.SeqNum;
                     _peerSeqInitialized = true;
                     RenderPeerPacket(e.Packet);
                     FlushPendingPeerPackets();
@@ -1424,23 +1424,23 @@ public partial class MainWindow : Window
     private void ResetToIdle()
     {
         SetStatus("› wire is cold");
-        DisconnectMenuItem.IsEnabled   = false;
-        InputBox.IsEnabled             = false;
-        SendButton.IsEnabled           = false;        BuzzButton.IsEnabled           = false;        WalkButton.IsEnabled           = false;        BoardButton.IsEnabled          = false;        FileButton.IsEnabled           = false;        _peerLiveRow                   = null;
-        _livePeerBlock                 = null;
-        _livePeerTimestamp             = null;
-        _peerPendingHighSurrogate      = '\0';
-        _peerHandle                    = "peer";
-        _peerAvatarPng                 = null;
-        _peerStatus                    = SemaBuzz.Protocol.SemaBuzzStatus.Available;
-        _peerStatusMessage             = string.Empty;
-        PeerLabel.Text                 = string.Empty;
-        PeerStatusDot.Fill             = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x61, 0x61, 0x61));
-        PeerStatusMsg.Text              = string.Empty;
-        PeerStatusMsgRow.Visibility     = Visibility.Collapsed;
+        DisconnectMenuItem.IsEnabled = false;
+        InputBox.IsEnabled = false;
+        SendButton.IsEnabled = false; BuzzButton.IsEnabled = false; WalkButton.IsEnabled = false; BoardButton.IsEnabled = false; FileButton.IsEnabled = false; _peerLiveRow = null;
+        _livePeerBlock = null;
+        _livePeerTimestamp = null;
+        _peerPendingHighSurrogate = '\0';
+        _peerHandle = "peer";
+        _peerAvatarPng = null;
+        _peerStatus = SemaBuzz.Protocol.SemaBuzzStatus.Available;
+        _peerStatusMessage = string.Empty;
+        PeerLabel.Text = string.Empty;
+        PeerStatusDot.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x61, 0x61, 0x61));
+        PeerStatusMsg.Text = string.Empty;
+        PeerStatusMsgRow.Visibility = Visibility.Collapsed;
         UpdateWireStateDot(SemaBuzzWireState.Cold);
         BuzzIndicator.Flatline();
-        ClearChatMenuItem.IsEnabled    = false;
+        ClearChatMenuItem.IsEnabled = false;
         _peerSeqInitialized = false;
         _pendingPeerPackets.Clear();
         _pendingPeerResyncTimer.Stop();
@@ -1464,30 +1464,30 @@ public partial class MainWindow : Window
                 {
                     // We were in a live chat — peer disconnected. Tear down and go to idle.
                     PlayErrorSound();
-                    InputBox.IsEnabled           = false;
-                    SendButton.IsEnabled         = false;
-                    BuzzButton.IsEnabled         = false;
-                    WalkButton.IsEnabled         = false;
-                    BoardButton.IsEnabled        = false;
-                    FileButton.IsEnabled         = false;
+                    InputBox.IsEnabled = false;
+                    SendButton.IsEnabled = false;
+                    BuzzButton.IsEnabled = false;
+                    WalkButton.IsEnabled = false;
+                    BoardButton.IsEnabled = false;
+                    FileButton.IsEnabled = false;
                     _whiteboard?.Close();
                     _whiteboard = null;
-                    _peerLiveRow                 = null;
-                    _livePeerBlock               = null;
-                    _livePeerTimestamp           = null;
-                    var savedHandle2             = _peerHandle;
-                    _peerHandle                  = "peer";
-                    _peerAvatarPng               = null;
-                    PeerLabel.Text               = string.Empty;
+                    _peerLiveRow = null;
+                    _livePeerBlock = null;
+                    _livePeerTimestamp = null;
+                    var savedHandle2 = _peerHandle;
+                    _peerHandle = "peer";
+                    _peerAvatarPng = null;
+                    PeerLabel.Text = string.Empty;
                     BuzzIndicator.Flatline();
                     AddChatDivider($"× {savedHandle2} disconnected");
-                    _hostingToken    = null;
+                    _hostingToken = null;
                     _hostingRelayUri = null;
                     if (_cts != null) _cts.Cancel();
                     _cts = null;
                     _warmingCts?.Cancel();
                     _warmingCts = null;
-                    _client   = null;   // drop stale transport so the next session starts clean
+                    _client = null;   // drop stale transport so the next session starts clean
                     _listener = null;
                     ResetToIdle();
                     FadeToIdle();
@@ -1502,7 +1502,7 @@ public partial class MainWindow : Window
                 if (_warmingCts != null)
                     _warmingCts.Cancel();
                 _warmingCts = null;
-                InputBox.IsEnabled   = true;
+                InputBox.IsEnabled = true;
                 SendButton.IsEnabled = false; // no text yet
                 InputPlaceholder.Visibility = Visibility.Visible;
                 BuzzButton.IsEnabled = true;
@@ -1511,8 +1511,8 @@ public partial class MainWindow : Window
                 FileButton.IsEnabled = true;
                 InputBox.Focus();
                 DisconnectMenuItem.IsEnabled = true;
-                ClearChatMenuItem.IsEnabled  = true;
-                ProfilesMenuItem.IsEnabled   = false;
+                ClearChatMenuItem.IsEnabled = true;
+                ProfilesMenuItem.IsEnabled = false;
                 string wireDivider;
                 bool isRelay = (_client?.IsRelayMode ?? false) || (_listener?.IsRelayMode ?? false);
                 string connMode = isRelay ? "relay" : "direct · UDP";
@@ -1524,7 +1524,7 @@ public partial class MainWindow : Window
                 AddChatDivider(wireDivider);
 
                 // Exchange identity with the peer
-                if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+                if (_client != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
                 if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
             }
             else if (e.State == SemaBuzzWireState.Dead)
@@ -1533,7 +1533,7 @@ public partial class MainWindow : Window
                 if (_inboundStatusText != null)
                 {
                     _inboundStatusText.Text = "× peer disconnected";
-                    if (_inboundAcceptBtn  != null) _inboundAcceptBtn.IsEnabled  = false;
+                    if (_inboundAcceptBtn != null) _inboundAcceptBtn.IsEnabled = false;
                     if (_inboundDeclineBtn != null) _inboundDeclineBtn.IsEnabled = false;
                     ResetInboundTransfer();
                 }
@@ -1553,25 +1553,25 @@ public partial class MainWindow : Window
                 if (_warmingCts != null)
                     _warmingCts.Cancel();
                 _warmingCts = null;
-                InputBox.IsEnabled           = false;
-                SendButton.IsEnabled         = false;
-                BuzzButton.IsEnabled         = false;
-                WalkButton.IsEnabled         = false;
-                BoardButton.IsEnabled        = false;
-                FileButton.IsEnabled         = false;
+                InputBox.IsEnabled = false;
+                SendButton.IsEnabled = false;
+                BuzzButton.IsEnabled = false;
+                WalkButton.IsEnabled = false;
+                BoardButton.IsEnabled = false;
+                FileButton.IsEnabled = false;
                 _whiteboard?.Close();
                 _whiteboard = null;
                 InputBox.Document.Blocks.Clear();
-                _peerLiveRow                 = null;
-                _livePeerBlock               = null;
-                _livePeerTimestamp           = null;
-                var savedHandle              = _peerHandle;
-                _peerHandle                  = "peer";
-                _peerAvatarPng               = null;
-                PeerLabel.Text               = string.Empty;
+                _peerLiveRow = null;
+                _livePeerBlock = null;
+                _livePeerTimestamp = null;
+                var savedHandle = _peerHandle;
+                _peerHandle = "peer";
+                _peerAvatarPng = null;
+                PeerLabel.Text = string.Empty;
                 BuzzIndicator.Flatline();
                 DisconnectMenuItem.IsEnabled = false;
-                ClearChatMenuItem.IsEnabled  = false;
+                ClearChatMenuItem.IsEnabled = false;
 
                 string divider;
                 if (_warmingTimedOut)
@@ -1583,7 +1583,7 @@ public partial class MainWindow : Window
                     divider = e.Message switch
                     {
                         "peer-disconnect" => $"× {savedHandle} disconnected · wire has been closed",
-                        "not-available"  => $"× {savedHandle} is not available at this time",
+                        "not-available" => $"× {savedHandle} is not available at this time",
                         "network-changed" => "× connection lost · your network changed",
                         _ => e.Message != null ? $"× {e.Message}" : "× wire is dead",
                     };
@@ -1591,7 +1591,7 @@ public partial class MainWindow : Window
                 string statusMsg = _warmingTimedOut ? "› session timed out" : e.Message switch
                 {
                     "peer-disconnect" => $"› {savedHandle} disconnected",
-                    "not-available"   => $"› {savedHandle} not available",
+                    "not-available" => $"› {savedHandle} not available",
                     "network-changed" => "› connection lost",
                     _ => e.Message != null ? $"› {e.Message}" : "› wire is dead",
                 };
@@ -1601,9 +1601,9 @@ public partial class MainWindow : Window
 
 
                 // Always return to the connect screen
-                _hostingToken    = null;
+                _hostingToken = null;
                 _hostingRelayUri = null;
-                _client   = null;   // drop stale transport so the next session starts clean
+                _client = null;   // drop stale transport so the next session starts clean
                 _listener = null;
                 _peerSeqInitialized = false;  // reset so next session's seq numbers are accepted fresh
                 _pendingPeerPackets.Clear();
@@ -1626,7 +1626,7 @@ public partial class MainWindow : Window
         // which raises WireStateChanged(Dead). Set the flag so the Dead
         // handler shows the right divider. Clear hosting params so we don't auto-resume.
         _warmingTimedOut = true;
-        _hostingToken    = null;
+        _hostingToken = null;
         _hostingRelayUri = null;
         if (_cts != null)
             _cts.Cancel();
@@ -1641,11 +1641,11 @@ public partial class MainWindow : Window
     {
         Dispatcher.Invoke(() =>
         {
-            _peerHandle        = e.Handle;
-            _peerAvatarPng     = e.AvatarPng;
-            _peerStatus        = e.Status;
+            _peerHandle = e.Handle;
+            _peerAvatarPng = e.AvatarPng;
+            _peerStatus = e.Status;
             _peerStatusMessage = e.StatusMessage ?? string.Empty;
-            PeerLabel.Text     = e.Handle;
+            PeerLabel.Text = e.Handle;
             PeerPaneLabel.Text = e.Handle.ToUpperInvariant();
             ApplyPeerStatusUI();
         });
@@ -1659,22 +1659,22 @@ public partial class MainWindow : Window
     {
         SemaBuzz.Protocol.SemaBuzzStatus.Away => System.Windows.Media.Color.FromRgb(0xFF, 0xC1, 0x07),
         SemaBuzz.Protocol.SemaBuzzStatus.Busy => System.Windows.Media.Color.FromRgb(0xF4, 0x43, 0x36),
-        _                                     => System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50),
+        _ => System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50),
     };
 
     private void ApplyLocalStatusUI()
     {
         var c = StatusColor(_localStatus);
-        LocalStatusDot.Fill    = new SolidColorBrush(c);
-        ProfileStatusDot.Fill  = new SolidColorBrush(c);
+        LocalStatusDot.Fill = new SolidColorBrush(c);
+        ProfileStatusDot.Fill = new SolidColorBrush(c);
         if (!string.IsNullOrWhiteSpace(_localStatusMessage))
         {
-            LocalStatusMsg.Text          = _localStatusMessage;
+            LocalStatusMsg.Text = _localStatusMessage;
             LocalStatusMsgRow.Visibility = Visibility.Visible;
         }
         else
         {
-            LocalStatusMsg.Text          = string.Empty;
+            LocalStatusMsg.Text = string.Empty;
             LocalStatusMsgRow.Visibility = Visibility.Collapsed;
         }
     }
@@ -1691,12 +1691,12 @@ public partial class MainWindow : Window
             PeerStatusDot.Fill = new SolidColorBrush(System.Windows.Media.Color.FromRgb(0x4C, 0xAF, 0x50));
         if (!string.IsNullOrWhiteSpace(_peerStatusMessage))
         {
-            PeerStatusMsg.Text          = _peerStatusMessage;
+            PeerStatusMsg.Text = _peerStatusMessage;
             PeerStatusMsgRow.Visibility = Visibility.Visible;
         }
         else
         {
-            PeerStatusMsg.Text          = string.Empty;
+            PeerStatusMsg.Text = string.Empty;
             PeerStatusMsgRow.Visibility = Visibility.Collapsed;
         }
     }
@@ -1708,12 +1708,12 @@ public partial class MainWindow : Window
         {
             "Away" => SemaBuzz.Protocol.SemaBuzzStatus.Away,
             "Busy" => SemaBuzz.Protocol.SemaBuzzStatus.Busy,
-            _      => SemaBuzz.Protocol.SemaBuzzStatus.Available,
+            _ => SemaBuzz.Protocol.SemaBuzzStatus.Available,
         };
         App.Settings.Status = _localStatus;
         App.Settings.Save();
         ApplyLocalStatusUI();
-        if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+        if (_client != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
         if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
     }
 
@@ -1731,7 +1731,7 @@ public partial class MainWindow : Window
         App.Settings.StatusMessage = _localStatusMessage;
         App.Settings.Save();
         ApplyLocalStatusUI();
-        if (_client   != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
+        if (_client != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
         if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
     }
 
@@ -1743,7 +1743,7 @@ public partial class MainWindow : Window
     {
         var origin = Left;
         const double magnitude = 8.0;
-        const int    steps     = 8;
+        const int steps = 8;
         var duration = TimeSpan.FromMilliseconds(40);
 
         var anim = new DoubleAnimationUsingKeyFrames { Duration = new Duration(TimeSpan.FromMilliseconds(steps * 40)) };
@@ -1795,8 +1795,8 @@ public partial class MainWindow : Window
         if (_livePeerBlock == null)
         {
             var (row, tb, ts) = MakeChatLine(_peerHandle, _peerAvatarPng, Color.FromRgb(0x9E, 0x9E, 0x9E));
-            _peerLiveRow       = row;
-            _livePeerBlock     = tb;
+            _peerLiveRow = row;
+            _livePeerBlock = tb;
             _livePeerTimestamp = ts;
             PeerPanel.Children.Add(_peerLiveRow);
         }
@@ -1811,7 +1811,7 @@ public partial class MainWindow : Window
             if (_livePeerBlock.Text == prefix)
             {
                 PeerPanel.Children.Remove(_peerLiveRow);
-                _peerLiveRow   = null;
+                _peerLiveRow = null;
                 _livePeerBlock = null;
                 return;
             }
@@ -1822,7 +1822,7 @@ public partial class MainWindow : Window
             {
                 // Capture the message text before HyperlinkifyTextBlock switches
                 // the TextBlock from .Text to .Inlines mode
-                var prefix  = (string)_livePeerBlock.Tag;
+                var prefix = (string)_livePeerBlock.Tag;
                 string msgText;
                 if (_livePeerBlock.Text.Length > prefix.Length)
                     msgText = _livePeerBlock.Text[prefix.Length..];
@@ -1845,8 +1845,8 @@ public partial class MainWindow : Window
                     ShowToastIfUnfocused(_peerHandle, msgText);
                 }
             }
-            _peerLiveRow       = null;
-            _livePeerBlock     = null;
+            _peerLiveRow = null;
+            _livePeerBlock = null;
             _livePeerTimestamp = null;
             return;
         }
@@ -1874,7 +1874,8 @@ public partial class MainWindow : Window
         // Avatar circle
         var ellipse = new Ellipse
         {
-            Width  = 28, Height = 28,
+            Width = 28,
+            Height = 28,
             Stroke = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x2A)),
             StrokeThickness = 1,
             VerticalAlignment = VerticalAlignment.Top,
@@ -1885,12 +1886,12 @@ public partial class MainWindow : Window
         {
             try
             {
-                using var ms  = new MemoryStream(avatarPng);
+                using var ms = new MemoryStream(avatarPng);
                 var bmp = new BitmapImage();
                 bmp.BeginInit();
-                bmp.StreamSource     = ms;
-                bmp.CacheOption      = BitmapCacheOption.OnLoad;
-                bmp.DecodePixelWidth  = 28;
+                bmp.StreamSource = ms;
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
+                bmp.DecodePixelWidth = 28;
                 bmp.DecodePixelHeight = 28;
                 bmp.EndInit();
                 bmp.Freeze();
@@ -1913,14 +1914,14 @@ public partial class MainWindow : Window
         var prefix = $"{handle} \u203a ";
         var tb = new EmojiWpf.TextBlock
         {
-            Text         = prefix,
-            Tag          = prefix,
-            Foreground   = new SolidColorBrush(nameColor),
-            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize     = App.Settings.ChatFontSize,
+            Text = prefix,
+            Tag = prefix,
+            Foreground = new SolidColorBrush(nameColor),
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize = App.Settings.ChatFontSize,
             TextWrapping = TextWrapping.Wrap,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin       = new Thickness(4, 2, 0, 0),
+            Margin = new Thickness(4, 2, 0, 0),
         };
         if (accentResourceKey != null)
             tb.SetResourceReference(TextBlock.ForegroundProperty, accentResourceKey);
@@ -1931,11 +1932,11 @@ public partial class MainWindow : Window
         // Timestamp label — populated when the message is committed
         var timestamp = new TextBlock
         {
-            Text              = string.Empty,
-            FontFamily        = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize          = 9,
+            Text = string.Empty,
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize = 9,
             VerticalAlignment = VerticalAlignment.Top,
-            Margin            = new Thickness(6, 4, 4, 0),
+            Margin = new Thickness(6, 4, 4, 0),
         };
         timestamp.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         Grid.SetColumn(timestamp, 2);
@@ -1951,11 +1952,11 @@ public partial class MainWindow : Window
     {
         var tb = new TextBlock
         {
-            FontFamily   = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
-            FontSize     = App.Settings.ChatFontSize,
-            FontStyle    = FontStyles.Italic,
+            FontFamily = new FontFamily("Cascadia Code, JetBrains Mono, Consolas"),
+            FontSize = App.Settings.ChatFontSize,
+            FontStyle = FontStyles.Italic,
             TextWrapping = TextWrapping.Wrap,
-            Margin       = new Thickness(40, 6, 4, 2),
+            Margin = new Thickness(40, 6, 4, 2),
         };
         tb.SetResourceReference(TextBlock.ForegroundProperty, "WireDeadBrush");
         tb.Inlines.Add(new Run($"* {handle} ") { FontWeight = FontWeights.SemiBold });
@@ -1996,7 +1997,7 @@ public partial class MainWindow : Window
     private static void HyperlinkifyTextBlock(EmojiWpf.TextBlock tb)
     {
         var fullText = tb.Text;
-        var matches  = UrlRegex.Matches(fullText);
+        var matches = UrlRegex.Matches(fullText);
         if (matches.Count == 0) return; // no URLs -- leave as plain text
 
         // Switching to Inlines mode clears .Text automatically
@@ -2010,7 +2011,7 @@ public partial class MainWindow : Window
                 tb.Inlines.Add(new Run(fullText[pos..m.Index]));
 
             // Strip trailing punctuation unlikely to be part of the URL
-            var urlText  = m.Value.TrimEnd('.', ',', ')', ']', '\'', '"', '>');
+            var urlText = m.Value.TrimEnd('.', ',', ')', ']', '\'', '"', '>');
             var trailing = m.Value[urlText.Length..];
 
             if (Uri.TryCreate(urlText, UriKind.Absolute, out var uri)
@@ -2018,10 +2019,10 @@ public partial class MainWindow : Window
             {
                 var link = new Hyperlink(new Run(urlText))
                 {
-                    NavigateUri     = uri,
-                    Foreground      = new SolidColorBrush(Color.FromRgb(0xFF, 0xD0, 0x54)),
+                    NavigateUri = uri,
+                    Foreground = new SolidColorBrush(Color.FromRgb(0xFF, 0xD0, 0x54)),
                     TextDecorations = TextDecorations.Underline,
-                    Cursor          = Cursors.Hand,
+                    Cursor = Cursors.Hand,
                 };
                 link.RequestNavigate += (_, e) =>
                 {
@@ -2054,7 +2055,8 @@ public partial class MainWindow : Window
             tb.Inlines.Add(new Run(fullText[pos..]));
     }
 
-    private static Brush InitialsBrush(string handle, Color nameColor)    {
+    private static Brush InitialsBrush(string handle, Color nameColor)
+    {
         string initials;
         if (handle.Length > 0)
             initials = handle[0].ToString().ToUpper();
@@ -2083,17 +2085,17 @@ public partial class MainWindow : Window
     private void AddChatDivider(string message)
     {
         // Commit any live blocks as finalized
-        _peerLiveRow       = null;
-        _livePeerBlock     = null;
+        _peerLiveRow = null;
+        _livePeerBlock = null;
         _previousInputText = string.Empty;
 
         var makeDiv = () => new TextBlock
         {
-            Text       = message,
+            Text = message,
             Foreground = new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E)),
-            FontSize   = 11,
-            FontStyle  = FontStyles.Italic,
-            Margin     = new Thickness(0, 8, 0, 8),
+            FontSize = 11,
+            FontStyle = FontStyles.Italic,
+            Margin = new Thickness(0, 8, 0, 8),
         };
         LocalPanel.Children.Add(makeDiv());
         PeerPanel.Children.Add(makeDiv());
@@ -2147,10 +2149,10 @@ public partial class MainWindow : Window
 
         WireStateDot.Fill = state switch
         {
-            SemaBuzzWireState.Live     => new SolidColorBrush(Color.FromRgb(0xFF, 0xB3, 0x00)),
-            SemaBuzzWireState.Secured  => new SolidColorBrush(Color.FromRgb(0x00, 0xFF, 0x41)),
-            SemaBuzzWireState.Warming  => new SolidColorBrush(Color.FromRgb(0xFF, 0x80, 0x00)),
-            _                          => new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E)),
+            SemaBuzzWireState.Live => new SolidColorBrush(Color.FromRgb(0xFF, 0xB3, 0x00)),
+            SemaBuzzWireState.Secured => new SolidColorBrush(Color.FromRgb(0x00, 0xFF, 0x41)),
+            SemaBuzzWireState.Warming => new SolidColorBrush(Color.FromRgb(0xFF, 0x80, 0x00)),
+            _ => new SolidColorBrush(Color.FromRgb(0x9E, 0x9E, 0x9E)),
         };
 
         // Animate a glow pulse when secured
@@ -2187,10 +2189,10 @@ public partial class MainWindow : Window
             // Solution: cancel once, do all cleanup here, then call Environment.Exit directly.
             e.Cancel = true;
             _isClosing = true;
-            _hostingToken    = null;
+            _hostingToken = null;
             _hostingRelayUri = null;
             _suppressNextDeadSound = true;
-            if (_client   != null) await _client.DisconnectAsync();
+            if (_client != null) await _client.DisconnectAsync();
             if (_listener != null) await _listener.DisconnectAsync();
             _cts?.Cancel();
             _trayIcon.Visible = false;

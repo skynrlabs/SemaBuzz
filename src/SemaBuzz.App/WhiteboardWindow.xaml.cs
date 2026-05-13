@@ -34,9 +34,9 @@ public partial class WhiteboardWindow : Window
 
     private static readonly double[] Sizes = [2.0, 4.0, 8.0];
 
-    private byte      _colorIndex = 0;
-    private byte      _sizeIndex  = 1;
-    private bool      _drawing;
+    private byte _colorIndex = 0;
+    private byte _sizeIndex = 1;
+    private bool _drawing;
     private Polyline? _localStroke;   // active local stroke being drawn
     private Polyline? _peerStroke;    // active peer stroke being received
 
@@ -171,11 +171,11 @@ public partial class WhiteboardWindow : Window
     {
         var dlg = new SaveFileDialog
         {
-            Title            = "Save Whiteboard",
-            Filter           = "PNG Image|*.png",
-            FileName         = $"whiteboard-{DateTime.Now:yyyyMMdd-HHmmss}.png",
-            DefaultExt       = ".png",
-            AddExtension     = true,
+            Title = "Save Whiteboard",
+            Filter = "PNG Image|*.png",
+            FileName = $"whiteboard-{DateTime.Now:yyyyMMdd-HHmmss}.png",
+            DefaultExt = ".png",
+            AddExtension = true,
         };
         if (dlg.ShowDialog(this) != true) return;
 
@@ -185,9 +185,9 @@ public partial class WhiteboardWindow : Window
         if (w <= 0 || h <= 0) return;
 
         // Get the current DPI so the bitmap matches screen resolution
-        var src   = PresentationSource.FromVisual(this);
-        var dpiX  = src != null ? 96.0 * src.CompositionTarget.TransformToDevice.M11 : 96.0;
-        var dpiY  = src != null ? 96.0 * src.CompositionTarget.TransformToDevice.M22 : 96.0;
+        var src = PresentationSource.FromVisual(this);
+        var dpiX = src != null ? 96.0 * src.CompositionTarget.TransformToDevice.M11 : 96.0;
+        var dpiY = src != null ? 96.0 * src.CompositionTarget.TransformToDevice.M22 : 96.0;
 
         var pixW = (int)(w * dpiX / 96.0);
         var pixH = (int)(h * dpiY / 96.0);
@@ -219,14 +219,14 @@ public partial class WhiteboardWindow : Window
     private static Polyline MakePolyline(byte colorIdx, byte sizeIdx)
     {
         var color = colorIdx < Palette.Length ? Palette[colorIdx] : Palette[0];
-        var thick = sizeIdx  < Sizes.Length   ? Sizes[sizeIdx]    : 2.0;
+        var thick = sizeIdx < Sizes.Length ? Sizes[sizeIdx] : 2.0;
         return new Polyline
         {
-            Stroke             = new SolidColorBrush(color),
-            StrokeThickness    = thick,
-            StrokeLineJoin     = PenLineJoin.Round,
+            Stroke = new SolidColorBrush(color),
+            StrokeThickness = thick,
+            StrokeLineJoin = PenLineJoin.Round,
             StrokeStartLineCap = PenLineCap.Round,
-            StrokeEndLineCap   = PenLineCap.Round,
+            StrokeEndLineCap = PenLineCap.Round,
         };
     }
 
@@ -256,11 +256,11 @@ public partial class WhiteboardWindow : Window
         var yNorm = (ushort)(Math.Clamp(pos.Y / h, 0.0, 1.0) * 65535);
         DrawSent?.Invoke(this, new SemaBuzzDrawEvent
         {
-            Action     = action,
-            X          = xNorm,
-            Y          = yNorm,
+            Action = action,
+            X = xNorm,
+            Y = yNorm,
             ColorIndex = _colorIndex,
-            SizeIndex  = _sizeIndex,
+            SizeIndex = _sizeIndex,
         });
     }
 
@@ -268,7 +268,7 @@ public partial class WhiteboardWindow : Window
     {
         for (var i = 0; i < _swatches.Length; i++)
         {
-            _swatches[i].BorderBrush     = i == _colorIndex
+            _swatches[i].BorderBrush = i == _colorIndex
                 ? new SolidColorBrush(Colors.White)
                 : new SolidColorBrush(Color.FromRgb(0x33, 0x33, 0x33));
             _swatches[i].BorderThickness = new Thickness(i == _colorIndex ? 2 : 1);

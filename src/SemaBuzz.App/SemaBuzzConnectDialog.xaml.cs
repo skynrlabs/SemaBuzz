@@ -15,19 +15,19 @@ namespace SemaBuzz.App;
 public partial class SemaBuzzConnectDialog : Window
 {
     /// <summary>True if the user chose to host; false if they chose to dial.</summary>
-    public bool    IsHost     { get; private set; }
+    public bool IsHost { get; private set; }
     /// <summary>The display name the user selected for this session.</summary>
-    public string  Handle     { get; private set; } = "anonymous";
+    public string Handle { get; private set; } = "anonymous";
     /// <summary>Avatar PNG bytes for the selected profile, or null if no avatar was set.</summary>
-    public byte[]? AvatarPng  { get; private set; }
+    public byte[]? AvatarPng { get; private set; }
     /// <summary>Six-character relay room token entered or generated (empty for direct TCP connections).</summary>
-    public string  RelayToken { get; private set; } = string.Empty;
+    public string RelayToken { get; private set; } = string.Empty;
     /// <summary>WebSocket relay endpoint URI (defaults to the hosted SemaBuzz relay).</summary>
-    public string  RelayUri   { get; private set; } = SemaBuzzRelayPacket.DefaultRelayUri;
+    public string RelayUri { get; private set; } = SemaBuzzRelayPacket.DefaultRelayUri;
     /// <summary>Hostname or IP entered for a direct TCP dial (empty if using relay).</summary>
-    public string  PeerHost   { get; private set; } = string.Empty;
+    public string PeerHost { get; private set; } = string.Empty;
     /// <summary>Port entered for a direct TCP connection (0 if using relay).</summary>
-    public int     Port       { get; private set; } = 0;
+    public int Port { get; private set; } = 0;
 
     private TextBox[] _cells = [];
 
@@ -57,7 +57,7 @@ public partial class SemaBuzzConnectDialog : Window
             active = profiles[0];
         if (active != null)
         {
-            Handle    = string.IsNullOrWhiteSpace(active.Handle) ? "anonymous" : active.Handle;
+            Handle = string.IsNullOrWhiteSpace(active.Handle) ? "anonymous" : active.Handle;
             AvatarPng = active.AvatarPng;
         }
     }
@@ -167,9 +167,9 @@ public partial class SemaBuzzConnectDialog : Window
 
         IsHost = false;
         RelayToken = token;
-        RelayUri   = relayUri;
-        PeerHost   = string.Empty;
-        Port       = 0;
+        RelayUri = relayUri;
+        PeerHost = string.Empty;
+        Port = 0;
         DialogResult = true;
     }
 
@@ -183,11 +183,11 @@ public partial class SemaBuzzConnectDialog : Window
             return;
         }
 
-        IsHost     = true;
+        IsHost = true;
         RelayToken = SemaBuzzRelayPacket.GenerateToken();
-        RelayUri   = relayUri;
-        PeerHost   = string.Empty;
-        Port       = 0;
+        RelayUri = relayUri;
+        PeerHost = string.Empty;
+        Port = 0;
 
         if (Uri.TryCreate(RelayUri, UriKind.Absolute, out var u)
             && (u.Host is "localhost" or "127.0.0.1" or "::1"))
@@ -204,9 +204,9 @@ public partial class SemaBuzzConnectDialog : Window
 
     private void ShowError(string message)
     {
-        ConnectErrorText.Text       = message;
+        ConnectErrorText.Text = message;
         ConnectErrorText.Visibility = Visibility.Visible;
-        OuterBorder.BorderBrush     = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
+        OuterBorder.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
     }
 
     private void ClearError()

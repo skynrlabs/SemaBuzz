@@ -14,8 +14,8 @@ public partial class SemaBuzzInputDialog : Window
     public SemaBuzzInputDialog(string title, string prompt, string initial = "", Regex? allowedChars = null)
     {
         InitializeComponent();
-        _allowedChars    = allowedChars;
-        TitleLabel.Text  = title.ToUpperInvariant();
+        _allowedChars = allowedChars;
+        TitleLabel.Text = title.ToUpperInvariant();
         PromptLabel.Text = prompt.ToUpperInvariant();
 
         // Strip disallowed chars from any pre-populated value (e.g. saved before validation existed)
@@ -33,19 +33,19 @@ public partial class SemaBuzzInputDialog : Window
             {
                 if (e.DataObject.GetDataPresent(typeof(string)))
                 {
-                    var text      = (string)e.DataObject.GetData(typeof(string));
+                    var text = (string)e.DataObject.GetData(typeof(string));
                     var sanitized = new string(text.Where(c => allowedChars.IsMatch(c.ToString())).ToArray());
                     if (sanitized != text)
                     {
                         e.CancelCommand();
                         if (sanitized.Length > 0)
                         {
-                            var tb        = InputBox;
-                            var start     = tb.SelectionStart;
-                            var current   = tb.Text;
+                            var tb = InputBox;
+                            var start = tb.SelectionStart;
+                            var current = tb.Text;
                             var remaining = tb.MaxLength - (current.Length - tb.SelectionLength);
-                            sanitized     = sanitized[..Math.Min(sanitized.Length, remaining)];
-                            tb.Text       = current[..tb.SelectionStart] + sanitized + current[(tb.SelectionStart + tb.SelectionLength)..];
+                            sanitized = sanitized[..Math.Min(sanitized.Length, remaining)];
+                            tb.Text = current[..tb.SelectionStart] + sanitized + current[(tb.SelectionStart + tb.SelectionLength)..];
                             tb.CaretIndex = start + sanitized.Length;
                         }
                     }
@@ -78,7 +78,7 @@ public partial class SemaBuzzInputDialog : Window
 
     private void InputBox_KeyDown(object sender, KeyEventArgs e)
     {
-        if (e.Key == Key.Enter)  { Commit(); e.Handled = true; }
+        if (e.Key == Key.Enter) { Commit(); e.Handled = true; }
         if (e.Key == Key.Escape) { DialogResult = false; Close(); }
     }
 
@@ -92,7 +92,7 @@ public partial class SemaBuzzInputDialog : Window
 
     private void Commit()
     {
-        var text  = InputBox.Text;
+        var text = InputBox.Text;
         InputText = _allowedChars is not null
             ? new string(text.Where(c => _allowedChars.IsMatch(c.ToString())).ToArray())
             : text;

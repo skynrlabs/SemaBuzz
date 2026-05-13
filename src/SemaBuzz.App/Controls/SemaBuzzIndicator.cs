@@ -23,9 +23,9 @@ public sealed class SemaBuzzIndicator : UserControl
     private double _phase;
     private DateTime _burstUntil = DateTime.MinValue;
 
-    private const double DecayRate    = 0.92;
+    private const double DecayRate = 0.92;
     private const double MaxAmplitude = 22.0;
-    private const int    WavePoints   = 64;
+    private const int WavePoints = 64;
 
     /// <summary>
     /// Intensity multiplier (0.5 = calm, 1.0 = default, 2.0 = aggressive).
@@ -60,9 +60,9 @@ public sealed class SemaBuzzIndicator : UserControl
 
         _filament = new Polyline
         {
-            Stroke          = FilamentBrush,
+            Stroke = FilamentBrush,
             StrokeThickness = 1.5,
-            StrokeLineJoin  = PenLineJoin.Round,
+            StrokeLineJoin = PenLineJoin.Round,
         };
 
         canvas.Children.Add(_filament);
@@ -93,14 +93,14 @@ public sealed class SemaBuzzIndicator : UserControl
     public void MaxBurst()
     {
         _currentAmplitude = MaxAmplitude;
-        _burstUntil       = DateTime.UtcNow.AddMilliseconds(600);
+        _burstUntil = DateTime.UtcNow.AddMilliseconds(600);
     }
 
     /// <summary>Instantly flatten the filament (wire dead state).</summary>
     public void Flatline()
     {
         _currentAmplitude = 0;
-        _burstUntil       = DateTime.MinValue;
+        _burstUntil = DateTime.MinValue;
     }
 
     private void OnRenderTick(object? sender, EventArgs e)
@@ -109,8 +109,8 @@ public sealed class SemaBuzzIndicator : UserControl
         _phase += IndicatorStyle switch
         {
             IndicatorStyleId.Pulse => 0.28, // faster  crisp heartbeat feel
-            IndicatorStyleId.Wave  => 0.10, // slower  rolling ocean wave
-            _                      => 0.18, // Flicker default
+            IndicatorStyleId.Wave => 0.10, // slower  rolling ocean wave
+            _ => 0.18, // Flicker default
         };
 
         // During a burst, hold amplitude at max; outside burst, decay normally
@@ -129,7 +129,7 @@ public sealed class SemaBuzzIndicator : UserControl
             height = ActualHeight;
         else
             height = 40;
-        var midY   = height / 2.0;
+        var midY = height / 2.0;
 
         var points = new PointCollection(WavePoints);
         for (var i = 0; i < WavePoints; i++)

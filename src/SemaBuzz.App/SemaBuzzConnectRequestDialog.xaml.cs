@@ -45,7 +45,7 @@ public partial class SemaBuzzConnectRequestDialog : Window
         {
             _timer.Stop();
             StopRing();
-            Accepted     = false;
+            Accepted = false;
             DialogResult = false;
         }
     }
@@ -57,7 +57,7 @@ public partial class SemaBuzzConnectRequestDialog : Window
     {
         _timer.Stop();
         StopRing();
-        Accepted     = true;
+        Accepted = true;
         DialogResult = true;
     }
 
@@ -65,7 +65,7 @@ public partial class SemaBuzzConnectRequestDialog : Window
     {
         _timer.Stop();
         StopRing();
-        Accepted     = false;
+        Accepted = false;
         DialogResult = false;
     }
 
@@ -78,7 +78,7 @@ public partial class SemaBuzzConnectRequestDialog : Window
         var ring = new MediaPlayer();
         _activePlayers.Add(ring);
         ring.MediaOpened += (_, _) => ring.Play();
-        ring.MediaEnded  += (_, _) => { ring.Close(); _activePlayers.Remove(ring); };
+        ring.MediaEnded += (_, _) => { ring.Close(); _activePlayers.Remove(ring); };
         ring.Open(new Uri(path));
     }
 

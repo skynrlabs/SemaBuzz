@@ -12,16 +12,16 @@ namespace SemaBuzz.App;
 
 public partial class SemaBuzzSettingsDialog : Window
 {
-    public double             SelectedIndicatorSensitivity { get; private set; }
-    public IndicatorStyleId   SelectedIndicatorStyle       { get; private set; }
-    public double             SelectedChatFontSize         { get; private set; }
-    public bool               SelectedLivePreview          { get; private set; }
-    public bool               SelectedMinimizeToTray       { get; private set; }
-    public bool               SelectedStartWithWindows     { get; private set; }
-    public bool               SelectedAutoApprove          { get; private set; }
-    public bool               SelectedBuzzSoundEnabled     { get; private set; }
-    public double             SelectedBuzzSoundVolume      { get; private set; }
-    public string             SelectedRelayUri             { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+    public double SelectedIndicatorSensitivity { get; private set; }
+    public IndicatorStyleId SelectedIndicatorStyle { get; private set; }
+    public double SelectedChatFontSize { get; private set; }
+    public bool SelectedLivePreview { get; private set; }
+    public bool SelectedMinimizeToTray { get; private set; }
+    public bool SelectedStartWithWindows { get; private set; }
+    public bool SelectedAutoApprove { get; private set; }
+    public bool SelectedBuzzSoundEnabled { get; private set; }
+    public double SelectedBuzzSoundVolume { get; private set; }
+    public string SelectedRelayUri { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
     public SemaBuzzSettingsDialog(bool lockRelay = false)
     {
@@ -29,41 +29,41 @@ public partial class SemaBuzzSettingsDialog : Window
 
         // Pre-select current settings
         var s = App.Settings;
-        SensitivitySlider.Value    = s.IndicatorSensitivity;
-        StyleFlicker.IsChecked     = s.IndicatorStyle == IndicatorStyleId.Flicker;
-        StylePulse.IsChecked       = s.IndicatorStyle == IndicatorStyleId.Pulse;
-        StyleWave.IsChecked        = s.IndicatorStyle == IndicatorStyleId.Wave;
-        FontSizeSlider.Value       = s.ChatFontSize;
+        SensitivitySlider.Value = s.IndicatorSensitivity;
+        StyleFlicker.IsChecked = s.IndicatorStyle == IndicatorStyleId.Flicker;
+        StylePulse.IsChecked = s.IndicatorStyle == IndicatorStyleId.Pulse;
+        StyleWave.IsChecked = s.IndicatorStyle == IndicatorStyleId.Wave;
+        FontSizeSlider.Value = s.ChatFontSize;
         LivePreviewCheck.IsChecked = s.LivePreview;
-        MinimizeToTrayCheck.IsChecked   = s.MinimizeToTray;
+        MinimizeToTrayCheck.IsChecked = s.MinimizeToTray;
         StartWithWindowsCheck.IsChecked = SemaBuzzStartup.IsRegistered();
-        AutoApproveCheck.IsChecked      = s.AutoApprove;
+        AutoApproveCheck.IsChecked = s.AutoApprove;
         BuzzSoundEnabledCheck.IsChecked = s.BuzzSoundEnabled;
-        BuzzVolumeSlider.Value     = s.BuzzSoundVolume;
+        BuzzVolumeSlider.Value = s.BuzzSoundVolume;
         BuzzVolumeSlider.IsEnabled = s.BuzzSoundEnabled;
-        BuzzVolumeLabel.IsEnabled  = s.BuzzSoundEnabled;
-        RelayUriBox.Text           = s.RelayUri;
+        BuzzVolumeLabel.IsEnabled = s.BuzzSoundEnabled;
+        RelayUriBox.Text = s.RelayUri;
 
         // Disable relay editing while a buzz session is waiting for a peer
         if (lockRelay)
         {
-            RelayUriBox.IsEnabled      = false;
+            RelayUriBox.IsEnabled = false;
             ResetRelayButton.IsEnabled = false;
             RelayLabelRow.Children.Add(new TextBlock
             {
-                Text              = "(in use — cancel the buzz to change)",
-                Foreground        = new SolidColorBrush(Colors.Gray),
-                FontSize          = 10,
-                Margin            = new Thickness(8, 0, 0, 0),
+                Text = "(in use — cancel the buzz to change)",
+                Foreground = new SolidColorBrush(Colors.Gray),
+                FontSize = 10,
+                Margin = new Thickness(8, 0, 0, 0),
                 VerticalAlignment = VerticalAlignment.Center,
             });
         }
 
         var indicatorLabel = new TextBlock
         {
-            Text              = "INDICATOR STYLE",
-            FontWeight        = FontWeights.Bold,
-            FontSize          = 11,
+            Text = "INDICATOR STYLE",
+            FontWeight = FontWeights.Bold,
+            FontSize = 11,
             VerticalAlignment = VerticalAlignment.Center,
         };
         indicatorLabel.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
@@ -100,10 +100,10 @@ public partial class SemaBuzzSettingsDialog : Window
         SelectedMinimizeToTray = MinimizeToTrayCheck.IsChecked == true;
 
         SelectedStartWithWindows = StartWithWindowsCheck.IsChecked == true;
-        SelectedAutoApprove      = AutoApproveCheck.IsChecked == true;
+        SelectedAutoApprove = AutoApproveCheck.IsChecked == true;
 
         SelectedBuzzSoundEnabled = BuzzSoundEnabledCheck.IsChecked == true;
-        SelectedBuzzSoundVolume  = BuzzVolumeSlider.Value;
+        SelectedBuzzSoundVolume = BuzzVolumeSlider.Value;
 
         var relayUri = RelayUriBox.Text.Trim();
         if (!string.IsNullOrWhiteSpace(relayUri))
@@ -141,6 +141,6 @@ public partial class SemaBuzzSettingsDialog : Window
         if (BuzzVolumeSlider is null) return;
         bool enabled = BuzzSoundEnabledCheck.IsChecked == true;
         BuzzVolumeSlider.IsEnabled = enabled;
-        BuzzVolumeLabel.IsEnabled  = enabled;
+        BuzzVolumeLabel.IsEnabled = enabled;
     }
 }

@@ -17,26 +17,26 @@ public partial class SemaBuzzThemeDialog : Window
         // Pre-select the currently active theme
         switch (SemaBuzzThemeManager.Current)
         {
-            case SemaBuzzThemeId.Neon:      ThemeNeon.IsChecked      = true; break;
-            case SemaBuzzThemeId.Matrix:    ThemeMatrix.IsChecked    = true; break;
+            case SemaBuzzThemeId.Neon: ThemeNeon.IsChecked = true; break;
+            case SemaBuzzThemeId.Matrix: ThemeMatrix.IsChecked = true; break;
             case SemaBuzzThemeId.BloodMoon: ThemeBloodMoon.IsChecked = true; break;
-            case SemaBuzzThemeId.Arctic:    ThemeArctic.IsChecked    = true; break;
-            case SemaBuzzThemeId.Sepia:     ThemeSepia.IsChecked     = true; break;
-            case SemaBuzzThemeId.Midnight:  ThemeMidnight.IsChecked  = true; break;
-            case SemaBuzzThemeId.Sunset:    ThemeSunset.IsChecked    = true; break;
-            case SemaBuzzThemeId.Rose:      ThemeRose.IsChecked      = true; break;
-            case SemaBuzzThemeId.Violet:    ThemeViolet.IsChecked    = true; break;
-            case SemaBuzzThemeId.Emerald:   ThemeEmerald.IsChecked   = true; break;
-            case SemaBuzzThemeId.Steel:     ThemeSteel.IsChecked    = true; break;
-            case SemaBuzzThemeId.Forest:    ThemeForest.IsChecked    = true; break;
-            case SemaBuzzThemeId.Chrome:        ThemeChrome.IsChecked        = true; break;
-            case SemaBuzzThemeId.Daylight:      ThemeDaylight.IsChecked      = true; break;
+            case SemaBuzzThemeId.Arctic: ThemeArctic.IsChecked = true; break;
+            case SemaBuzzThemeId.Sepia: ThemeSepia.IsChecked = true; break;
+            case SemaBuzzThemeId.Midnight: ThemeMidnight.IsChecked = true; break;
+            case SemaBuzzThemeId.Sunset: ThemeSunset.IsChecked = true; break;
+            case SemaBuzzThemeId.Rose: ThemeRose.IsChecked = true; break;
+            case SemaBuzzThemeId.Violet: ThemeViolet.IsChecked = true; break;
+            case SemaBuzzThemeId.Emerald: ThemeEmerald.IsChecked = true; break;
+            case SemaBuzzThemeId.Steel: ThemeSteel.IsChecked = true; break;
+            case SemaBuzzThemeId.Forest: ThemeForest.IsChecked = true; break;
+            case SemaBuzzThemeId.Chrome: ThemeChrome.IsChecked = true; break;
+            case SemaBuzzThemeId.Daylight: ThemeDaylight.IsChecked = true; break;
             case SemaBuzzThemeId.MutedTerminal: ThemeMutedTerminal.IsChecked = true; break;
-            case SemaBuzzThemeId.Parchment:     ThemeParchment.IsChecked     = true; break;
-            case SemaBuzzThemeId.Sage:           ThemeSage.IsChecked          = true; break;
-            case SemaBuzzThemeId.Lavender:       ThemeLavender.IsChecked      = true; break;
-            case SemaBuzzThemeId.Sand:           ThemeSand.IsChecked          = true; break;
-            default:                            ThemeObsidian.IsChecked      = true; break;
+            case SemaBuzzThemeId.Parchment: ThemeParchment.IsChecked = true; break;
+            case SemaBuzzThemeId.Sage: ThemeSage.IsChecked = true; break;
+            case SemaBuzzThemeId.Lavender: ThemeLavender.IsChecked = true; break;
+            case SemaBuzzThemeId.Sand: ThemeSand.IsChecked = true; break;
+            default: ThemeObsidian.IsChecked = true; break;
         }
 
     }

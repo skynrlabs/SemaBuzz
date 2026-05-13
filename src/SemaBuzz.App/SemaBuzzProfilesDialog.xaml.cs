@@ -11,23 +11,23 @@ namespace SemaBuzz.App;
 public partial class SemaBuzzProfilesDialog : Window
 {
     private List<SemaBuzzProfile> _profiles = [];
-    private SemaBuzzProfile?      _editingProfile;
-    private byte[]?               _editorAvatarPng;
-    private string?               _selectedProfileId;
-    private readonly bool         _lockDelete;
+    private SemaBuzzProfile? _editingProfile;
+    private byte[]? _editorAvatarPng;
+    private string? _selectedProfileId;
+    private readonly bool _lockDelete;
 
     public SemaBuzzProfilesDialog(bool lockDelete = false)
     {
         InitializeComponent();
 
-        _lockDelete        = lockDelete;
-        _profiles          = SemaBuzzProfileStore.Load();
+        _lockDelete = lockDelete;
+        _profiles = SemaBuzzProfileStore.Load();
         _selectedProfileId = App.Settings.ActiveProfileId
             ?? (_profiles.Count > 0 ? _profiles[0].Id : null);
         RebuildProfileRows();
         if (_lockDelete)
         {
-            EditProfileBtn.ToolTip     = "Cannot edit a profile while a Buzz is active.";
+            EditProfileBtn.ToolTip = "Cannot edit a profile while a Buzz is active.";
             ActiveWireNotice.Visibility = Visibility.Visible;
         }
     }
@@ -53,7 +53,7 @@ public partial class SemaBuzzProfilesDialog : Window
     {
         ProfileItemsPanel.Children.Clear();
         var accentBrush = new SolidColorBrush(SemaBuzzThemeManager.AccentColor);
-        var dimBrush    = new SolidColorBrush(Color.FromArgb(0x9E, 0x9E, 0x9E, 0x9E));
+        var dimBrush = new SolidColorBrush(Color.FromArgb(0x9E, 0x9E, 0x9E, 0x9E));
 
         foreach (var profile in _profiles)
         {
@@ -68,16 +68,16 @@ public partial class SemaBuzzProfilesDialog : Window
 
             var radio = new RadioButton
             {
-                GroupName         = "ProfileSelect",
-                IsChecked         = p.Id == _selectedProfileId,
+                GroupName = "ProfileSelect",
+                IsChecked = p.Id == _selectedProfileId,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin            = new Thickness(0, 0, 10, 0),
-                Foreground        = accentBrush,
+                Margin = new Thickness(0, 0, 10, 0),
+                Foreground = accentBrush,
             };
             radio.Checked += (_, _) =>
             {
-                _selectedProfileId           = p.Id;
-                EditProfileBtn.IsEnabled     = !_lockDelete;
+                _selectedProfileId = p.Id;
+                EditProfileBtn.IsEnabled = !_lockDelete;
                 App.Settings.ActiveProfileId = p.Id;
                 App.Settings.Save();
             };
@@ -86,18 +86,18 @@ public partial class SemaBuzzProfilesDialog : Window
 
             var ellipse = new System.Windows.Shapes.Ellipse
             {
-                Width           = 36,
-                Height          = 36,
-                Stroke          = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x2A)),
+                Width = 36,
+                Height = 36,
+                Stroke = new SolidColorBrush(Color.FromRgb(0x2A, 0x2A, 0x2A)),
                 StrokeThickness = 1,
-                Margin          = new Thickness(0, 0, 10, 0),
+                Margin = new Thickness(0, 0, 10, 0),
             };
             if (p.AvatarPng is { } png)
             {
                 var bmp = new BitmapImage();
                 bmp.BeginInit();
                 bmp.StreamSource = new System.IO.MemoryStream(png);
-                bmp.CacheOption  = BitmapCacheOption.OnLoad;
+                bmp.CacheOption = BitmapCacheOption.OnLoad;
                 bmp.EndInit();
                 bmp.Freeze();
                 ellipse.Fill = new ImageBrush(bmp) { Stretch = Stretch.UniformToFill };
@@ -111,28 +111,28 @@ public partial class SemaBuzzProfilesDialog : Window
 
             var handleText = new TextBlock
             {
-                Text              = p.Handle,
+                Text = p.Handle,
                 VerticalAlignment = VerticalAlignment.Center,
-                Margin            = new Thickness(0, 0, 10, 0),
-                Foreground        = (System.Windows.Media.Brush)Application.Current.Resources["AmberBrush"],
+                Margin = new Thickness(0, 0, 10, 0),
+                Foreground = (System.Windows.Media.Brush)Application.Current.Resources["AmberBrush"],
             };
             Grid.SetColumn(handleText, 2);
             row.Children.Add(handleText);
 
             var deleteBtn = new Button
             {
-                Content   = "DELETE",
-                Style     = (Style)FindResource("SemaBuzzButton"),
-                Margin    = new Thickness(0),
+                Content = "DELETE",
+                Style = (Style)FindResource("SemaBuzzButton"),
+                Margin = new Thickness(0),
                 IsEnabled = !_lockDelete,
-                ToolTip   = _lockDelete ? "Cannot delete a profile while a Buzz is active." : null,
+                ToolTip = _lockDelete ? "Cannot delete a profile while a Buzz is active." : null,
             };
             deleteBtn.Click += (_, _) =>
             {
                 _profiles.Remove(p);
                 if (_selectedProfileId == p.Id)
                 {
-                    _selectedProfileId           = _profiles.Count > 0 ? _profiles[0].Id : null;
+                    _selectedProfileId = _profiles.Count > 0 ? _profiles[0].Id : null;
                     App.Settings.ActiveProfileId = _selectedProfileId;
                     App.Settings.Save();
                 }
@@ -150,10 +150,10 @@ public partial class SemaBuzzProfilesDialog : Window
         {
             ProfileItemsPanel.Children.Add(new TextBlock
             {
-                Text       = "No profiles yet — click + ADD to create one.",
+                Text = "No profiles yet — click + ADD to create one.",
                 Foreground = dimBrush,
-                FontSize   = 11,
-                Margin     = new Thickness(0, 0, 0, 4),
+                FontSize = 11,
+                Margin = new Thickness(0, 0, 0, 4),
             });
         }
 
@@ -184,13 +184,13 @@ public partial class SemaBuzzProfilesDialog : Window
 
     private void AddProfile_Click(object sender, RoutedEventArgs e)
     {
-        _editingProfile                  = null;
-        _editorAvatarPng                 = null;
-        ProfileHandleBox.Text            = string.Empty;
-        HandleErrorText.Visibility       = Visibility.Collapsed;
-        ProfileAvatarPreview.Fill        = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
-        ProfileClearAvatarBtn.IsEnabled  = false;
-        ProfileEditorPanel.Visibility    = Visibility.Visible;
+        _editingProfile = null;
+        _editorAvatarPng = null;
+        ProfileHandleBox.Text = string.Empty;
+        HandleErrorText.Visibility = Visibility.Collapsed;
+        ProfileAvatarPreview.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
+        ProfileClearAvatarBtn.IsEnabled = false;
+        ProfileEditorPanel.Visibility = Visibility.Visible;
         ProfileHandleBox.Focus();
     }
 
@@ -198,26 +198,26 @@ public partial class SemaBuzzProfilesDialog : Window
     {
         var target = _profiles.FirstOrDefault(p => p.Id == _selectedProfileId);
         if (target is null) return;
-        _editingProfile       = target;
-        _editorAvatarPng      = target.AvatarPng;
+        _editingProfile = target;
+        _editorAvatarPng = target.AvatarPng;
         ProfileHandleBox.Text = target.Handle;
         if (target.AvatarPng is { } png)
         {
             var bmp = new BitmapImage();
             bmp.BeginInit();
             bmp.StreamSource = new System.IO.MemoryStream(png);
-            bmp.CacheOption  = BitmapCacheOption.OnLoad;
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
             bmp.EndInit();
             bmp.Freeze();
-            ProfileAvatarPreview.Fill           = new ImageBrush(bmp) { Stretch = Stretch.UniformToFill };
+            ProfileAvatarPreview.Fill = new ImageBrush(bmp) { Stretch = Stretch.UniformToFill };
             ProfileClearAvatarBtn.IsEnabled = true;
         }
         else
         {
-            ProfileAvatarPreview.Fill           = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
+            ProfileAvatarPreview.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
             ProfileClearAvatarBtn.IsEnabled = false;
         }
-        HandleErrorText.Visibility    = Visibility.Collapsed;
+        HandleErrorText.Visibility = Visibility.Collapsed;
         ProfileEditorPanel.Visibility = Visibility.Visible;
         ProfileHandleBox.Focus();
     }
@@ -270,7 +270,7 @@ public partial class SemaBuzzProfilesDialog : Window
         var handle = ProfileHandleBox.Text.Trim();
         if (string.IsNullOrWhiteSpace(handle))
         {
-            HandleErrorText.Text       = "A handle is required.";
+            HandleErrorText.Text = "A handle is required.";
             HandleErrorText.Visibility = Visibility.Visible;
             ProfileHandleBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
             ProfileHandleBox.Focus();
@@ -278,7 +278,7 @@ public partial class SemaBuzzProfilesDialog : Window
         }
         if (!HandleAllowedChars.IsMatch(handle))
         {
-            HandleErrorText.Text       = "Only letters, numbers, - and _ are allowed.";
+            HandleErrorText.Text = "Only letters, numbers, - and _ are allowed.";
             HandleErrorText.Visibility = Visibility.Visible;
             ProfileHandleBox.BorderBrush = new SolidColorBrush(Color.FromRgb(0xFF, 0x52, 0x52));
             ProfileHandleBox.Focus();
@@ -287,7 +287,7 @@ public partial class SemaBuzzProfilesDialog : Window
 
         if (_editingProfile is not null)
         {
-            _editingProfile.Handle       = handle;
+            _editingProfile.Handle = handle;
             _editingProfile.AvatarBase64 = _editorAvatarPng != null
                 ? Convert.ToBase64String(_editorAvatarPng) : null;
         }
@@ -295,19 +295,19 @@ public partial class SemaBuzzProfilesDialog : Window
         {
             var p = new SemaBuzzProfile
             {
-                Handle       = handle,
+                Handle = handle,
                 AvatarBase64 = _editorAvatarPng != null
                     ? Convert.ToBase64String(_editorAvatarPng) : null,
             };
             _profiles.Add(p);
-            _selectedProfileId           = p.Id;
+            _selectedProfileId = p.Id;
             App.Settings.ActiveProfileId = p.Id;
             App.Settings.Save();
         }
 
         SemaBuzzProfileStore.Save(_profiles);
         ProfileEditorPanel.Visibility = Visibility.Collapsed;
-        _editingProfile  = null;
+        _editingProfile = null;
         _editorAvatarPng = null;
         RebuildProfileRows();
     }
@@ -315,7 +315,7 @@ public partial class SemaBuzzProfilesDialog : Window
     private void ProfileEditorCancel_Click(object sender, RoutedEventArgs e)
     {
         ProfileEditorPanel.Visibility = Visibility.Collapsed;
-        _editingProfile  = null;
+        _editingProfile = null;
         _editorAvatarPng = null;
     }
 
@@ -323,7 +323,7 @@ public partial class SemaBuzzProfilesDialog : Window
     {
         var dlg = new OpenFileDialog
         {
-            Title  = "Choose Avatar Image",
+            Title = "Choose Avatar Image",
             Filter = "Images (*.png;*.jpg;*.jpeg;*.bmp)|*.png;*.jpg;*.jpeg;*.bmp",
         };
         if (dlg.ShowDialog(this) != true) return;
@@ -331,17 +331,17 @@ public partial class SemaBuzzProfilesDialog : Window
         {
             var src = new BitmapImage();
             src.BeginInit();
-            src.UriSource         = new Uri(dlg.FileName);
-            src.DecodePixelWidth  = 48;
+            src.UriSource = new Uri(dlg.FileName);
+            src.DecodePixelWidth = 48;
             src.DecodePixelHeight = 48;
-            src.CacheOption       = BitmapCacheOption.OnLoad;
+            src.CacheOption = BitmapCacheOption.OnLoad;
             src.EndInit();
             src.Freeze();
             using var ms = new System.IO.MemoryStream();
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(src));
             encoder.Save(ms);
-            _editorAvatarPng          = ms.ToArray();
+            _editorAvatarPng = ms.ToArray();
             ProfileAvatarPreview.Fill = new ImageBrush(src) { Stretch = Stretch.UniformToFill };
             ProfileClearAvatarBtn.IsEnabled = true;
         }
@@ -354,7 +354,7 @@ public partial class SemaBuzzProfilesDialog : Window
 
     private void ProfileClearAvatar_Click(object sender, RoutedEventArgs e)
     {
-        _editorAvatarPng          = null;
+        _editorAvatarPng = null;
         ProfileAvatarPreview.Fill = new SolidColorBrush(Color.FromRgb(0x1E, 0x1E, 0x1E));
         ProfileClearAvatarBtn.IsEnabled = false;
     }
