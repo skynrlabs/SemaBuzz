@@ -23,9 +23,7 @@ jobs:
           repository: skynrlabs/SemaBuzz-Protocol
           path: SemaBuzz-Protocol
       - name: Pack Protocol
-        run: dotnet pack SemaBuzz-Protocol/src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj --configuration Release --output SemaBuzz-Protocol/nupkg
-      - name: Add Protocol NuGet source
-        run: dotnet nuget add source SemaBuzz-Protocol/nupkg --name SemaBuzz-CI
+        run: dotnet pack SemaBuzz-Protocol/src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj --configuration Release --output ../SemaBuzz-Protocol/nupkg
       - name: Restore
         run: dotnet restore SemaBuzz.sln
       - name: Build (Release)
@@ -46,9 +44,7 @@ jobs:
           repository: skynrlabs/SemaBuzz-Protocol
           path: SemaBuzz-Protocol
       - name: Pack Protocol
-        run: dotnet pack SemaBuzz-Protocol/src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj --configuration Release --output SemaBuzz-Protocol/nupkg
-      - name: Add Protocol NuGet source
-        run: dotnet nuget add source SemaBuzz-Protocol/nupkg --name SemaBuzz-CI
+        run: dotnet pack SemaBuzz-Protocol/src/SemaBuzz.Protocol/SemaBuzz.Protocol.csproj --configuration Release --output ../SemaBuzz-Protocol/nupkg
       - name: Restore (for analyzers)
         run: dotnet restore SemaBuzz.sln
       - name: Check formatting — App
