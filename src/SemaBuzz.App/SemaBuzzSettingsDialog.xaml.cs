@@ -59,46 +59,15 @@ public partial class SemaBuzzSettingsDialog : Window
             });
         }
 
-        // Gate Pro features when the user has not purchased the Pro add-on
-        if (!SemaBuzzLicense.IsProUnlocked)
+        var indicatorLabel = new TextBlock
         {
-            StylePulse.IsEnabled = false;
-            StylePulse.Content   = MakeProContent("Pulse");
-            StyleWave.IsEnabled  = false;
-            StyleWave.Content    = MakeProContent("Wave");
-            var indicatorStyleLabel = new TextBlock
-            {
-                Text              = "INDICATOR STYLE",
-                FontWeight        = FontWeights.Bold,
-                FontSize          = 11,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-            indicatorStyleLabel.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
-            IndicatorStyleLabelRow.Children.Add(indicatorStyleLabel);
-            IndicatorStyleLabelRow.Children.Add(MakeProBadge());
-
-            RelayUriBox.IsEnabled       = false;
-            ResetRelayButton.IsEnabled  = false;
-            RelayLabelRow.Children.Add(MakeProBadge());
-            RelayUriBox.Text            = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
-
-            // Fall back to free options if a gated one is currently active
-            if (s.IndicatorStyle != IndicatorStyleId.Flicker)
-                StyleFlicker.IsChecked = true;
-        }
-        else
-        {
-            var indicatorLabel = new TextBlock
-            {
-                Text              = "INDICATOR STYLE",
-                FontWeight        = FontWeights.Bold,
-                FontSize          = 11,
-                VerticalAlignment = VerticalAlignment.Center,
-            };
-            indicatorLabel.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
-            IndicatorStyleLabelRow.Children.Add(indicatorLabel);
-            BuyNowSettingsButton.Visibility = Visibility.Collapsed;
-        }
+            Text              = "INDICATOR STYLE",
+            FontWeight        = FontWeights.Bold,
+            FontSize          = 11,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
+        indicatorLabel.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
+        IndicatorStyleLabelRow.Children.Add(indicatorLabel);
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -137,10 +106,8 @@ public partial class SemaBuzzSettingsDialog : Window
         SelectedBuzzSoundVolume  = BuzzVolumeSlider.Value;
 
         var relayUri = RelayUriBox.Text.Trim();
-        if (SemaBuzzLicense.IsProUnlocked && !string.IsNullOrWhiteSpace(relayUri))
+        if (!string.IsNullOrWhiteSpace(relayUri))
             SelectedRelayUri = relayUri;
-        else
-            SelectedRelayUri = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 
         DialogResult = true;
     }
@@ -176,65 +143,4 @@ public partial class SemaBuzzSettingsDialog : Window
         BuzzVolumeSlider.IsEnabled = enabled;
         BuzzVolumeLabel.IsEnabled  = enabled;
     }
-    private async void BuyNow_Click(object sender, RoutedEventArgs e)
-    {
-        var purchased = await SemaBuzzLicense.PurchaseAsync(this);
-        if (purchased)
-        {
-            // Unlock all gated controls in-place
-            StylePulse.IsEnabled = true;
-            StylePulse.Content   = "Pulse";
-            StyleWave.IsEnabled  = true;
-            StyleWave.Content    = "Wave";
-            if (IndicatorStyleLabelRow.Children.Count > 1)
-                IndicatorStyleLabelRow.Children.RemoveAt(IndicatorStyleLabelRow.Children.Count - 1);
-            RelayUriBox.IsEnabled      = true;
-            ResetRelayButton.IsEnabled = true;
-            if (RelayLabelRow.Children.Count > 1)
-                RelayLabelRow.Children.RemoveAt(RelayLabelRow.Children.Count - 1);
-            BuyNowSettingsButton.IsEnabled = false;
-            BuyNowSettingsButton.Content   = "\u2713 SemaBuzz Pro";
-        }
-    }
-
-    /// <summary>Standalone PRO badge — appended to an existing label panel.</summary>
-    private static Border MakeProBadge()
-    {
-        var badge = new Border
-        {
-            CornerRadius      = new CornerRadius(3),
-            BorderThickness   = new Thickness(1),
-            Background        = Brushes.Transparent,
-            Padding           = new Thickness(5, 1, 5, 1),
-            Margin            = new Thickness(8, 0, 0, 0),
-            VerticalAlignment = VerticalAlignment.Center,
-        };
-        badge.SetResourceReference(Border.BorderBrushProperty, "AmberBrush");
-        var tb = new TextBlock
-        {
-            Text       = "PRO",
-            FontSize   = 9,
-            FontWeight = FontWeights.Bold,
-            FontFamily = new FontFamily("Cascadia Code, Consolas"),
-        };
-        tb.SetResourceReference(TextBlock.ForegroundProperty, "AmberBrush");
-        badge.Child = tb;
-        return badge;
-    }
-
-    private static StackPanel MakeProContent(string label)
-        => BuildProPanel(label);
-
-    private static StackPanel BuildProPanel(string label)
-    {
-        var panel = new StackPanel { Orientation = Orientation.Horizontal };
-        panel.Children.Add(new TextBlock
-        {
-            Text              = label,
-            VerticalAlignment = VerticalAlignment.Center,
-        });
-        panel.Children.Add(MakeProBadge());
-        return panel;
-    }
-
 }

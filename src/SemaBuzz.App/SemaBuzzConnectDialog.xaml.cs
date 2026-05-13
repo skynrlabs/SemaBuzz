@@ -157,9 +157,17 @@ public partial class SemaBuzzConnectDialog : Window
     {
         var token = string.Concat(_cells.Select(c => c.Text)).ToUpperInvariant();
         if (token.Length != 6) return;
+
+        var relayUri = App.Settings.RelayUri;
+        if (string.IsNullOrWhiteSpace(relayUri))
+        {
+            ShowError("No relay server configured. Go to Settings → Relay Server and enter your relay address.");
+            return;
+        }
+
         IsHost = false;
         RelayToken = token;
-        RelayUri   = App.Settings.RelayUri;
+        RelayUri   = relayUri;
         PeerHost   = string.Empty;
         Port       = 0;
         DialogResult = true;
@@ -167,9 +175,17 @@ public partial class SemaBuzzConnectDialog : Window
 
     private void StartBuzz_Click(object sender, RoutedEventArgs e)
     {
+        var relayUri = App.Settings.RelayUri;
+
+        if (string.IsNullOrWhiteSpace(relayUri))
+        {
+            ShowError("No relay server configured. Go to Settings → Relay Server and enter your relay address.");
+            return;
+        }
+
         IsHost     = true;
         RelayToken = SemaBuzzRelayPacket.GenerateToken();
-        RelayUri   = App.Settings.RelayUri;
+        RelayUri   = relayUri;
         PeerHost   = string.Empty;
         Port       = 0;
 

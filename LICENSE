@@ -1,41 +1,26 @@
-﻿Copyright (c) 2026 Skynr Labs. All rights reserved.
-
 PROPRIETARY SOFTWARE LICENSE
 
-This software and its source code ("Software") are the confidential and
-proprietary property of Skynr Labs. All rights are reserved.
+Copyright (c) 2026 Skynr Labs. All Rights Reserved.
 
-1. GRANT OF USE
-   Skynr Labs grants you a limited, non-exclusive, non-transferable right
-   to install and use the compiled Software on devices you own or control,
-   solely for personal or internal business purposes.
+NOTICE: This software and its source code are the confidential and
+proprietary property of Skynr Labs. Unauthorized copying, distribution,
+modification, public display, or public performance of this software is
+strictly prohibited.
 
-2. RESTRICTIONS
-   You may not, and you may not permit others to:
-   a. Copy, modify, adapt, translate, or create derivative works of the Software;
-   b. Reverse-engineer, disassemble, decompile, or otherwise attempt to derive
-      the source code of the Software;
-   c. Sublicense, sell, rent, lease, transfer, or otherwise distribute the Software;
-   d. Remove or alter any proprietary notices, labels, or marks on the Software.
+Permission is NOT granted to any person to use, copy, modify, merge,
+publish, distribute, sublicense, or sell copies of this software or any
+portion of it, except as expressly authorized in writing by Skynr Labs.
 
-3. INTELLECTUAL PROPERTY
-   All title, ownership rights, and intellectual property rights in and to the
-   Software remain with Skynr Labs. No rights are granted except as expressly
-   stated in this license.
+This software incorporates the SemaBuzz Protocol, which is used under
+the Skynr Labs Commercial License. See:
+https://github.com/skynrlabs/SemaBuzz-Protocol/blob/main/COMMERCIAL-LICENSE
 
-4. DISCLAIMER OF WARRANTIES
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-   IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS
-   FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+DISCLAIMER
 
-5. LIMITATION OF LIABILITY
-   IN NO EVENT SHALL SKYNR LABS BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL,
-   EXEMPLARY, OR CONSEQUENTIAL DAMAGES ARISING OUT OF OR IN CONNECTION WITH THIS
-   SOFTWARE OR ITS USE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGES.
-
-6. TERMINATION
-   This license is effective until terminated. It terminates automatically if you
-   fail to comply with any of its terms. Upon termination you must destroy all
-   copies of the Software in your possession.
-
-For licensing inquiries: legal@skynrlabs.com
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
+NONINFRINGEMENT. IN NO EVENT SHALL SKYNR LABS BE LIABLE FOR ANY CLAIM,
+DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR
+OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR
+THE USE OR OTHER DEALINGS IN THE SOFTWARE.

@@ -69,8 +69,9 @@ public sealed class SemaBuzzSettings
     public bool               AutoApprove          { get; set; } = false;
 
     /// <summary>
-    /// WebSocket relay endpoint. Defaults to the hosted SemaBuzz relay.
-    /// Users can override this to point at a self-hosted relay.
+    /// WebSocket relay endpoint for the SemaBuzz Relay server.
+    /// There is no hosted relay — users must deploy their own:
+    /// https://github.com/skynrlabs/SemaBuzz-Relay
     /// </summary>
     public string             RelayUri             { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
 

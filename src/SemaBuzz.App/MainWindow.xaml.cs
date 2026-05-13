@@ -245,9 +245,9 @@ public partial class MainWindow : Window
         DisconnectMenuItem.IsEnabled    = true;
         ProfilesMenuItem.IsEnabled      = false;
 
-        if (_hostingRelayUri != null && _hostingRelayUri != SemaBuzzRelayPacket.DefaultRelayUri)
+        if (!string.IsNullOrEmpty(_hostingRelayUri))
         {
-            CustomRelayWarningMsg.Text    = "Custom relay active — your peer must set their relay to:";
+            CustomRelayWarningMsg.Text    = "Relay active — your peer must set their relay to:";
             CustomRelayWarningUri.Text    = _hostingRelayUri;
             CustomRelayWarning.Visibility = Visibility.Visible;
         }

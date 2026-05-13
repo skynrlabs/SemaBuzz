@@ -97,7 +97,7 @@
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="No. SemaBuzz connects through an encrypted relay over standard HTTPS (port 443). It works on home Wi-Fi, mobile hotspots, office networks, and behind firewalls — no configuration needed."/>
+                           Text="No firewall ports are needed on your end. However, SemaBuzz requires a relay server to connect peers. You or your peer must host a SemaBuzz Relay and enter its address in Settings → Relay Server. The relay itself uses standard WebSocket (port 80 or 443)."/>
 
                 <!-- Q5 -->
                 <TextBlock Text="Is it secure? Can the relay server read my messages?"
