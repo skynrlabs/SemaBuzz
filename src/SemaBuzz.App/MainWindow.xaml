@@ -123,8 +123,6 @@
                     <MenuItem Header="About" Click="Help_About_Click"/>
                     <Separator/>
                     <MenuItem Header="Help / FAQ" Click="Help_FAQ_Click"/>
-                    <Separator/>
-                    <MenuItem Header="News &amp; Updates" Click="Help_NewsUpdates_Click"/>
                 </MenuItem>
             </Menu>
 
