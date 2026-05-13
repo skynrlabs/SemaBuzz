@@ -273,9 +273,15 @@
                 <TextBlock Text="The connection dropped. What do I do?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="When a connection drops, SemaBuzz automatically returns to the main screen — no manual disconnect is needed."/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="The host clicks CREATE A BUZZ to generate a new code and shares it with the other person."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="Click WIRE → Disconnect if it is still shown. The host then clicks CREATE A BUZZ to generate a new code and shares it with the other person. Your on-screen chat history stays visible."/>
+                           Text="The other person enters the new code and clicks JOIN. Your on-screen chat history stays visible."/>
 
                 <TextBlock Text="I'm not technical — what do I actually need to know?"
                            Foreground="{DynamicResource AmberBrush}"
