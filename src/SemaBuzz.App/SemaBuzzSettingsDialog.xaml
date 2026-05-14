@@ -248,7 +248,7 @@
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
                    Text="WebSocket relay address (ws:// or wss://). Click RESET to restore the default."/>
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
-                   Text="A free hosted relay is available at wss://relay.semabuzz.me/relay — no setup required. Self-hosting behind a home router requires port forwarding on port 7171."/>
+                   Text="Self-hosting behind a home router requires port forwarding on port 7171 (similar to Plex or game servers)."/>
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 4"
                    Text="Only use a relay you trust. Traffic is encrypted before it leaves your device."/>
         <TextBlock TextWrapping="Wrap" Foreground="#9E9E9E" FontSize="10" Margin="0 0 0 20"

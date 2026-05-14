@@ -109,7 +109,7 @@
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. The easiest option is the free hosted relay at wss://relay.semabuzz.me/relay — enter that in SETTINGS → Preferences and both peers connect instantly with no setup."/>
+                           Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. You or the other person must run a relay server, then enter its address in SETTINGS → Preferences."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="To self-host, download the SemaBuzz Relay binary and run it on a VPS or home server. Self-hosting behind a home router requires port forwarding on port 7171 (similar to Plex or game servers). Client machines connecting to a relay do not need any special firewall configuration."/>
