@@ -109,14 +109,17 @@
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. You or your peer must run a SemaBuzz Relay server and enter its WebSocket address in SETTINGS → Preferences."/>
+                           Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. The easiest option is the free hosted relay at wss://relay.semabuzz.me/relay — enter that in SETTINGS → Preferences and both peers connect instantly with no setup."/>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                           Foreground="#AAAAAA" FontSize="12"
+                           Text="To self-host, download the SemaBuzz Relay binary and run it on a VPS or home server. Self-hosting behind a home router requires port forwarding on port 7171 (similar to Plex or game servers). Client machines connecting to a relay do not need any special firewall configuration."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
                            Foreground="#AAAAAA" FontSize="12">
-                    <Run Text="The relay is open-source (MIT) and available "/>
-                    <Hyperlink NavigateUri="https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.1.0"
+                    <Run Text="The relay binary is open-source (MIT) and available "/>
+                    <Hyperlink NavigateUri="https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.2.0"
                                Foreground="{DynamicResource AmberBrush}"
                                RequestNavigate="Hyperlink_RequestNavigate">here</Hyperlink>
-                    <Run Text=". It uses a standard WebSocket on port 7171 by default — no special firewall rules needed on client machines."/>
+                    <Run Text="."/>
                 </TextBlock>
 
                 <TextBlock Text="How do I test that my relay is working?"
