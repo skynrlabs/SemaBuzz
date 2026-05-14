@@ -32,6 +32,12 @@ public partial class SemaBuzzAboutDialog : Window
     private void Website_Click(object sender, RoutedEventArgs e)
         => Process.Start(new ProcessStartInfo("https://semabuzz.me") { UseShellExecute = true });
 
+    private void GitHub_Click(object sender, RoutedEventArgs e)
+        => Process.Start(new ProcessStartInfo("https://github.com/skynrlabs/SemaBuzz") { UseShellExecute = true });
+
+    private void License_Click(object sender, RoutedEventArgs e)
+        => Process.Start(new ProcessStartInfo("https://www.gnu.org/licenses/agpl-3.0.html") { UseShellExecute = true });
+
     private void Privacy_Click(object sender, RoutedEventArgs e)
         => Process.Start(new ProcessStartInfo("https://semabuzz.me/privacy") { UseShellExecute = true });
 
