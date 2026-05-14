@@ -94,7 +94,7 @@ Output lands in `build/Debug/`. Set `SemaBuzz.App` as the startup project in Vis
 
 ## 🖥️ Self-Hosting the Relay
 
-SemaBuzz requires a relay server. Download a self-contained binary from the [SemaBuzz Relay releases](https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.2.5):
+SemaBuzz requires a relay server. Download a self-contained binary from the [SemaBuzz Relay releases](https://github.com/skynrlabs/SemaBuzz-Relay/releases/latest):
 
 | Platform | File |
 |---|---|
@@ -141,7 +141,7 @@ The repo uses a two-branch model:
 
 ## 📄 License
 
-SemaBuzz for Windows is open-source software licensed under the **GNU Affero General Public License v3.0**. Copyright © 2026 skynrlabs.
+SemaBuzz for Windows is open-source software licensed under the **GNU Affero General Public License v3.0**. Copyright © 2026 Skynr Labs.
 
 You are free to use, modify, and distribute this software under the terms of the AGPL-3.0. Any modified version distributed or run as a network service must also be released under the AGPL-3.0. See [LICENSE](LICENSE) for full terms.
 
