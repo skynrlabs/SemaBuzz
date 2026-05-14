@@ -54,13 +54,13 @@
                 <TextBlock Text="How do I create a buzz and host a session?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="1.  On the main screen click CREATE A BUZZ."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="2.  A 6-character Buzz code appears (e.g. X7K2QP). Click COPY to copy it."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="3.  Send that code to the other person by any means — text, email, etc."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
@@ -70,7 +70,7 @@
                 <TextBlock Text="How do I join someone else's session?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="1.  Type or paste the 6-character Buzz code into the 'Join a Buzz' box on the main screen."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
@@ -107,25 +107,19 @@
                 <TextBlock Text="What is a relay server and do I need one?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="Yes, a relay is required. It acts as a rendezvous point — no direct connection is made between your computers. You or the other person must run a relay server, then enter its address in SETTINGS → Preferences."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="To self-host, download the SemaBuzz Relay binary and run it on a VPS or home server. Self-hosting behind a home router requires port forwarding on port 7171 (similar to Plex or game servers). Client machines connecting to a relay do not need any special firewall configuration."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
-                           Foreground="#AAAAAA" FontSize="12">
-                    <Run Text="The relay binary is open-source (MIT) and available "/>
-                    <Hyperlink NavigateUri="https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.2.5"
-                               Foreground="{DynamicResource AmberBrush}"
-                               RequestNavigate="Hyperlink_RequestNavigate">here</Hyperlink>
-                    <Run Text="."/>
-                </TextBlock>
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
+                           Foreground="#AAAAAA" FontSize="12"><Run Text="The relay binary is open-source (MIT) and available "/><Hyperlink NavigateUri="https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.2.5" Foreground="{DynamicResource AmberBrush}" RequestNavigate="Hyperlink_RequestNavigate">here</Hyperlink><Run Text="."/></TextBlock>
 
                 <TextBlock Text="How do I test that my relay is working?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="Open a browser and navigate to your relay's HTTP address (e.g. http://localhost:7171). You should see a short health response — this confirms the relay is up and listening."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
@@ -175,7 +169,7 @@
                 <TextBlock Text="How do I send a file?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="Click the 📎 button, choose a file, and confirm. The other person sees a file transfer card with ACCEPT and DECLINE buttons."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
@@ -265,10 +259,10 @@
                 <TextBlock Text="The connection dropped. What do I do?"
                            Foreground="{DynamicResource AmberBrush}"
                            FontWeight="Bold" Margin="0 0 0 4"/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="When a connection drops, SemaBuzz automatically returns to the main screen — no manual disconnect is needed."/>
-                <TextBlock TextWrapping="Wrap" Margin="0 0 0 4"
+                <TextBlock TextWrapping="Wrap" Margin="0 0 0 10"
                            Foreground="#AAAAAA" FontSize="12"
                            Text="The host clicks CREATE A BUZZ to generate a new code and shares it with the other person."/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
