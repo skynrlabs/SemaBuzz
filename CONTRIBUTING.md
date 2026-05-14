@@ -12,7 +12,7 @@ Be respectful. Harassment, discrimination, or abusive language toward any contri
 
 ## License
 
-SemaBuzz.Protocol is open-source under the GNU AGPL v3.0 license. The App and Styles remain proprietary software (Copyright © 2026 Skynr Labs). By submitting a contribution to the Protocol, you agree to license your contribution under the AGPL v3.0.
+SemaBuzz is open-source under the GNU AGPL v3.0 license. By submitting a contribution you agree to license your work under the AGPL v3.0.
 
 ---
 
