@@ -23,7 +23,7 @@ public partial class SemaBuzzConnectDialog : Window
     /// <summary>Six-character relay room token entered or generated (empty for direct TCP connections).</summary>
     public string RelayToken { get; private set; } = string.Empty;
     /// <summary>WebSocket relay endpoint URI (defaults to the local SemaBuzz relay).</summary>
-    public string RelayUri { get; private set; } = SemaBuzzRelayPacket.DefaultRelayUri;
+    public string RelayUri { get; private set; } = "ws://localhost:7171/relay";
     /// <summary>Hostname or IP entered for a direct TCP dial (empty if using relay).</summary>
     public string PeerHost { get; private set; } = string.Empty;
     /// <summary>Port entered for a direct TCP connection (0 if using relay).</summary>
