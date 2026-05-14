@@ -1,6 +1,6 @@
 # ⚡ SemaBuzz for Windows
 
-![License](https://img.shields.io/badge/license-Proprietary-red?style=flat-square)
+![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=flat-square)
 ![.NET](https://img.shields.io/badge/.NET-9-512BD4?style=flat-square&logo=dotnet&logoColor=white)
 ![Platform](https://img.shields.io/badge/platform-Windows%2010%2B-0078D6?style=flat-square&logo=windows&logoColor=white)
 ![Encryption](https://img.shields.io/badge/encryption-AES--256--GCM%20%2B%20ECDH--P256-22c55e?style=flat-square&logo=letsencrypt&logoColor=white)
@@ -141,11 +141,11 @@ The repo uses a two-branch model:
 
 ## License
 
-SemaBuzz for Windows is **proprietary software**. Copyright © 2026 skynrlabs. All rights reserved.
+SemaBuzz for Windows is open-source software licensed under the **GNU Affero General Public License v3.0**. Copyright © 2026 skynrlabs.
 
-You may download and use the application for personal or internal business use. You may not copy, modify, redistribute, sublicense, or sell the software or its source code. See [LICENSE](LICENSE) for full terms.
+You are free to use, modify, and distribute this software under the terms of the AGPL-3.0. Any modified version distributed or run as a network service must also be released under the AGPL-3.0. See [LICENSE](LICENSE) for full terms.
 
-The [SemaBuzz Protocol](https://github.com/skynrlabs/SemaBuzz-Protocol) is dual-licensed (AGPL-3.0 / Commercial).  
+The [SemaBuzz Protocol](https://github.com/skynrlabs/SemaBuzz-Protocol) is AGPL-3.0 licensed.  
 The [SemaBuzz Relay](https://github.com/skynrlabs/SemaBuzz-Relay) is MIT licensed.
 
 ---
