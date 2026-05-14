@@ -94,7 +94,7 @@ Output lands in `build/Debug/`. Set `SemaBuzz.App` as the startup project in Vis
 
 ## Self-Hosting the Relay
 
-SemaBuzz requires a relay server. Download a self-contained binary from the [SemaBuzz Relay releases](https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.1.0):
+SemaBuzz requires a relay server. Download a self-contained binary from the [SemaBuzz Relay releases](https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.2.5):
 
 | Platform | File |
 |---|---|
