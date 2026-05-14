@@ -70,7 +70,7 @@ public sealed class SemaBuzzSettings
 
     /// <summary>
     /// WebSocket relay endpoint for the SemaBuzz Relay server.
-    /// There is no hosted relay — users must deploy their own:
+    /// Users must deploy their own relay instance:
     /// https://github.com/skynrlabs/SemaBuzz-Relay
     /// </summary>
     public string RelayUri { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
