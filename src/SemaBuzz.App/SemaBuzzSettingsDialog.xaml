@@ -237,6 +237,7 @@
             <TextBox x:Name="RelayUriBox"
                      Grid.Column="0"
                      Style="{StaticResource SemaBuzzInput}"
+                     Tag="ws://localhost:7171/relay"
                      Margin="0 0 6 0"/>
             <Button x:Name="ResetRelayButton"
                     Grid.Column="1"

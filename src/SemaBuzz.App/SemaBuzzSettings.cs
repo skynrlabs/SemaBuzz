@@ -73,7 +73,7 @@ public sealed class SemaBuzzSettings
     /// Users must deploy their own relay instance:
     /// https://github.com/skynrlabs/SemaBuzz-Relay
     /// </summary>
-    public string RelayUri { get; set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+    public string RelayUri { get; set; } = "ws://localhost:7171/relay";
 
     /// <summary>
     /// ID of the profile that is currently selected as the active identity.

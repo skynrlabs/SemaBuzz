@@ -21,7 +21,7 @@ public partial class SemaBuzzSettingsDialog : Window
     public bool SelectedAutoApprove { get; private set; }
     public bool SelectedBuzzSoundEnabled { get; private set; }
     public double SelectedBuzzSoundVolume { get; private set; }
-    public string SelectedRelayUri { get; private set; } = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+    public string SelectedRelayUri { get; private set; } = "ws://localhost:7171/relay";
 
     public SemaBuzzSettingsDialog(bool lockRelay = false)
     {
@@ -116,7 +116,7 @@ public partial class SemaBuzzSettingsDialog : Window
         => DialogResult = false;
 
     private void ResetRelayUri_Click(object sender, RoutedEventArgs e)
-        => RelayUriBox.Text = SemaBuzz.Protocol.SemaBuzzRelayPacket.DefaultRelayUri;
+        => RelayUriBox.Text = "ws://localhost:7171/relay";
 
     private void SensitivitySlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
     {
