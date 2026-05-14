@@ -19,25 +19,25 @@ Every session generates fresh encryption keys on both devices using **ECDH P-256
 
 ---
 
-## Features
+## ✨ Features
 
-- **Live-wire typing** — keystrokes stream in real time; watch the other person compose character by character
-- **BuzzIndicator** — a filament that pulses and glows with incoming activity, even when preview is off
-- **⚡ Buzz alerts** — send an instant pulse to get your peer's attention without typing
-- **File transfer** — send files via the relay; SHA-256 verified on receipt
-- **Shared whiteboard** — real-time collaborative drawing board alongside chat
-- **Walk Web** — push a URL to your peer as a clickable card instantly
-- **Emoji picker** — 100+ emoji across 7 categories with full colour rendering
-- **Profiles** — named handles with optional avatars, saved locally and switched at any time
-- **Themes** — choose from a library of dark and light themes with live preview
-- **Status** — set Available, Away, or Busy with an optional custom message
-- **System tray** — minimize to tray; live sessions continue in the background
-- **Always on Top** — keep SemaBuzz floating above other windows
-- **Strong encryption** — ephemeral ECDH P-256 + AES-256-GCM; the relay never holds keys
+- ⌨️ **Live-wire typing** — keystrokes stream in real time; watch the other person compose character by character
+- 💡 **BuzzIndicator** — a filament that pulses and glows with incoming activity, even when preview is off
+- ⚡ **Buzz alerts** — send an instant pulse to get your peer's attention without typing
+- 📁 **File transfer** — send files via the relay; SHA-256 verified on receipt
+- 🎨 **Shared whiteboard** — real-time collaborative drawing board alongside chat
+- 🌐 **Walk Web** — push a URL to your peer as a clickable card instantly
+- 😄 **Emoji picker** — 100+ emoji across 7 categories with full colour rendering
+- 👤 **Profiles** — named handles with optional avatars, saved locally and switched at any time
+- 🖌️ **Themes** — choose from a library of dark and light themes with live preview
+- 🟢 **Status** — set Available, Away, or Busy with an optional custom message
+- 🔔 **System tray** — minimize to tray; live sessions continue in the background
+- 📌 **Always on Top** — keep SemaBuzz floating above other windows
+- 🔒 **Strong encryption** — ephemeral ECDH P-256 + AES-256-GCM; the relay never holds keys
 
 ---
 
-## How It Works
+## ⚙️ How It Works
 
 1. One person clicks **CREATE A BUZZ** — a unique 6-character code appears.
 2. They share that code with the other person by any means (text, email, etc.).
@@ -48,14 +48,14 @@ The relay server pairs the two clients by code and forwards their encrypted fram
 
 ---
 
-## Requirements
+## 📋 Requirements
 
 - Windows 10 version 1809 (build 17763) or later
 - A self-hosted [SemaBuzz Relay](https://github.com/skynrlabs/SemaBuzz-Relay) — you or your peer must run one
 
 ---
 
-## Building from Source
+## 🔧 Building from Source
 
 Requires the [.NET 9 SDK](https://dotnet.microsoft.com/download) with the **Windows desktop development** workload.
 
@@ -69,7 +69,7 @@ Output lands in `build/Debug/`. Set `SemaBuzz.App` as the startup project in Vis
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 | Project | Role |
 |---|---|
@@ -79,7 +79,7 @@ Output lands in `build/Debug/`. Set `SemaBuzz.App` as the startup project in Vis
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 | | |
 |---|---|
@@ -92,7 +92,7 @@ Output lands in `build/Debug/`. Set `SemaBuzz.App` as the startup project in Vis
 
 ---
 
-## Self-Hosting the Relay
+## 🖥️ Self-Hosting the Relay
 
 SemaBuzz requires a relay server. Download a self-contained binary from the [SemaBuzz Relay releases](https://github.com/skynrlabs/SemaBuzz-Relay/releases/tag/v1.2.5):
 
@@ -118,7 +118,7 @@ To verify the relay is running, open `http://your-server:7171` in a browser — 
 
 ---
 
-## Privacy
+## 🔐 Privacy
 
 The relay is a blind pass-through. It does not log, read, or store message content. All traffic is encrypted on-device before it reaches the relay.
 
@@ -126,7 +126,7 @@ The app stores only your preferences and profiles locally in `%APPDATA%\SemaBuzz
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 PRs and issues are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
@@ -139,7 +139,7 @@ The repo uses a two-branch model:
 
 ---
 
-## License
+## 📄 License
 
 SemaBuzz for Windows is open-source software licensed under the **GNU Affero General Public License v3.0**. Copyright © 2026 skynrlabs.
 
