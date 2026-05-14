@@ -51,7 +51,7 @@ Source: "{#PublishDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs
 [Icons]
 Name: "{group}\{#AppName}";          Filename: "{app}\{#AppExeName}"
 Name: "{group}\Uninstall {#AppName}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#AppName}";   Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
+Name: "{userdesktop}\{#AppName}";     Filename: "{app}\{#AppExeName}"; Tasks: desktopicon
 Name: "{userstartup}\{#AppName}";     Filename: "{app}\{#AppExeName}"; Comment: "Start with Windows (optional — remove if unwanted)"
 
 [Run]
