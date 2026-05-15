@@ -19,6 +19,18 @@ Every session generates fresh encryption keys on both devices using **ECDH P-256
 
 ---
 
+## 💬 Why SemaBuzz?
+
+I grew up on PowWow, ICQ, and MSN Messenger — there was something magical about that era of direct, personal chat that modern apps have completely lost. I built SemaBuzz to bring that feeling back.
+
+You'll find a lot of the classics: URL Walk, a shared whiteboard, file transfer, and rich status changes with custom status messages — things PowWow and ICQ fans will recognize instantly.
+
+Then we added our own spin: every session generates fresh encryption keys via token-based E2E chat, with a private relay that literally cannot read your messages. And the live-typing preview — that flowing filament line showing characters as they're typed — is our love letter to what made those old programs feel so alive.
+
+Fully open-source (AGPL-3.0). Would love to hear from anyone else who misses that era. 👾
+
+---
+
 ## ✨ Features
 
 - ⌨️ **Live-wire typing** — keystrokes stream in real time; watch the other person compose character by character
