@@ -3,6 +3,7 @@ docker-compose.yml
 PLAN.md
 Publish-Relay.ps1
 tools/
+!tools/SemaBuzz.iss
 assets/
 
 # Build outputs
