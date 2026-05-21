@@ -128,7 +128,7 @@ Default port is **7171**. Override with the `PORT` environment variable. Enter `
 
 To verify the relay is running, open `http://your-server:7171` in a browser — you should see a health response. "WebSocket upgrade required" is also a valid response and means the relay is up.
 
----
+--
 
 ## 🔐 Privacy
 
