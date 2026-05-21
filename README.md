@@ -136,7 +136,7 @@ The relay is a blind pass-through. It does not log, read, or store message conte
 
 The app stores only your preferences and profiles locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer via the relay.
 
---
+---
 
 ## 💬 Community
 
