@@ -136,7 +136,11 @@ The relay is a blind pass-through. It does not log, read, or store message conte
 
 The app stores only your preferences and profiles locally in `%APPDATA%\SemaBuzz\`. Nothing is transmitted to any server except the encrypted packets exchanged with your peer via the relay.
 
----
+--
+
+## 💬 Community
+
+Join the [SemaBuzz Discord](https://discord.gg/rJMQ2cfN) to ask questions, share what you're building, and follow development.
 
 ## 🤝 Contributing
 
@@ -148,8 +152,6 @@ The repo uses a two-branch model:
 |---|---|
 | `main` | Stable, release-ready |
 | `dev` | Integration target — all PRs merge here first |
-
----
 
 ## 📄 License
 
