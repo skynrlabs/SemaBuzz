@@ -141,7 +141,7 @@ The app stores only your preferences and profiles locally in `%APPDATA%\SemaBuzz
 
 ## 💬 Community
 
-Join the [SemaBuzz Discord](https://discord.gg/8ysPWFdPW) to ask questions, share what you're building, and follow development.
+Join the [SemaBuzz Discord](https://discord.gg/25mPUWUAa) to ask questions, share what you're building, and follow development.
 
 ## 🤝 Contributing
 
