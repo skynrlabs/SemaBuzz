@@ -139,6 +139,10 @@ The app stores only your preferences and profiles locally in `%APPDATA%\SemaBuzz
 
 ---
 
+## 💬 Community
+
+Join the [SemaBuzz Discord](https://discord.gg/8ysPWFdPW) to ask questions, share what you're building, and follow development.
+
 ## 🤝 Contributing
 
 PRs and issues are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
@@ -149,8 +153,6 @@ The repo uses a two-branch model:
 |---|---|
 | `main` | Stable, release-ready |
 | `dev` | Integration target — all PRs merge here first |
-
----
 
 ## 📄 License
 
