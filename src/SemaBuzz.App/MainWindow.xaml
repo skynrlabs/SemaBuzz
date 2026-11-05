@@ -104,6 +104,7 @@
                   WindowChrome.IsHitTestVisibleInChrome="True">
                 <MenuItem Header="WIRE">
                     <MenuItem Header="Disconnect" x:Name="DisconnectMenuItem" IsEnabled="False" Click="Wire_Disconnect_Click"/>
+                    <MenuItem Header="Safety Code" x:Name="SafetyCodeMenuItem" IsEnabled="False" Click="Wire_SafetyCode_Click"/>
                     <Separator/>
                     <MenuItem Header="Always on Top" x:Name="AlwaysOnTopMenuItem" IsCheckable="True" Click="Wire_AlwaysOnTop_Click"/>
                     <Separator/>

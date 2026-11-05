@@ -15,7 +15,7 @@
 
 SemaBuzz is a free Windows desktop app that lets two people communicate in real time over an end-to-end encrypted connection. Text streams **character-by-character** as you type — the other person sees your thoughts form live on their screen. A visual filament indicator pulses with the rhythm of incoming keystrokes, making the connection feel alive.
 
-Every session generates fresh encryption keys on both devices using **ECDH P-256**. All traffic is encrypted with **AES-256-GCM** before it leaves your machine. The relay server — which you or your peer must self-host — forwards only opaque bytes it can never read. When the session ends, nothing is retained anywhere.
+Every session generates fresh encryption keys on both devices using **ECDH P-256**. All traffic is encrypted with **AES-256-GCM** before it leaves your machine. The relay server — which you or your peer must self-host — forwards only opaque bytes. A 20-digit **safety code** lets both people confirm nobody swapped the keys in between. When the session ends, nothing is retained anywhere.
 
 ---
 
@@ -25,7 +25,7 @@ I grew up on PowWow, ICQ, and MSN Messenger — there was something magical abou
 
 You'll find a lot of the classics: URL Walk, a shared whiteboard, file transfer, and rich status changes with custom status messages — things PowWow and ICQ fans will recognize instantly.
 
-Then we added our own spin: every session generates fresh encryption keys via token-based E2E chat, with a private relay that literally cannot read your messages. And the live-typing preview — that flowing filament line showing characters as they're typed — is our love letter to what made those old programs feel so alive.
+Then we added our own spin: every session generates fresh encryption keys via token-based E2E chat, with a relay that only passes along encrypted bytes, and a safety code you can compare to prove nobody's in the middle. And the live-typing preview — that flowing filament line showing characters as they're typed — is our love letter to what made those old programs feel so alive.
 
 Fully open-source (AGPL-3.0). Would love to hear from anyone else who misses that era. 👾
 
@@ -46,6 +46,7 @@ Fully open-source (AGPL-3.0). Would love to hear from anyone else who misses tha
 - 🔔 **System tray** — minimize to tray; live sessions continue in the background
 - 📌 **Always on Top** — keep SemaBuzz floating above other windows
 - 🔒 **Strong encryption** — ephemeral ECDH P-256 + AES-256-GCM; the relay never holds keys
+- 🔐 **Safety code** — a 20-digit code both people compare (shown when you connect, and under WIRE › Safety Code) to confirm nobody is in the middle
 
 ---
 
@@ -56,7 +57,7 @@ Fully open-source (AGPL-3.0). Would love to hear from anyone else who misses tha
 3. The other person enters the code and clicks **JOIN**.
 4. Both sides are connected and encrypted. Close the app and the session is gone forever.
 
-The relay server pairs the two clients by code and forwards their encrypted frames. It never sees plaintext.
+The relay server pairs the two clients by code and forwards their encrypted frames. An honest relay never sees plaintext, and the safety code catches a dishonest one that tries to swap the keys.
 
 ---
 

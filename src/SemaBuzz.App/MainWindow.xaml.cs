@@ -431,6 +431,7 @@ public partial class MainWindow : Window
         ChatPanesGrid.Visibility = Visibility.Collapsed;
         ChatPanesGrid.Opacity = 1;   // reset after any fade
         DisconnectMenuItem.IsEnabled = false;
+        SafetyCodeMenuItem.IsEnabled = false;
         ProfilesMenuItem.IsEnabled = true;
         ProfileBadgeBtn.IsEnabled = true;
         BoardButton.IsEnabled = false;
@@ -510,6 +511,22 @@ public partial class MainWindow : Window
     // ---------------------------------------------
     // Menu handlers
     // ---------------------------------------------
+
+    private void Wire_SafetyCode_Click(object sender, RoutedEventArgs e)
+    {
+        var safetyCode = _client?.SafetyCode ?? _listener?.SafetyCode;
+        if (safetyCode == null) return;
+        MessageBox.Show(
+            this,
+            $"{safetyCode}\n\n" +
+            "Read this code to the other person, or compare it on a call or in person. " +
+            "If theirs is the same, your connection is private: nobody is in the middle.\n\n" +
+            "If the codes are different, someone (such as the relay) may be reading your " +
+            "messages. Disconnect and reconnect, preferably through a relay you trust.",
+            "Safety code",
+            MessageBoxButton.OK,
+            MessageBoxImage.Information);
+    }
 
     private async void Wire_Disconnect_Click(object sender, RoutedEventArgs e)
     {
@@ -1422,6 +1439,7 @@ public partial class MainWindow : Window
     {
         SetStatus("› wire is cold");
         DisconnectMenuItem.IsEnabled = false;
+        SafetyCodeMenuItem.IsEnabled = false;
         InputBox.IsEnabled = false;
         SendButton.IsEnabled = false; BuzzButton.IsEnabled = false; WalkButton.IsEnabled = false; BoardButton.IsEnabled = false; FileButton.IsEnabled = false; _peerLiveRow = null;
         _livePeerBlock = null;
@@ -1520,6 +1538,12 @@ public partial class MainWindow : Window
                 SetStatus($"› wire is live · {connMode}");
                 AddChatDivider(wireDivider);
 
+                // Safety code: both people compare it to make sure nobody swapped the keys in between.
+                var safetyCode = _client?.SafetyCode ?? _listener?.SafetyCode;
+                if (safetyCode != null)
+                    AddChatDivider($"› safety code · {safetyCode} · compare it with the other person (WIRE › Safety Code)");
+                SafetyCodeMenuItem.IsEnabled = safetyCode != null;
+
                 // Exchange identity with the peer
                 if (_client != null) _ = _client.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
                 if (_listener != null) _ = _listener.SendMetadataAsync(_localHandle, _localAvatarPng, _localStatus, _localStatusMessage);
@@ -1568,6 +1592,7 @@ public partial class MainWindow : Window
                 PeerLabel.Text = string.Empty;
                 BuzzIndicator.Flatline();
                 DisconnectMenuItem.IsEnabled = false;
+                SafetyCodeMenuItem.IsEnabled = false;
                 ClearChatMenuItem.IsEnabled = false;
 
                 string divider;

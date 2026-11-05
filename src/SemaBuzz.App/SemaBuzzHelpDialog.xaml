@@ -43,7 +43,7 @@
                 <Border Background="#1A1A1A" BorderBrush="#333" BorderThickness="1"
                         CornerRadius="4" Padding="14 10" Margin="0 0 0 20">
                     <TextBlock TextWrapping="Wrap" Foreground="#AAAAAA" FontSize="12"
-                               Text="SemaBuzz is a private, encrypted 1-to-1 communication tool. No accounts. Messages are encrypted on your device using ECDH P-256 and AES-256-GCM before leaving it. The relay server forwards your packets but holds no keys and can never read them."/>
+                               Text="SemaBuzz is a private, encrypted 1-to-1 communication tool. No accounts. Messages are encrypted on your device using ECDH P-256 and AES-256-GCM before leaving it. The relay server forwards your packets but holds no keys. Compare the safety code with the other person to be sure nobody is in the middle."/>
                 </Border>
 
                 <!-- ─── GETTING CONNECTED ─── -->
@@ -102,7 +102,7 @@
                            FontWeight="Bold" Margin="0 0 0 4"/>
                 <TextBlock TextWrapping="Wrap" Margin="0 0 0 20"
                            Foreground="#AAAAAA" FontSize="12"
-                           Text="No. Every session generates a fresh key pair on both devices using ECDH P-256 — the same approach used by Signal and iMessage. All data is encrypted with AES-256-GCM on your device before it leaves. The relay only forwards opaque bytes it cannot read; even a compromised relay reveals nothing."/>
+                           Text="No. Every session generates a fresh key pair on both devices using ECDH P-256 — the same approach used by Signal and iMessage. All data is encrypted with AES-256-GCM on your device before it leaves. The relay only forwards opaque bytes. To be sure the relay (or anyone else) didn't swap the keys, compare the 20-digit safety code shown when you connect (also under WIRE › Safety Code): if both people see the same code, nobody is in the middle."/>
 
                 <TextBlock Text="What is a relay server and do I need one?"
                            Foreground="{DynamicResource AmberBrush}"
